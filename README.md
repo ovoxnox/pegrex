@@ -61,71 +61,6 @@ Full contract extraction (paths → results) is certified for Python, COBOL, and
  -  **ir.py lower_condition():** *any condition → typed IR; loud CondError, never a silent regex guess*
  -  **linsolve.py:** *LinearBackend.learn/entails*
 
-## What it does
-
-Given a function, pegrex enumerates its path contracts —
-`(constraints) -> result` pairs — then lets you *do* things with them:
-
-| capability | module
-|---|---
-| typed expression IR (the m76 seam: `a+1 < b`, calls, fields) | `pegrex/ir.py`
-| Fourier-Motzkin multi-var linear arithmetic + entailment | `pegrex/linsolve.py`
-| differential solver testing (bounds vs FM + filed findings)
-| proof-carrying certificates (linear-combination witnesses) | `pegrex/proofs.py`
-| symbolic memory: bounds + aliasing verdicts | `pegrex/memory.py`
-| Houdini loop invariants + single-fixpoint property checking (not full IC3/PDR: no frame sequence, no CTI/propagation) | `invariants.py` / `pdr.py`
-| octagon domain (closure, widening, FM-differential) | `pegrex/octagon.py`
-| termination ranking functions | `pegrex/rank.py`
-| per-language integer-overflow semantics (Rust/C/Solidity) | `pegrex/overflow.py`
-| **certified transpilation**: contract IR -> real Python + proof | `emitter.py`, `transpiler.py`
-| concolic execution (trace, flip branches, confirm) | `pegrex/concolic.py`
-| Hypothesis strategies from path constraints | `strategies.py`
-| refinement contracts as comments (Dafny-lite) | `refine.py`
-| spec mining (Daikon-style, classified proven/likely/dropped) | `specmine.py`
-| NL -> spec -> proof (claims proven, dropped, or refused) | `nlspec.py`
-| CEGIS repair loop + integrated evidence pipeline | `cegis.py`, `chain.py`
-| semantic diff / `verify_patch` (proof or counterexample) | `semantics.py`
-| e-graphs with oracle-refused rewriting + node-var patterns | `eggx.py`
-| SQL <-> ORM equivalence | `sqlrel.py`
-| bytecode VM (loops with ranked termination) | `vm.py`
-| veritesting state-merging via FM projection | `veritest.py`
-| agent endpoints: A2A (JSON-lines) + LSP (hover contracts) | `a2a.py`, `lsp.py`
-| context compression for LLM calls | `compress.py`
-| deterministic agent benchmark + verified-pair exporter | `benchmark.py`, `trainer.py`
-| signed skill marketplace (HMAC manifests) | `marketplace.py`
-| cross-language API contracts (OpenAPI schema) | `apicontract.py`
-| **COBOL frontend** (native contracts, refinement, verify_patch) | `cobolfront.py`
-| **Fortran frontend** (result convention, cross-language equivalence) | `fortranfront.py`
-| offline tree-sitter mocks + vendor seam (COBOL/Fortran) | `tsmock.py`
-| legacy modernization factory (COBOL/Fortran -> Python + equivalence certificate) | `modernize.py`
-| three-valued results everywhere (proved/refuted/unknown, machine-audited) | `tv.py`
-| ZK-circuit auditing (under-constrained Circom) | `zk.py`
-| IaC verification, Zelkova-style (IAM can() + findings) | `iac.py`
-| AI safety harness (agent plans refused pre-execution) | `harness.py`
-| bug-bounty agent (discover -> solve -> minimize PoC) | `bounty.py`
-| GDPR/SOC2 compliance as code (taint findings) | `compliance.py`
-| ML graph verification (quant/prune equivalence, bounded) | `mlgraph.py`
-| digital twin codebase graph (NL via path math) | `twin.py`
-| probabilistic path analysis (trace frequencies rank tests) | `probpath.py`
-| SLSA-style attestations (offline-honest Sigstore seam) | `slsa.py`
-| time-bounded verify-or-refuse API (deadline -> unknown) | `vapi.py`
-| cognitive complexity for Python (complexipy-faithful reimplementation) | `cognitive.py`
-| twin + cognitive queries ("which functions are over budget?") | `twin.py`
-| cognitive-budget CI gate (`--fail-on-over`) | `cli.py`
-| unified taint/facts/twin graph, one-traversal queries | `graph.py`
-| autopwn: policy-gated discover -> solve -> repair loop | `autopwn.py`
-| probabilistic deadline allocation (verdicts carry coverage) | `priorverify.py`
-| round-trip modernization (Python -> COBOL, contract identity) | `py2cobol.py`
-| legal-deadline CI artifact (honest base-date semantics) | `legalci.py`
-| SQL OR-conditions + sampled migration equivalence | `sqlrel.py`
-| **anti-hallucination compiler** (NL -> code -> proof; refuses) | `antihalluc.py`
-| **org twin** (teams x compliance x complexity) | `orgtwin.py`
-| hybrid RAG: local embeddings + BM25, offline (served path -- rag.py's chunking delegates scoring here) | `hybridrag.py`
-| adversarial self-play: bounty fuzzes the harness policy, bypasses become permanent negative controls | `selfplay.py`
-| e-graph performance oracle: ranks oracle-proven-equivalent expressions by op-count, refuses what it can't independently connect | `perfgolf.py`
-| natural-language contract chat for PR review: proven / refuted-with-witness / unknown PR-comment replies | `prchat.py`
-| self-certifying package registry: specmine-proven properties signed + tracked; regressions refused by name | `registry.py`
-| continuity: verify the engine against its own prior version, function-by-function, proof or named counterexample | `continuity.py`
 
 ## Library
 
@@ -202,6 +137,73 @@ docs/          README.md, HEALTH.md, SELF.md (the self-audit)
 ## The self-hosting proof
 
 `python tools/selfhost.py` regenerates `docs/SELF.md` -- the twin, cognitive-complexity, and contract reports of pegrex/ *by pegrex itself* (436 functions, published refusals included).
+
+
+## What it does
+
+Given a function, pegrex enumerates its path contracts —
+`(constraints) -> result` pairs — then lets you *do* things with them:
+
+| capability | module
+|---|---
+| typed expression IR (the m76 seam: `a+1 < b`, calls, fields) | `pegrex/ir.py`
+| Fourier-Motzkin multi-var linear arithmetic + entailment | `pegrex/linsolve.py`
+| differential solver testing (bounds vs FM + filed findings)
+| proof-carrying certificates (linear-combination witnesses) | `pegrex/proofs.py`
+| symbolic memory: bounds + aliasing verdicts | `pegrex/memory.py`
+| Houdini loop invariants + single-fixpoint property checking (not full IC3/PDR: no frame sequence, no CTI/propagation) | `invariants.py` / `pdr.py`
+| octagon domain (closure, widening, FM-differential) | `pegrex/octagon.py`
+| termination ranking functions | `pegrex/rank.py`
+| per-language integer-overflow semantics (Rust/C/Solidity) | `pegrex/overflow.py`
+| **certified transpilation**: contract IR -> real Python + proof | `emitter.py`, `transpiler.py`
+| concolic execution (trace, flip branches, confirm) | `pegrex/concolic.py`
+| Hypothesis strategies from path constraints | `strategies.py`
+| refinement contracts as comments (Dafny-lite) | `refine.py`
+| spec mining (Daikon-style, classified proven/likely/dropped) | `specmine.py`
+| NL -> spec -> proof (claims proven, dropped, or refused) | `nlspec.py`
+| CEGIS repair loop + integrated evidence pipeline | `cegis.py`, `chain.py`
+| semantic diff / `verify_patch` (proof or counterexample) | `semantics.py`
+| e-graphs with oracle-refused rewriting + node-var patterns | `eggx.py`
+| SQL <-> ORM equivalence | `sqlrel.py`
+| bytecode VM (loops with ranked termination) | `vm.py`
+| veritesting state-merging via FM projection | `veritest.py`
+| agent endpoints: A2A (JSON-lines) + LSP (hover contracts) | `a2a.py`, `lsp.py`
+| context compression for LLM calls | `compress.py`
+| deterministic agent benchmark + verified-pair exporter | `benchmark.py`, `trainer.py`
+| signed skill marketplace (HMAC manifests) | `marketplace.py`
+| cross-language API contracts (OpenAPI schema) | `apicontract.py`
+| **COBOL frontend** (native contracts, refinement, verify_patch) | `cobolfront.py`
+| **Fortran frontend** (result convention, cross-language equivalence) | `fortranfront.py`
+| offline tree-sitter mocks + vendor seam (COBOL/Fortran) | `tsmock.py`
+| legacy modernization factory (COBOL/Fortran -> Python + equivalence certificate) | `modernize.py`
+| three-valued results everywhere (proved/refuted/unknown, machine-audited) | `tv.py`
+| ZK-circuit auditing (under-constrained Circom) | `zk.py`
+| IaC verification, Zelkova-style (IAM can() + findings) | `iac.py`
+| AI safety harness (agent plans refused pre-execution) | `harness.py`
+| bug-bounty agent (discover -> solve -> minimize PoC) | `bounty.py`
+| GDPR/SOC2 compliance as code (taint findings) | `compliance.py`
+| ML graph verification (quant/prune equivalence, bounded) | `mlgraph.py`
+| digital twin codebase graph (NL via path math) | `twin.py`
+| probabilistic path analysis (trace frequencies rank tests) | `probpath.py`
+| SLSA-style attestations (offline-honest Sigstore seam) | `slsa.py`
+| time-bounded verify-or-refuse API (deadline -> unknown) | `vapi.py`
+| cognitive complexity for Python (complexipy-faithful reimplementation) | `cognitive.py`
+| twin + cognitive queries ("which functions are over budget?") | `twin.py`
+| cognitive-budget CI gate (`--fail-on-over`) | `cli.py`
+| unified taint/facts/twin graph, one-traversal queries | `graph.py`
+| autopwn: policy-gated discover -> solve -> repair loop | `autopwn.py`
+| probabilistic deadline allocation (verdicts carry coverage) | `priorverify.py`
+| round-trip modernization (Python -> COBOL, contract identity) | `py2cobol.py`
+| legal-deadline CI artifact (honest base-date semantics) | `legalci.py`
+| SQL OR-conditions + sampled migration equivalence | `sqlrel.py`
+| **anti-hallucination compiler** (NL -> code -> proof; refuses) | `antihalluc.py`
+| **org twin** (teams x compliance x complexity) | `orgtwin.py`
+| hybrid RAG: local embeddings + BM25, offline (served path -- rag.py's chunking delegates scoring here) | `hybridrag.py`
+| adversarial self-play: bounty fuzzes the harness policy, bypasses become permanent negative controls | `selfplay.py`
+| e-graph performance oracle: ranks oracle-proven-equivalent expressions by op-count, refuses what it can't independently connect | `perfgolf.py`
+| natural-language contract chat for PR review: proven / refuted-with-witness / unknown PR-comment replies | `prchat.py`
+| self-certifying package registry: specmine-proven properties signed + tracked; regressions refused by name | `registry.py`
+| continuity: verify the engine against its own prior version, function-by-function, proof or named counterexample | `continuity.py`
 
 ## Mission
 
