@@ -58,7 +58,7 @@ Full contract extraction (paths → results) is certified for Python, COBOL, and
     · sqlrel — SQL and ORM agree only when proven equivalent; OR-conditions compare group-wise; sampled production query logs carry their sample size on every verdict.
 
 
-**ir.py lower_condition():** *any condition → typed IR; loud CondError, never a silent regex guess*
+**ir.py lower_condition():** *any condition → typed IR; loud CondError, never a silent regex guess* \n
 **linsolve.py:** *LinearBackend.learn/entails*
 
 ## What it does
