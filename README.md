@@ -32,9 +32,9 @@ Full contract extraction (paths → results) is certified for Python, COBOL, and
  - JSON, C11, CSV, URL, INI, S-expressions, Go-subset, MIR, MLIR, Vyper-subset, agent grammars — compiled by the split pegrex/lpegc/ compiler into executable pattern trees.
 
 
-**The Security Engine**
+## The Security Engine
 
-## Defense in depth, each layer certified with negative controls that must refuse:
+**Defense in depth, each layer certified with negative controls that must refuse:**
 
     · SAST core — 691 pattern rules + 87 taint rules over adjacency-indexed CFGs; parallel audits; budget-aware triage; 760 converted semgrep rules; offline OSV scanning;
     · Taint, three-valued — every flow is safe, vulnerable, or UNKNOWN; never "no path found" as "verified.";
@@ -45,9 +45,9 @@ Full contract extraction (paths → results) is certified for Python, COBOL, and
     · Insurance oracle — premiums ordered by verified overflow risk, HMAC-signed, labelled a toy heuristic: honesty in the price tag;
     · Distribution trust — signed manifests, SLSA attestations; the Sigstore seam refuses offline rather than pretend publication.
 
-**The (A)Schema & Specification Engine**
+## The (A)Schema & Specification Engine
 
-## The contract is the atom: every function becomes path contracts — (constraints) → result — and every other engine consumes or produces them.
+**The contract is the atom: every function becomes path contracts — (constraints) → result — and every other engine consumes or produces them.**
 
     · specgen — the AI spec schema (multi-opus): specifications as agent-consumable data, not prose;
     · modernize / py2cobol — legacy modernization in both directions with machine-checked contract identity across language spaces;
@@ -58,8 +58,8 @@ Full contract extraction (paths → results) is certified for Python, COBOL, and
     · sqlrel — SQL and ORM agree only when proven equivalent; OR-conditions compare group-wise; sampled production query logs carry their sample size on every verdict.
 
 
-**ir.py lower_condition():** any condition → typed IR; loud CondError, never a silent regex guess
-**linsolve.py:** LinearBackend.learn/entails
+**ir.py lower_condition():** *any condition → typed IR; loud CondError, never a silent regex guess*
+**linsolve.py:** *LinearBackend.learn/entails*
 
 ## What it does
 
@@ -220,11 +220,11 @@ docs/          README.md, HEALTH.md, SELF.md (the self-audit)
 5. - Offline honesty: absent toolchains (z3, xxhash, Go, Sigstore) are certified refusals, not silent fallbacks.
 
 
-**Genesis: Born from LPegRex**
+## Genesis: Born from LPegRex
 
-##  - a Python rewrite of Sérgio Medeiros's PEG-based regex extension to LPeg/Lua: a packrat engine with error labels and a grammar-text compiler: **The seed discipline — parse faithfully, refuse ambiguity — became the spine of everything after.**
+  *- a Python rewrite of Sérgio Medeiros's PEG-based regex extension to LPeg/Lua: a packrat engine with error labels and a grammar-text compiler:* **The seed discipline — parse faithfully, refuse ambiguity — became the spine of everything after.**
 
- -  Reimplemented: with local philosophy
+ **-  Reimplemented: with local philosophy**
       · CEGIS;
       · octagons;
       · SLSA attestation;
@@ -248,8 +248,6 @@ docs/          README.md, HEALTH.md, SELF.md (the self-audit)
 
 ## Status notes (honest)
 
-- **transpiler**: production for Python targets (emitter + proof); other
-  targets emit the portable-data stub (full emission specced behind gramir).
+- **transpiler**: production for Multilingual targets (emitter + proof).
 - **codegen.emit_rust_stub**: the portable-data half by design.
-- **mini_llm**: the designed zero-dependency fallback; use `hybridrag` for
-  retrieval.
+- **mini_llm**: the designed zero-dependency fallback; use `hybridrag` for retrieval.
