@@ -1,0 +1,2294 @@
+{
+ "rules": [
+  {
+   "id": "handler-assignment-from-multiple-sources",
+   "langs": [
+    "go"
+   ],
+   "severity": "MEDIUM",
+   "message": "Variable $VAR is assigned from two different sources: '$Y' and '$R'. Make sure this is intended, as this could cause logic bugs if they are ",
+   "sinks": [
+    "[\\w.\\[\\]'\\\"() ]+,\\ err\\ :=\\ store\\.Get\\(\\.\\.\\.\\)\\\n\\.\\.\\.\\\n[\\w.\\[\\]'\\\"() ]+\\ :=\\ [\\w.\\[\\]'\\\"() ]+\\.Values\\[\\.\\.\\.\\]\\\n\\.\\.\\.\\\n[\\w.\\[\\]'\\\"() ]+\\ =\\ [\\w.\\[\\]'\\\"() ]+",
+    "[\\w.\\[\\]'\\\"() ]+,\\ err\\ :=\\ store\\.Get\\(\\.\\.\\.\\)\\\n\\.\\.\\.\\\nvar\\ [\\w.\\[\\]'\\\"() ]+\\ [\\w.\\[\\]'\\\"() ]+\\ =\\ [\\w.\\[\\]'\\\"() ]+\\.Values\\[\"\\.\\.\\.\"\\]\\.\\([\\w.\\[\\]'\\\"() ]+\\)\\\n\\.\\.\\.\\\n[\\w.\\[\\]'\\\"() ]+\\ =\\ [\\w.\\[\\]'\\\"() ]+"
+   ],
+   "sources": [
+    "[\\w.\\[\\]'\\\"() ]+\\.query"
+   ],
+   "sanitizers": []
+  },
+  {
+   "id": "gorm-dangerous-method-usage",
+   "langs": [
+    "go"
+   ],
+   "severity": "MEDIUM",
+   "message": "Detected usage of dangerous method $METHOD which does not escape inputs (see link in references). If the argument is user-controlled, this c",
+   "sinks": [
+    "[\\w.\\[\\]'\\\"() ]+\\.\\ \\.\\.\\.\\ \\.[\\w.\\[\\]'\\\"() ]+\\([\\w.\\[\\]'\\\"() ]+\\)",
+    "[\\w.\\[\\]'\\\"() ]+\\ :=\\ [\\w.\\[\\]'\\\"() ]+\\.\\ \\.\\.\\.\\ \\.[\\w.\\[\\]'\\\"() ]+\\(\\.\\.\\.\\)\\\n\\.\\.\\.\\\n[\\w.\\[\\]'\\\"() ]+\\.\\ \\.\\.\\.\\ \\.[\\w.\\[\\]'\\\"() ]+\\([\\w.\\[\\]'\\\"() ]+\\)"
+   ],
+   "sources": [
+    "\\([\\w.\\[\\]'\\\"() ]+\\ :\\ http\\.Request\\)\\.[\\w.\\[\\]'\\\"() ]+",
+    "\\([\\w.\\[\\]'\\\"() ]+\\ :\\ \\*http\\.Request\\)\\.[\\w.\\[\\]'\\\"() ]+"
+   ],
+   "sanitizers": [
+    "strconv\\.\\s*Atoi\\s*\\("
+   ]
+  },
+  {
+   "id": "grpc-server-insecure-connection",
+   "langs": [
+    "go"
+   ],
+   "severity": "HIGH",
+   "message": "Found an insecure gRPC server without 'grpc.Creds()' or options with credentials. This allows for a connection without encryption to this se",
+   "sinks": [
+    "grpc\\.\\s*NewServer\\s*\\(",
+    "grpc\\.\\s*NewServer\\s*\\("
+   ],
+   "sources": [
+    "grpc\\.ServerOption\\{\\ \\.\\.\\.\\ \\}",
+    "grpc\\.\\s*Creds\\s*\\(",
+    "grpc\\.\\s*NewServer\\s*\\("
+   ],
+   "sanitizers": []
+  },
+  {
+   "id": "use-filepath-join",
+   "langs": [
+    "go"
+   ],
+   "severity": "MEDIUM",
+   "message": "`path.Join(...)` always joins using a forward slash. This may cause issues on Windows or other systems using a different delimiter. Use `fil",
+   "sinks": [
+    "path\\.\\s*Join\\s*\\("
+   ],
+   "sources": [
+    "path\\.[\\w.\\[\\]'\\\"() ]+\\(\\.\\.\\.\\)",
+    "filepath\\.[\\w.\\[\\]'\\\"() ]+\\(\\.\\.\\.\\)"
+   ],
+   "sanitizers": [
+    "url\\.\\s*Parse\\s*\\("
+   ]
+  },
+  {
+   "id": "filepath-clean-misuse",
+   "langs": [
+    "go"
+   ],
+   "severity": "HIGH",
+   "message": "`Clean` is not intended to sanitize against path traversal attacks. This function is for finding the shortest path name equivalent to the gi",
+   "sinks": [
+    "filepath\\.\\s*Clean\\s*\\(",
+    "path\\.\\s*Clean\\s*\\("
+   ],
+   "sources": [
+    "\\([\\w.\\[\\]'\\\"() ]+\\ :\\ \\*http\\.Request\\)\\.[\\w.\\[\\]'\\\"() ]+",
+    "\\([\\w.\\[\\]'\\\"() ]+\\ :\\ http\\.Request\\)\\.[\\w.\\[\\]'\\\"() ]+"
+   ],
+   "sanitizers": [
+    "\"/\"\\ \\+\\ \\.\\.\\."
+   ]
+  },
+  {
+   "id": "md5-used-as-password",
+   "langs": [
+    "go"
+   ],
+   "severity": "MEDIUM",
+   "message": "It looks like MD5 is used as a password hash. MD5 is not considered a secure password hash because it can be cracked by an attacker in a sho",
+   "sinks": [
+    "[\\w.\\[\\]'\\\"() ]+\\(\\.\\.\\.\\)"
+   ],
+   "sources": [
+    "md5\\.New",
+    "md5\\.Sum"
+   ],
+   "sanitizers": []
+  },
+  {
+   "id": "raw-html-format",
+   "langs": [
+    "go"
+   ],
+   "severity": "MEDIUM",
+   "message": "Detected user input flowing into a manually constructed HTML string. You may be accidentally bypassing secure methods of rendering HTML by m",
+   "sinks": [
+    "fmt\\.\\s*Printf\\s*\\(",
+    "fmt\\.\\s*Sprintf\\s*\\(",
+    "fmt\\.\\s*Fprintf\\s*\\(",
+    "\"[\\w.\\[\\]'\\\"() ]+\"\\ \\+\\ \\.\\.\\.",
+    "<[\\w.\\[\\]'\\\"() ]+\\ \\.\\.\\."
+   ],
+   "sources": [
+    "\\([\\w.\\[\\]'\\\"() ]+\\ :\\ \\*http\\.Request\\)\\.[\\w.\\[\\]'\\\"() ]+",
+    "\\([\\w.\\[\\]'\\\"() ]+\\ :\\ http\\.Request\\)\\.[\\w.\\[\\]'\\\"() ]+"
+   ],
+   "sanitizers": [
+    "html\\.\\s*EscapeString\\s*\\("
+   ]
+  },
+  {
+   "id": "tainted-sql-string",
+   "langs": [
+    "go"
+   ],
+   "severity": "HIGH",
+   "message": "User data flows into this manually-constructed SQL string. User data can be safely inserted into SQL strings using prepared statements or an",
+   "sinks": [
+    "\"[\\w.\\[\\]'\\\"() ]+\"\\ \\+\\ \\.\\.\\.",
+    "[\\w.\\[\\]'\\\"() ]+\\ \\+=\\ \\.\\.\\.",
+    "[\\w.\\[\\]'\\\"() ]+\\.WriteString\\(\\.\\.\\.\\)",
+    "fmt\\.\\s*Fprintf\\s*\\(",
+    "fmt\\.\\s*Sprintf\\s*\\(",
+    "fmt\\.\\s*Printf\\s*\\("
+   ],
+   "sources": [
+    "\\([\\w.\\[\\]'\\\"() ]+\\ :\\ \\*http\\.Request\\)\\.[\\w.\\[\\]'\\\"() ]+",
+    "\\([\\w.\\[\\]'\\\"() ]+\\ :\\ http\\.Request\\)\\.[\\w.\\[\\]'\\\"() ]+"
+   ],
+   "sanitizers": [
+    "strconv\\.\\s*Atoi\\s*\\("
+   ]
+  },
+  {
+   "id": "tainted-url-host",
+   "langs": [
+    "go"
+   ],
+   "severity": "MEDIUM",
+   "message": "A request was found to be crafted from user-input `$REQUEST`. This can lead to Server-Side Request Forgery (SSRF) vulnerabilities, potential",
+   "sinks": [
+    "[\\w.\\[\\]'\\\"() ]+\\.[\\w.\\[\\]'\\\"() ]+\\([\\w.\\[\\]'\\\"() ]+,\\ \\.\\.\\.\\)",
+    "http\\.[\\w.\\[\\]'\\\"() ]+\\([\\w.\\[\\]'\\\"() ]+,\\ \\.\\.\\.\\)",
+    "http\\.\\s*Redirect\\s*\\(",
+    "http\\.\\s*NewRequest\\s*\\("
+   ],
+   "sources": [
+    "\\([\\w.\\[\\]'\\\"() ]+\\ :\\ \\*http\\.Request\\)\\.[\\w.\\[\\]'\\\"() ]+",
+    "\\([\\w.\\[\\]'\\\"() ]+\\ :\\ http\\.Request\\)\\.[\\w.\\[\\]'\\\"() ]+",
+    "fmt\\.\\s*Fprintf\\s*\\(",
+    "fmt\\.\\s*Sprintf\\s*\\(",
+    "fmt\\.\\s*Printf\\s*\\("
+   ],
+   "sanitizers": []
+  },
+  {
+   "id": "hardcoded-token",
+   "langs": [
+    "python"
+   ],
+   "severity": "MEDIUM",
+   "message": "A hard-coded credential was detected. It is not recommended to store credentials in source-code, as this risks secrets being leaked and used",
+   "sinks": [
+    "[\\w.\\[\\]'\\\"() ]+\\(\\.\\.\\.,[\\w.\\[\\]'\\\"() ]+=\"[\\w.\\[\\]'\\\"() ]+\",\\.\\.\\.\\)",
+    "[\\w.\\[\\]'\\\"() ]+\\.\\ \\.\\.\\.\\ \\.[\\w.\\[\\]'\\\"() ]+\\(\\.\\.\\.,[\\w.\\[\\]'\\\"() ]+=\"[\\w.\\[\\]'\\\"() ]+\",\\.\\.\\.\\)"
+   ],
+   "sources": [
+    "\"\\.\\.\\.\""
+   ],
+   "sanitizers": []
+  },
+  {
+   "id": "nan-injection",
+   "langs": [
+    "python"
+   ],
+   "severity": "HIGH",
+   "message": "Found user input going directly into typecast for bool(), float(), or complex(). This allows an attacker to inject Python's not-a-number (Na",
+   "sinks": [
+    "float\\s*\\(",
+    "bool\\s*\\(",
+    "complex\\s*\\("
+   ],
+   "sources": [
+    "request\\.[\\w.\\[\\]'\\\"() ]+\\.get\\(\\.\\.\\.\\)",
+    "request\\.[\\w.\\[\\]'\\\"() ]+\\[\\.\\.\\.\\]"
+   ],
+   "sanitizers": [
+    "[\\w.\\[\\]'\\\"() ]+\\(\\.\\.\\.\\)"
+   ]
+  },
+  {
+   "id": "avoid-insecure-deserialization",
+   "langs": [
+    "python"
+   ],
+   "severity": "HIGH",
+   "message": "Avoid using insecure deserialization library, backed by `pickle`, `_pickle`, `cpickle`, `dill`, `shelve`, or `yaml`, which are known to lead",
+   "sinks": [
+    "pickle\\.[\\w.\\[\\]'\\\"() ]+\\(\\.\\.\\.\\)",
+    "_pickle\\.[\\w.\\[\\]'\\\"() ]+\\(\\.\\.\\.\\)",
+    "cPickle\\.[\\w.\\[\\]'\\\"() ]+\\(\\.\\.\\.\\)",
+    "shelve\\.[\\w.\\[\\]'\\\"() ]+\\(\\.\\.\\.\\)",
+    "dill\\.[\\w.\\[\\]'\\\"() ]+\\(\\.\\.\\.\\)",
+    "yaml\\.[\\w.\\[\\]'\\\"() ]+\\(\\.\\.\\.\\)"
+   ],
+   "sources": [
+    "request\\.[\\w.\\[\\]'\\\"() ]+\\(\\.\\.\\.\\)",
+    "request\\.[\\w.\\[\\]'\\\"() ]+\\.get\\(\\.\\.\\.\\)",
+    "request\\.[\\w.\\[\\]'\\\"() ]+\\[\\.\\.\\.\\]"
+   ],
+   "sanitizers": []
+  },
+  {
+   "id": "raw-html-format",
+   "langs": [
+    "python"
+   ],
+   "severity": "MEDIUM",
+   "message": "Detected user input flowing into a manually constructed HTML string. You may be accidentally bypassing secure methods of rendering HTML by m",
+   "sinks": [
+    "\"[\\w.\\[\\]'\\\"() ]+\"\\ %\\ \\.\\.\\.",
+    "\"[\\w.\\[\\]'\\\"() ]+\"\\.format\\(\\.\\.\\.\\)",
+    "\"[\\w.\\[\\]'\\\"() ]+\"\\ \\+\\ \\.\\.\\.",
+    "f\"[\\w.\\[\\]'\\\"() ]+\\{\\.\\.\\.\\}\\.\\.\\.\"",
+    "[\\w.\\[\\]'\\\"() ]+\\ %\\ \\.\\.\\.",
+    "[\\w.\\[\\]'\\\"() ]+\\.format\\(\\.\\.\\.\\)",
+    "[\\w.\\[\\]'\\\"() ]+\\ \\+\\ \\.\\.\\.",
+    "<[\\w.\\[\\]'\\\"() ]+\\ \\.\\.\\."
+   ],
+   "sources": [
+    "request\\.[\\w.\\[\\]'\\\"() ]+"
+   ],
+   "sanitizers": [
+    "django\\.\\s*utils\\.\\s*html\\.\\s*escape\\s*\\("
+   ]
+  },
+  {
+   "id": "tainted-sql-string",
+   "langs": [
+    "python"
+   ],
+   "severity": "HIGH",
+   "message": "Detected user input used to manually construct a SQL string. This is usually bad practice because manual construction could accidentally res",
+   "sinks": [
+    "\"[\\w.\\[\\]'\\\"() ]+\"\\ \\+\\ \\.\\.\\.",
+    "\"[\\w.\\[\\]'\\\"() ]+\"\\ %\\ \\.\\.\\.",
+    "\"[\\w.\\[\\]'\\\"() ]+\"\\.format\\(\\.\\.\\.\\)",
+    "f\"[\\w.\\[\\]'\\\"() ]+\\{\\.\\.\\.\\}\\.\\.\\.\""
+   ],
+   "sources": [
+    "request\\.[\\w.\\[\\]'\\\"() ]+"
+   ],
+   "sanitizers": []
+  },
+  {
+   "id": "tainted-url-host",
+   "langs": [
+    "python"
+   ],
+   "severity": "MEDIUM",
+   "message": "User data flows into the host portion of this manually-constructed URL. This could allow an attacker to send data to their own server, poten",
+   "sinks": [
+    "\"[\\w.\\[\\]'\\\"() ]+\"\\ %\\ \\.\\.\\.",
+    "\"[\\w.\\[\\]'\\\"() ]+\"\\.format\\(\\.\\.\\.\\)",
+    "[\\w.\\[\\]'\\\"() ]+://\\ \\{\\ \\.\\.\\.\\ \\}",
+    "\"[\\w.\\[\\]'\\\"() ]+\"\\ \\+\\ \\.\\.\\.",
+    "f\"[\\w.\\[\\]'\\\"() ]+\\{\\.\\.\\.\\}\\.\\.\\.\"",
+    "[\\w.\\[\\]'\\\"() ]+\\ \\+=\\ \\.\\.\\."
+   ],
+   "sources": [
+    "request\\.[\\w.\\[\\]'\\\"() ]+"
+   ],
+   "sanitizers": []
+  },
+  {
+   "id": "wildcard-cors",
+   "langs": [
+    "python"
+   ],
+   "severity": "MEDIUM",
+   "message": "CORS policy allows any origin (using wildcard '*'). This is insecure and should be avoided.",
+   "sinks": [
+    "[\\w.\\[\\]'\\\"() ]+\\.add_middleware\\(\\\n\\ \\ CORSMiddleware,\\\n\\ \\ allow_origins=[\\w.\\[\\]'\\\"() ]+,\\\n\\ \\ \\.\\.\\.\\);"
+   ],
+   "sources": [
+    "\\[\\.\\.\\.,\\ \"\\*\",\\ \\.\\.\\.\\]"
+   ],
+   "sanitizers": []
+  },
+  {
+   "id": "directly-returned-format-string",
+   "langs": [
+    "python"
+   ],
+   "severity": "MEDIUM",
+   "message": "Detected Flask route directly returning a formatted string. This is subject to cross-site scripting if user input can reach the string. Cons",
+   "sinks": [
+    "return\\ \"\\.\\.\\.\"\\.format\\(\\.\\.\\.\\)",
+    "return\\ \"\\.\\.\\.\"\\ %\\ \\.\\.\\.",
+    "return\\ \"\\.\\.\\.\"\\ \\+\\ \\.\\.\\.",
+    "return\\ \\.\\.\\.\\ \\+\\ \"\\.\\.\\.\"",
+    "return\\ f\"\\.\\.\\.\\{\\.\\.\\.\\}\\.\\.\\.\""
+   ],
+   "sources": [
+    "request\\.[\\w.\\[\\]'\\\"() ]+\\.get\\(\\.\\.\\.\\)",
+    "request\\.[\\w.\\[\\]'\\\"() ]+\\(\\.\\.\\.\\)",
+    "request\\.[\\w.\\[\\]'\\\"() ]+\\[\\.\\.\\.\\]"
+   ],
+   "sanitizers": []
+  },
+  {
+   "id": "csv-writer-injection",
+   "langs": [
+    "python"
+   ],
+   "severity": "HIGH",
+   "message": "Detected user input into a generated CSV file using the built-in `csv` module. If user data is used to generate the data in this file, it is",
+   "sinks": [
+    "[\\w.\\[\\]'\\\"() ]+\\.[\\w.\\[\\]'\\\"() ]+\\(\\.\\.\\.\\)"
+   ],
+   "sources": [
+    "flask\\.\\s*request\\.\\s*form\\.\\s*get\\s*\\(",
+    "flask\\.request\\.form\\[\\.\\.\\.\\]",
+    "flask\\.\\s*request\\.\\s*args\\.\\s*get\\s*\\(",
+    "flask\\.request\\.args\\[\\.\\.\\.\\]",
+    "flask\\.\\s*request\\.\\s*values\\.\\s*get\\s*\\(",
+    "flask\\.request\\.values\\[\\.\\.\\.\\]",
+    "flask\\.\\s*request\\.\\s*cookies\\.\\s*get\\s*\\(",
+    "flask\\.request\\.cookies\\[\\.\\.\\.\\]",
+    "flask\\.request\\.stream",
+    "flask\\.\\s*request\\.\\s*headers\\.\\s*get\\s*\\(",
+    "flask\\.request\\.headers\\[\\.\\.\\.\\]",
+    "flask\\.request\\.data",
+    "flask\\.request\\.full_path",
+    "flask\\.request\\.url",
+    "flask\\.request\\.json",
+    "flask\\.\\s*request\\.\\s*get_json\\s*\\(",
+    "flask\\.\\s*request\\.\\s*view_args\\.\\s*get\\s*\\(",
+    "flask\\.request\\.view_args\\[\\.\\.\\.\\]"
+   ],
+   "sanitizers": []
+  },
+  {
+   "id": "nan-injection",
+   "langs": [
+    "python"
+   ],
+   "severity": "HIGH",
+   "message": "Found user input going directly into typecast for bool(), float(), or complex(). This allows an attacker to inject Python's not-a-number (Na",
+   "sinks": [
+    "float\\s*\\(",
+    "bool\\s*\\(",
+    "complex\\s*\\("
+   ],
+   "sources": [
+    "flask\\.request\\.[\\w.\\[\\]'\\\"() ]+\\.get\\(\\.\\.\\.\\)",
+    "flask\\.request\\.[\\w.\\[\\]'\\\"() ]+\\[\\.\\.\\.\\]"
+   ],
+   "sanitizers": [
+    "[\\w.\\[\\]'\\\"() ]+\\(\\.\\.\\.\\)"
+   ]
+  },
+  {
+   "id": "raw-html-format",
+   "langs": [
+    "python"
+   ],
+   "severity": "MEDIUM",
+   "message": "Detected user input flowing into a manually constructed HTML string. You may be accidentally bypassing secure methods of rendering HTML by m",
+   "sinks": [
+    "\"[\\w.\\[\\]'\\\"() ]+\"\\ %\\ \\.\\.\\.",
+    "\"[\\w.\\[\\]'\\\"() ]+\"\\.format\\(\\.\\.\\.\\)",
+    "\"[\\w.\\[\\]'\\\"() ]+\"\\ \\+\\ \\.\\.\\.",
+    "f\"[\\w.\\[\\]'\\\"() ]+\\{\\.\\.\\.\\}\\.\\.\\.\"",
+    "[\\w.\\[\\]'\\\"() ]+\\ %\\ \\.\\.\\.",
+    "[\\w.\\[\\]'\\\"() ]+\\.format\\(\\.\\.\\.\\)",
+    "[\\w.\\[\\]'\\\"() ]+\\ \\+\\ \\.\\.\\.",
+    "<[\\w.\\[\\]'\\\"() ]+\\ \\.\\.\\."
+   ],
+   "sources": [
+    "flask\\.request\\.[\\w.\\[\\]'\\\"() ]+"
+   ],
+   "sanitizers": [
+    "jinja2\\.\\s*escape\\s*\\(",
+    "flask\\.\\s*escape\\s*\\(",
+    "flask\\.\\s*render_template\\s*\\("
+   ]
+  },
+  {
+   "id": "subprocess-injection",
+   "langs": [
+    "python"
+   ],
+   "severity": "HIGH",
+   "message": "Detected user input entering a `subprocess` call unsafely. This could result in a command injection vulnerability. An attacker could use thi",
+   "sinks": [
+    "subprocess\\.[\\w.\\[\\]'\\\"() ]+\\(\\.\\.\\.\\)",
+    "subprocess\\.[\\w.\\[\\]'\\\"() ]+\\(\\[\"[\\w.\\[\\]'\\\"() ]+\",\\ \"\\-c\",\\ \\.\\.\\.\\],\\ \\.\\.\\.\\)",
+    "subprocess\\.[\\w.\\[\\]'\\\"() ]+\\(\\[\"[\\w.\\[\\]'\\\"() ]+\",\\ \\.\\.\\.\\],\\ \\.\\.\\.\\)"
+   ],
+   "sources": [
+    "flask\\.\\s*request\\.\\s*form\\.\\s*get\\s*\\(",
+    "flask\\.request\\.form\\[\\.\\.\\.\\]",
+    "flask\\.\\s*request\\.\\s*args\\.\\s*get\\s*\\(",
+    "flask\\.request\\.args\\[\\.\\.\\.\\]",
+    "flask\\.\\s*request\\.\\s*values\\.\\s*get\\s*\\(",
+    "flask\\.request\\.values\\[\\.\\.\\.\\]",
+    "flask\\.\\s*request\\.\\s*cookies\\.\\s*get\\s*\\(",
+    "flask\\.request\\.cookies\\[\\.\\.\\.\\]",
+    "flask\\.request\\.stream",
+    "flask\\.\\s*request\\.\\s*headers\\.\\s*get\\s*\\(",
+    "flask\\.request\\.headers\\[\\.\\.\\.\\]",
+    "flask\\.request\\.data",
+    "flask\\.request\\.full_path",
+    "flask\\.request\\.url",
+    "flask\\.request\\.json",
+    "flask\\.\\s*request\\.\\s*get_json\\s*\\(",
+    "flask\\.\\s*request\\.\\s*view_args\\.\\s*get\\s*\\(",
+    "flask\\.request\\.view_args\\[\\.\\.\\.\\]"
+   ],
+   "sanitizers": []
+  },
+  {
+   "id": "tainted-sql-string",
+   "langs": [
+    "python"
+   ],
+   "severity": "HIGH",
+   "message": "Detected user input used to manually construct a SQL string. This is usually bad practice because manual construction could accidentally res",
+   "sinks": [
+    "\"[\\w.\\[\\]'\\\"() ]+\"\\ \\+\\ \\.\\.\\.",
+    "\"[\\w.\\[\\]'\\\"() ]+\"\\ %\\ \\.\\.\\.",
+    "\"[\\w.\\[\\]'\\\"() ]+\"\\.format\\(\\.\\.\\.\\)",
+    "f\"[\\w.\\[\\]'\\\"() ]+\\{\\.\\.\\.\\}\\.\\.\\.\""
+   ],
+   "sources": [
+    "flask\\.request\\.[\\w.\\[\\]'\\\"() ]+"
+   ],
+   "sanitizers": []
+  },
+  {
+   "id": "tainted-url-host",
+   "langs": [
+    "python"
+   ],
+   "severity": "MEDIUM",
+   "message": "User data flows into the host portion of this manually-constructed URL. This could allow an attacker to send data to their own server, poten",
+   "sinks": [
+    "\"[\\w.\\[\\]'\\\"() ]+\"\\ %\\ \\.\\.\\.",
+    "\"[\\w.\\[\\]'\\\"() ]+\"\\.format\\(\\.\\.\\.\\)",
+    "[\\w.\\[\\]'\\\"() ]+://\\ \\{\\ \\.\\.\\.\\ \\}",
+    "\"[\\w.\\[\\]'\\\"() ]+\"\\ \\+\\ \\.\\.\\.",
+    "f\"[\\w.\\[\\]'\\\"() ]+\\{\\.\\.\\.\\}\\.\\.\\.\"",
+    "[\\w.\\[\\]'\\\"() ]+\\ \\+=\\ \\.\\.\\."
+   ],
+   "sources": [
+    "flask\\.request\\.[\\w.\\[\\]'\\\"() ]+"
+   ],
+   "sanitizers": []
+  },
+  {
+   "id": "dangerous-interactive-code-run",
+   "langs": [
+    "python"
+   ],
+   "severity": "MEDIUM",
+   "message": "Found user controlled data inside InteractiveConsole/InteractiveInterpreter method. This is dangerous if external data can reach this functi",
+   "sinks": [
+    "[\\w.\\[\\]'\\\"() ]+\\.push\\([\\w.\\[\\]'\\\"() ]+,\\.\\.\\.\\)",
+    "[\\w.\\[\\]'\\\"() ]+\\.runsource\\([\\w.\\[\\]'\\\"() ]+,\\.\\.\\.\\)",
+    "[\\w.\\[\\]'\\\"() ]+\\.runcode\\(code\\.compile_command\\([\\w.\\[\\]'\\\"() ]+\\),\\.\\.\\.\\)",
+    "[\\w.\\[\\]'\\\"() ]+\\ =\\ code\\.compile_command\\([\\w.\\[\\]'\\\"() ]+,\\.\\.\\.\\)\\\n\\.\\.\\.\\\n[\\w.\\[\\]'\\\"() ]+\\.runcode\\([\\w.\\[\\]'\\\"() ]+,\\.\\.\\.\\)"
+   ],
+   "sources": [
+    "flask\\.\\s*request\\.\\s*form\\.\\s*get\\s*\\(",
+    "flask\\.request\\.form\\[\\.\\.\\.\\]",
+    "flask\\.\\s*request\\.\\s*args\\.\\s*get\\s*\\(",
+    "flask\\.request\\.args\\[\\.\\.\\.\\]",
+    "flask\\.\\s*request\\.\\s*values\\.\\s*get\\s*\\(",
+    "flask\\.request\\.values\\[\\.\\.\\.\\]",
+    "flask\\.\\s*request\\.\\s*cookies\\.\\s*get\\s*\\(",
+    "flask\\.request\\.cookies\\[\\.\\.\\.\\]",
+    "flask\\.request\\.stream",
+    "flask\\.\\s*request\\.\\s*headers\\.\\s*get\\s*\\(",
+    "flask\\.request\\.headers\\[\\.\\.\\.\\]",
+    "flask\\.request\\.data",
+    "flask\\.request\\.full_path",
+    "flask\\.request\\.url",
+    "flask\\.request\\.json",
+    "flask\\.\\s*request\\.\\s*get_json\\s*\\(",
+    "flask\\.\\s*request\\.\\s*view_args\\.\\s*get\\s*\\(",
+    "flask\\.request\\.view_args\\[\\.\\.\\.\\]",
+    "request\\.[\\w.\\[\\]'\\\"() ]+\\.get\\(\\.\\.\\.\\)",
+    "request\\.[\\w.\\[\\]'\\\"() ]+\\[\\.\\.\\.\\]",
+    "[\\w.\\[\\]'\\\"() ]+\\.POST\\.get\\(\\.\\.\\.\\)",
+    "[\\w.\\[\\]'\\\"() ]+\\.POST\\[\\.\\.\\.\\]",
+    "[\\w.\\[\\]'\\\"() ]+\\.FILES\\.get\\(\\.\\.\\.\\)",
+    "[\\w.\\[\\]'\\\"() ]+\\.FILES\\[\\.\\.\\.\\]",
+    "[\\w.\\[\\]'\\\"() ]+\\.DATA\\.get\\(\\.\\.\\.\\)",
+    "[\\w.\\[\\]'\\\"() ]+\\.DATA\\[\\.\\.\\.\\]",
+    "[\\w.\\[\\]'\\\"() ]+\\.QUERY_PARAMS\\.get\\(\\.\\.\\.\\)",
+    "[\\w.\\[\\]'\\\"() ]+\\.QUERY_PARAMS\\[\\.\\.\\.\\]",
+    "[\\w.\\[\\]'\\\"() ]+\\.data\\.get\\(\\.\\.\\.\\)",
+    "[\\w.\\[\\]'\\\"() ]+\\.data\\[\\.\\.\\.\\]",
+    "[\\w.\\[\\]'\\\"() ]+\\.query_params\\.get\\(\\.\\.\\.\\)",
+    "[\\w.\\[\\]'\\\"() ]+\\.query_params\\[\\.\\.\\.\\]",
+    "[\\w.\\[\\]'\\\"() ]+\\.content_type",
+    "[\\w.\\[\\]'\\\"() ]+\\.content_type",
+    "[\\w.\\[\\]'\\\"() ]+\\.stream",
+    "[\\w.\\[\\]'\\\"() ]+\\.stream",
+    "self\\.requestline",
+    "self\\.path",
+    "self\\.headers\\[\\.\\.\\.\\]",
+    "self\\.\\s*headers\\.\\s*get\\s*\\(",
+    "self\\.rfile",
+    "[\\w.\\[\\]'\\\"() ]+\\.[\\w.\\[\\]'\\\"() ]+"
+   ],
+   "sanitizers": []
+  },
+  {
+   "id": "dangerous-os-exec",
+   "langs": [
+    "python"
+   ],
+   "severity": "HIGH",
+   "message": "Found user controlled content when spawning a process. This is dangerous because it allows a malicious actor to execute commands.",
+   "sinks": [
+    "os\\.[\\w.\\[\\]'\\\"() ]+\\(\\.\\.\\.\\)"
+   ],
+   "sources": [
+    "flask\\.\\s*request\\.\\s*form\\.\\s*get\\s*\\(",
+    "flask\\.request\\.form\\[\\.\\.\\.\\]",
+    "flask\\.\\s*request\\.\\s*args\\.\\s*get\\s*\\(",
+    "flask\\.request\\.args\\[\\.\\.\\.\\]",
+    "flask\\.\\s*request\\.\\s*values\\.\\s*get\\s*\\(",
+    "flask\\.request\\.values\\[\\.\\.\\.\\]",
+    "flask\\.\\s*request\\.\\s*cookies\\.\\s*get\\s*\\(",
+    "flask\\.request\\.cookies\\[\\.\\.\\.\\]",
+    "flask\\.request\\.stream",
+    "flask\\.\\s*request\\.\\s*headers\\.\\s*get\\s*\\(",
+    "flask\\.request\\.headers\\[\\.\\.\\.\\]",
+    "flask\\.request\\.data",
+    "flask\\.request\\.full_path",
+    "flask\\.request\\.url",
+    "flask\\.request\\.json",
+    "flask\\.\\s*request\\.\\s*get_json\\s*\\(",
+    "flask\\.\\s*request\\.\\s*view_args\\.\\s*get\\s*\\(",
+    "flask\\.request\\.view_args\\[\\.\\.\\.\\]",
+    "request\\.[\\w.\\[\\]'\\\"() ]+\\.get\\(\\.\\.\\.\\)",
+    "request\\.[\\w.\\[\\]'\\\"() ]+\\[\\.\\.\\.\\]",
+    "[\\w.\\[\\]'\\\"() ]+\\.POST\\.get\\(\\.\\.\\.\\)",
+    "[\\w.\\[\\]'\\\"() ]+\\.POST\\[\\.\\.\\.\\]",
+    "[\\w.\\[\\]'\\\"() ]+\\.FILES\\.get\\(\\.\\.\\.\\)",
+    "[\\w.\\[\\]'\\\"() ]+\\.FILES\\[\\.\\.\\.\\]",
+    "[\\w.\\[\\]'\\\"() ]+\\.DATA\\.get\\(\\.\\.\\.\\)",
+    "[\\w.\\[\\]'\\\"() ]+\\.DATA\\[\\.\\.\\.\\]",
+    "[\\w.\\[\\]'\\\"() ]+\\.QUERY_PARAMS\\.get\\(\\.\\.\\.\\)",
+    "[\\w.\\[\\]'\\\"() ]+\\.QUERY_PARAMS\\[\\.\\.\\.\\]",
+    "[\\w.\\[\\]'\\\"() ]+\\.data\\.get\\(\\.\\.\\.\\)",
+    "[\\w.\\[\\]'\\\"() ]+\\.data\\[\\.\\.\\.\\]",
+    "[\\w.\\[\\]'\\\"() ]+\\.query_params\\.get\\(\\.\\.\\.\\)",
+    "[\\w.\\[\\]'\\\"() ]+\\.query_params\\[\\.\\.\\.\\]",
+    "[\\w.\\[\\]'\\\"() ]+\\.content_type",
+    "[\\w.\\[\\]'\\\"() ]+\\.content_type",
+    "[\\w.\\[\\]'\\\"() ]+\\.stream",
+    "[\\w.\\[\\]'\\\"() ]+\\.stream",
+    "self\\.requestline",
+    "self\\.path",
+    "self\\.headers\\[\\.\\.\\.\\]",
+    "self\\.\\s*headers\\.\\s*get\\s*\\(",
+    "self\\.rfile",
+    "[\\w.\\[\\]'\\\"() ]+\\.[\\w.\\[\\]'\\\"() ]+"
+   ],
+   "sanitizers": []
+  },
+  {
+   "id": "dangerous-subinterpreters-run-string",
+   "langs": [
+    "python"
+   ],
+   "severity": "MEDIUM",
+   "message": "Found user controlled content in `run_string`. This is dangerous because it allows a malicious actor to run arbitrary Python code.",
+   "sinks": [
+    "_xxsubinterpreters\\.\\s*run_string\\s*\\("
+   ],
+   "sources": [
+    "flask\\.\\s*request\\.\\s*form\\.\\s*get\\s*\\(",
+    "flask\\.request\\.form\\[\\.\\.\\.\\]",
+    "flask\\.\\s*request\\.\\s*args\\.\\s*get\\s*\\(",
+    "flask\\.request\\.args\\[\\.\\.\\.\\]",
+    "flask\\.\\s*request\\.\\s*values\\.\\s*get\\s*\\(",
+    "flask\\.request\\.values\\[\\.\\.\\.\\]",
+    "flask\\.\\s*request\\.\\s*cookies\\.\\s*get\\s*\\(",
+    "flask\\.request\\.cookies\\[\\.\\.\\.\\]",
+    "flask\\.request\\.stream",
+    "flask\\.\\s*request\\.\\s*headers\\.\\s*get\\s*\\(",
+    "flask\\.request\\.headers\\[\\.\\.\\.\\]",
+    "flask\\.request\\.data",
+    "flask\\.request\\.full_path",
+    "flask\\.request\\.url",
+    "flask\\.request\\.json",
+    "flask\\.\\s*request\\.\\s*get_json\\s*\\(",
+    "flask\\.\\s*request\\.\\s*view_args\\.\\s*get\\s*\\(",
+    "flask\\.request\\.view_args\\[\\.\\.\\.\\]",
+    "request\\.[\\w.\\[\\]'\\\"() ]+\\.get\\(\\.\\.\\.\\)",
+    "request\\.[\\w.\\[\\]'\\\"() ]+\\[\\.\\.\\.\\]",
+    "[\\w.\\[\\]'\\\"() ]+\\.POST\\.get\\(\\.\\.\\.\\)",
+    "[\\w.\\[\\]'\\\"() ]+\\.POST\\[\\.\\.\\.\\]",
+    "[\\w.\\[\\]'\\\"() ]+\\.FILES\\.get\\(\\.\\.\\.\\)",
+    "[\\w.\\[\\]'\\\"() ]+\\.FILES\\[\\.\\.\\.\\]",
+    "[\\w.\\[\\]'\\\"() ]+\\.DATA\\.get\\(\\.\\.\\.\\)",
+    "[\\w.\\[\\]'\\\"() ]+\\.DATA\\[\\.\\.\\.\\]",
+    "[\\w.\\[\\]'\\\"() ]+\\.QUERY_PARAMS\\.get\\(\\.\\.\\.\\)",
+    "[\\w.\\[\\]'\\\"() ]+\\.QUERY_PARAMS\\[\\.\\.\\.\\]",
+    "[\\w.\\[\\]'\\\"() ]+\\.data\\.get\\(\\.\\.\\.\\)",
+    "[\\w.\\[\\]'\\\"() ]+\\.data\\[\\.\\.\\.\\]",
+    "[\\w.\\[\\]'\\\"() ]+\\.query_params\\.get\\(\\.\\.\\.\\)",
+    "[\\w.\\[\\]'\\\"() ]+\\.query_params\\[\\.\\.\\.\\]",
+    "[\\w.\\[\\]'\\\"() ]+\\.content_type",
+    "[\\w.\\[\\]'\\\"() ]+\\.content_type",
+    "[\\w.\\[\\]'\\\"() ]+\\.stream",
+    "[\\w.\\[\\]'\\\"() ]+\\.stream",
+    "self\\.requestline",
+    "self\\.path",
+    "self\\.headers\\[\\.\\.\\.\\]",
+    "self\\.\\s*headers\\.\\s*get\\s*\\(",
+    "self\\.rfile",
+    "[\\w.\\[\\]'\\\"() ]+\\.[\\w.\\[\\]'\\\"() ]+"
+   ],
+   "sanitizers": []
+  },
+  {
+   "id": "dangerous-subprocess-use",
+   "langs": [
+    "python"
+   ],
+   "severity": "HIGH",
+   "message": "Detected subprocess function '$FUNC' with user controlled data. A malicious actor could leverage this to perform command injection. You may ",
+   "sinks": [
+    "subprocess\\.[\\w.\\[\\]'\\\"() ]+\\([\\w.\\[\\]'\\\"() ]+,\\ \\.\\.\\.\\)",
+    "subprocess\\.[\\w.\\[\\]'\\\"() ]+\\(\"=\\~/\\(sh\\|bash\\|ksh\\|csh\\|tcsh\\|zsh\\)/\",\"\\-c\",\\ [\\w.\\[\\]'\\\"() ]+\\)",
+    "subprocess\\.[\\w.\\[\\]'\\\"() ]+\\(\\[\"=\\~/\\(sh\\|bash\\|ksh\\|csh\\|tcsh\\|zsh\\)/\",\"\\-c\",\\ [\\w.\\[\\]'\\\"() ]+\\],\\ \\.\\.\\.\\)",
+    "subprocess\\.[\\w.\\[\\]'\\\"() ]+\\(\\(\"=\\~/\\(sh\\|bash\\|ksh\\|csh\\|tcsh\\|zsh\\)/\",\"\\-c\",\\ [\\w.\\[\\]'\\\"() ]+\\),\\ \\.\\.\\.\\)",
+    "subprocess\\.[\\w.\\[\\]'\\\"() ]+\\(\"=\\~/\\(python\\)/\",\\ [\\w.\\[\\]'\\\"() ]+\\)",
+    "subprocess\\.[\\w.\\[\\]'\\\"() ]+\\(\\[\"=\\~/\\(python\\)/\",\\ [\\w.\\[\\]'\\\"() ]+\\],\\.\\.\\.\\)",
+    "subprocess\\.[\\w.\\[\\]'\\\"() ]+\\(\\(\"=\\~/\\(python\\)/\",\\ [\\w.\\[\\]'\\\"() ]+\\),\\.\\.\\.\\)"
+   ],
+   "sources": [
+    "flask\\.\\s*request\\.\\s*form\\.\\s*get\\s*\\(",
+    "flask\\.request\\.form\\[\\.\\.\\.\\]",
+    "flask\\.\\s*request\\.\\s*args\\.\\s*get\\s*\\(",
+    "flask\\.request\\.args\\[\\.\\.\\.\\]",
+    "flask\\.\\s*request\\.\\s*values\\.\\s*get\\s*\\(",
+    "flask\\.request\\.values\\[\\.\\.\\.\\]",
+    "flask\\.\\s*request\\.\\s*cookies\\.\\s*get\\s*\\(",
+    "flask\\.request\\.cookies\\[\\.\\.\\.\\]",
+    "flask\\.request\\.stream",
+    "flask\\.\\s*request\\.\\s*headers\\.\\s*get\\s*\\(",
+    "flask\\.request\\.headers\\[\\.\\.\\.\\]",
+    "flask\\.request\\.data",
+    "flask\\.request\\.full_path",
+    "flask\\.request\\.url",
+    "flask\\.request\\.json",
+    "flask\\.\\s*request\\.\\s*get_json\\s*\\(",
+    "flask\\.\\s*request\\.\\s*view_args\\.\\s*get\\s*\\(",
+    "flask\\.request\\.view_args\\[\\.\\.\\.\\]",
+    "request\\.[\\w.\\[\\]'\\\"() ]+\\.get\\(\\.\\.\\.\\)",
+    "request\\.[\\w.\\[\\]'\\\"() ]+\\[\\.\\.\\.\\]",
+    "[\\w.\\[\\]'\\\"() ]+\\.POST\\.get\\(\\.\\.\\.\\)",
+    "[\\w.\\[\\]'\\\"() ]+\\.POST\\[\\.\\.\\.\\]",
+    "[\\w.\\[\\]'\\\"() ]+\\.FILES\\.get\\(\\.\\.\\.\\)",
+    "[\\w.\\[\\]'\\\"() ]+\\.FILES\\[\\.\\.\\.\\]",
+    "[\\w.\\[\\]'\\\"() ]+\\.DATA\\.get\\(\\.\\.\\.\\)",
+    "[\\w.\\[\\]'\\\"() ]+\\.DATA\\[\\.\\.\\.\\]",
+    "[\\w.\\[\\]'\\\"() ]+\\.QUERY_PARAMS\\.get\\(\\.\\.\\.\\)",
+    "[\\w.\\[\\]'\\\"() ]+\\.QUERY_PARAMS\\[\\.\\.\\.\\]",
+    "[\\w.\\[\\]'\\\"() ]+\\.data\\.get\\(\\.\\.\\.\\)",
+    "[\\w.\\[\\]'\\\"() ]+\\.data\\[\\.\\.\\.\\]",
+    "[\\w.\\[\\]'\\\"() ]+\\.query_params\\.get\\(\\.\\.\\.\\)",
+    "[\\w.\\[\\]'\\\"() ]+\\.query_params\\[\\.\\.\\.\\]",
+    "[\\w.\\[\\]'\\\"() ]+\\.content_type",
+    "[\\w.\\[\\]'\\\"() ]+\\.content_type",
+    "[\\w.\\[\\]'\\\"() ]+\\.stream",
+    "[\\w.\\[\\]'\\\"() ]+\\.stream",
+    "self\\.requestline",
+    "self\\.path",
+    "self\\.headers\\[\\.\\.\\.\\]",
+    "self\\.\\s*headers\\.\\s*get\\s*\\(",
+    "self\\.rfile",
+    "[\\w.\\[\\]'\\\"() ]+\\.[\\w.\\[\\]'\\\"() ]+"
+   ],
+   "sanitizers": []
+  },
+  {
+   "id": "dangerous-system-call",
+   "langs": [
+    "python"
+   ],
+   "severity": "HIGH",
+   "message": "Found user-controlled data used in a system call. This could allow a malicious actor to execute commands. Use the 'subprocess' module instea",
+   "sinks": [
+    "os\\.\\s*system\\s*\\(",
+    "getattr\\s*\\(",
+    "__import__\\s*\\(",
+    "getattr\\s*\\(",
+    "[\\w.\\[\\]'\\\"() ]+\\ =\\ __import__\\(\"os\"\\)\\\n\\.\\.\\.\\\n[\\w.\\[\\]'\\\"() ]+\\.system\\(\\.\\.\\.\\)",
+    "[\\w.\\[\\]'\\\"() ]+\\ =\\ __import__\\(\"os\"\\)\\\n\\.\\.\\.\\\ngetattr\\([\\w.\\[\\]'\\\"() ]+,\\ \"system\"\\)\\(\\.\\.\\.\\)",
+    "[\\w.\\[\\]'\\\"() ]+\\ =\\ getattr\\(os,\\ \"system\"\\)\\\n\\.\\.\\.\\\n[\\w.\\[\\]'\\\"() ]+\\(\\.\\.\\.\\)",
+    "[\\w.\\[\\]'\\\"() ]+\\ =\\ __import__\\(\"os\"\\)\\\n\\.\\.\\.\\\n[\\w.\\[\\]'\\\"() ]+\\ =\\ getattr\\([\\w.\\[\\]'\\\"() ]+,\\ \"system\"\\)\\\n\\.\\.\\.\\\n[\\w.\\[\\]'\\\"() ]+\\(\\.\\.\\.\\)",
+    "os\\.\\s*popen\\s*\\(",
+    "os\\.\\s*popen2\\s*\\(",
+    "os\\.\\s*popen3\\s*\\(",
+    "os\\.\\s*popen4\\s*\\("
+   ],
+   "sources": [
+    "flask\\.\\s*request\\.\\s*form\\.\\s*get\\s*\\(",
+    "flask\\.request\\.form\\[\\.\\.\\.\\]",
+    "flask\\.\\s*request\\.\\s*args\\.\\s*get\\s*\\(",
+    "flask\\.request\\.args\\[\\.\\.\\.\\]",
+    "flask\\.\\s*request\\.\\s*values\\.\\s*get\\s*\\(",
+    "flask\\.request\\.values\\[\\.\\.\\.\\]",
+    "flask\\.\\s*request\\.\\s*cookies\\.\\s*get\\s*\\(",
+    "flask\\.request\\.cookies\\[\\.\\.\\.\\]",
+    "flask\\.request\\.stream",
+    "flask\\.\\s*request\\.\\s*headers\\.\\s*get\\s*\\(",
+    "flask\\.request\\.headers\\[\\.\\.\\.\\]",
+    "flask\\.request\\.data",
+    "flask\\.request\\.full_path",
+    "flask\\.request\\.url",
+    "flask\\.request\\.json",
+    "flask\\.\\s*request\\.\\s*get_json\\s*\\(",
+    "flask\\.\\s*request\\.\\s*view_args\\.\\s*get\\s*\\(",
+    "flask\\.request\\.view_args\\[\\.\\.\\.\\]",
+    "request\\.[\\w.\\[\\]'\\\"() ]+\\.get\\(\\.\\.\\.\\)",
+    "request\\.[\\w.\\[\\]'\\\"() ]+\\[\\.\\.\\.\\]",
+    "[\\w.\\[\\]'\\\"() ]+\\.POST\\.get\\(\\.\\.\\.\\)",
+    "[\\w.\\[\\]'\\\"() ]+\\.POST\\[\\.\\.\\.\\]",
+    "[\\w.\\[\\]'\\\"() ]+\\.FILES\\.get\\(\\.\\.\\.\\)",
+    "[\\w.\\[\\]'\\\"() ]+\\.FILES\\[\\.\\.\\.\\]",
+    "[\\w.\\[\\]'\\\"() ]+\\.DATA\\.get\\(\\.\\.\\.\\)",
+    "[\\w.\\[\\]'\\\"() ]+\\.DATA\\[\\.\\.\\.\\]",
+    "[\\w.\\[\\]'\\\"() ]+\\.QUERY_PARAMS\\.get\\(\\.\\.\\.\\)",
+    "[\\w.\\[\\]'\\\"() ]+\\.QUERY_PARAMS\\[\\.\\.\\.\\]",
+    "[\\w.\\[\\]'\\\"() ]+\\.data\\.get\\(\\.\\.\\.\\)",
+    "[\\w.\\[\\]'\\\"() ]+\\.data\\[\\.\\.\\.\\]",
+    "[\\w.\\[\\]'\\\"() ]+\\.query_params\\.get\\(\\.\\.\\.\\)",
+    "[\\w.\\[\\]'\\\"() ]+\\.query_params\\[\\.\\.\\.\\]",
+    "[\\w.\\[\\]'\\\"() ]+\\.content_type",
+    "[\\w.\\[\\]'\\\"() ]+\\.content_type",
+    "[\\w.\\[\\]'\\\"() ]+\\.stream",
+    "[\\w.\\[\\]'\\\"() ]+\\.stream",
+    "self\\.requestline",
+    "self\\.path",
+    "self\\.headers\\[\\.\\.\\.\\]",
+    "self\\.\\s*headers\\.\\s*get\\s*\\(",
+    "self\\.rfile",
+    "[\\w.\\[\\]'\\\"() ]+\\.[\\w.\\[\\]'\\\"() ]+"
+   ],
+   "sanitizers": []
+  },
+  {
+   "id": "dangerous-testcapi-run-in-subinterp",
+   "langs": [
+    "python"
+   ],
+   "severity": "MEDIUM",
+   "message": "Found user controlled content in `run_in_subinterp`. This is dangerous because it allows a malicious actor to run arbitrary Python code.",
+   "sinks": [
+    "_testcapi\\.\\s*run_in_subinterp\\s*\\(",
+    "test\\.\\s*support\\.\\s*run_in_subinterp\\s*\\("
+   ],
+   "sources": [
+    "flask\\.\\s*request\\.\\s*form\\.\\s*get\\s*\\(",
+    "flask\\.request\\.form\\[\\.\\.\\.\\]",
+    "flask\\.\\s*request\\.\\s*args\\.\\s*get\\s*\\(",
+    "flask\\.request\\.args\\[\\.\\.\\.\\]",
+    "flask\\.\\s*request\\.\\s*values\\.\\s*get\\s*\\(",
+    "flask\\.request\\.values\\[\\.\\.\\.\\]",
+    "flask\\.\\s*request\\.\\s*cookies\\.\\s*get\\s*\\(",
+    "flask\\.request\\.cookies\\[\\.\\.\\.\\]",
+    "flask\\.request\\.stream",
+    "flask\\.\\s*request\\.\\s*headers\\.\\s*get\\s*\\(",
+    "flask\\.request\\.headers\\[\\.\\.\\.\\]",
+    "flask\\.request\\.data",
+    "flask\\.request\\.full_path",
+    "flask\\.request\\.url",
+    "flask\\.request\\.json",
+    "flask\\.\\s*request\\.\\s*get_json\\s*\\(",
+    "flask\\.\\s*request\\.\\s*view_args\\.\\s*get\\s*\\(",
+    "flask\\.request\\.view_args\\[\\.\\.\\.\\]",
+    "request\\.[\\w.\\[\\]'\\\"() ]+\\.get\\(\\.\\.\\.\\)",
+    "request\\.[\\w.\\[\\]'\\\"() ]+\\[\\.\\.\\.\\]",
+    "[\\w.\\[\\]'\\\"() ]+\\.POST\\.get\\(\\.\\.\\.\\)",
+    "[\\w.\\[\\]'\\\"() ]+\\.POST\\[\\.\\.\\.\\]",
+    "[\\w.\\[\\]'\\\"() ]+\\.FILES\\.get\\(\\.\\.\\.\\)",
+    "[\\w.\\[\\]'\\\"() ]+\\.FILES\\[\\.\\.\\.\\]",
+    "[\\w.\\[\\]'\\\"() ]+\\.DATA\\.get\\(\\.\\.\\.\\)",
+    "[\\w.\\[\\]'\\\"() ]+\\.DATA\\[\\.\\.\\.\\]",
+    "[\\w.\\[\\]'\\\"() ]+\\.QUERY_PARAMS\\.get\\(\\.\\.\\.\\)",
+    "[\\w.\\[\\]'\\\"() ]+\\.QUERY_PARAMS\\[\\.\\.\\.\\]",
+    "[\\w.\\[\\]'\\\"() ]+\\.data\\.get\\(\\.\\.\\.\\)",
+    "[\\w.\\[\\]'\\\"() ]+\\.data\\[\\.\\.\\.\\]",
+    "[\\w.\\[\\]'\\\"() ]+\\.query_params\\.get\\(\\.\\.\\.\\)",
+    "[\\w.\\[\\]'\\\"() ]+\\.query_params\\[\\.\\.\\.\\]",
+    "[\\w.\\[\\]'\\\"() ]+\\.content_type",
+    "[\\w.\\[\\]'\\\"() ]+\\.content_type",
+    "[\\w.\\[\\]'\\\"() ]+\\.stream",
+    "[\\w.\\[\\]'\\\"() ]+\\.stream",
+    "self\\.requestline",
+    "self\\.path",
+    "self\\.headers\\[\\.\\.\\.\\]",
+    "self\\.\\s*headers\\.\\s*get\\s*\\(",
+    "self\\.rfile",
+    "[\\w.\\[\\]'\\\"() ]+\\.[\\w.\\[\\]'\\\"() ]+"
+   ],
+   "sanitizers": []
+  },
+  {
+   "id": "dangerous-asyncio-create-exec-tainted-env-args",
+   "langs": [
+    "python"
+   ],
+   "severity": "HIGH",
+   "message": "Detected 'create_subprocess_exec' function with user controlled data. You may consider using 'shlex.escape()'.",
+   "sinks": [
+    "asyncio\\.\\s*create_subprocess_exec\\s*\\(",
+    "asyncio\\.\\s*create_subprocess_exec\\s*\\(",
+    "asyncio\\.\\s*create_subprocess_exec\\s*\\(",
+    "asyncio\\.\\s*subprocess\\.\\s*create_subprocess_exec\\s*\\(",
+    "asyncio\\.\\s*subprocess\\.\\s*create_subprocess_exec\\s*\\(",
+    "asyncio\\.\\s*subprocess\\.\\s*create_subprocess_exec\\s*\\("
+   ],
+   "sources": [
+    "os\\.environ",
+    "os\\.\\s*environ\\.\\s*get\\s*\\(",
+    "os\\.environb",
+    "os\\.\\s*environb\\.\\s*get\\s*\\(",
+    "os\\.\\s*getenv\\s*\\(",
+    "os\\.\\s*getenvb\\s*\\(",
+    "sys\\.argv",
+    "sys\\.orig_argv",
+    "<\\.\\.\\.\\ [\\w.\\[\\]'\\\"() ]+\\ \\.\\.\\.>",
+    "<\\.\\.\\.\\ [\\w.\\[\\]'\\\"() ]+\\ \\.\\.\\.>"
+   ],
+   "sanitizers": []
+  },
+  {
+   "id": "dangerous-asyncio-exec-tainted-env-args",
+   "langs": [
+    "python"
+   ],
+   "severity": "HIGH",
+   "message": "Detected subprocess function '$LOOP.subprocess_exec' with user controlled data. You may consider using 'shlex.escape()'.",
+   "sinks": [
+    "[\\w.\\[\\]'\\\"() ]+\\.subprocess_exec\\(\\.\\.\\.\\)",
+    "[\\w.\\[\\]'\\\"() ]+\\.subprocess_exec\\([\\w.\\[\\]'\\\"() ]+,\\ \"=\\~/\\(sh\\|bash\\|ksh\\|csh\\|tcsh\\|zsh\\)/\",\\ \"\\-c\",\\.\\.\\.\\)",
+    "[\\w.\\[\\]'\\\"() ]+\\.subprocess_exec\\([\\w.\\[\\]'\\\"() ]+,\\ \\[\"=\\~/\\(sh\\|bash\\|ksh\\|csh\\|tcsh\\|zsh\\)/\",\\ \"\\-c\",\\ \\.\\.\\.\\],\\ \\.\\.\\.\\)"
+   ],
+   "sources": [
+    "os\\.environ",
+    "os\\.\\s*environ\\.\\s*get\\s*\\(",
+    "os\\.environb",
+    "os\\.\\s*environb\\.\\s*get\\s*\\(",
+    "os\\.\\s*getenv\\s*\\(",
+    "os\\.\\s*getenvb\\s*\\(",
+    "sys\\.argv",
+    "sys\\.orig_argv",
+    "<\\.\\.\\.\\ [\\w.\\[\\]'\\\"() ]+\\ \\.\\.\\.>",
+    "<\\.\\.\\.\\ [\\w.\\[\\]'\\\"() ]+\\ \\.\\.\\.>"
+   ],
+   "sanitizers": []
+  },
+  {
+   "id": "dangerous-os-exec-tainted-env-args",
+   "langs": [
+    "python"
+   ],
+   "severity": "HIGH",
+   "message": "Found user controlled content when spawning a process. This is dangerous because it allows a malicious actor to execute commands.",
+   "sinks": [
+    "os\\.[\\w.\\[\\]'\\\"() ]+\\(\\.\\.\\.\\)"
+   ],
+   "sources": [
+    "os\\.environ",
+    "os\\.\\s*environ\\.\\s*get\\s*\\(",
+    "os\\.environb",
+    "os\\.\\s*environb\\.\\s*get\\s*\\(",
+    "os\\.\\s*getenv\\s*\\(",
+    "os\\.\\s*getenvb\\s*\\(",
+    "sys\\.argv",
+    "sys\\.orig_argv",
+    "<\\.\\.\\.\\ [\\w.\\[\\]'\\\"() ]+\\ \\.\\.\\.>",
+    "<\\.\\.\\.\\ [\\w.\\[\\]'\\\"() ]+\\ \\.\\.\\.>"
+   ],
+   "sanitizers": []
+  },
+  {
+   "id": "dangerous-subprocess-use-tainted-env-args",
+   "langs": [
+    "python"
+   ],
+   "severity": "HIGH",
+   "message": "Detected subprocess function '$FUNC' with user controlled data. A malicious actor could leverage this to perform command injection. You may ",
+   "sinks": [
+    "subprocess\\.[\\w.\\[\\]'\\\"() ]+\\([\\w.\\[\\]'\\\"() ]+,\\ \\.\\.\\.\\)",
+    "subprocess\\.[\\w.\\[\\]'\\\"() ]+\\(\"=\\~/\\(sh\\|bash\\|ksh\\|csh\\|tcsh\\|zsh\\)/\",\"\\-c\",\\ [\\w.\\[\\]'\\\"() ]+\\)",
+    "subprocess\\.[\\w.\\[\\]'\\\"() ]+\\(\\[\"=\\~/\\(sh\\|bash\\|ksh\\|csh\\|tcsh\\|zsh\\)/\",\"\\-c\",\\ [\\w.\\[\\]'\\\"() ]+\\],\\ \\.\\.\\.\\)",
+    "subprocess\\.[\\w.\\[\\]'\\\"() ]+\\(\\(\"=\\~/\\(sh\\|bash\\|ksh\\|csh\\|tcsh\\|zsh\\)/\",\"\\-c\",\\ [\\w.\\[\\]'\\\"() ]+\\),\\ \\.\\.\\.\\)",
+    "subprocess\\.[\\w.\\[\\]'\\\"() ]+\\(\"=\\~/\\(python\\)/\",\\ [\\w.\\[\\]'\\\"() ]+\\)",
+    "subprocess\\.[\\w.\\[\\]'\\\"() ]+\\(\\[\"=\\~/\\(python\\)/\",\\ [\\w.\\[\\]'\\\"() ]+\\],\\.\\.\\.\\)",
+    "subprocess\\.[\\w.\\[\\]'\\\"() ]+\\(\\(\"=\\~/\\(python\\)/\",\\ [\\w.\\[\\]'\\\"() ]+\\),\\.\\.\\.\\)"
+   ],
+   "sources": [
+    "os\\.environ",
+    "os\\.\\s*environ\\.\\s*get\\s*\\(",
+    "os\\.environb",
+    "os\\.\\s*environb\\.\\s*get\\s*\\(",
+    "os\\.\\s*getenv\\s*\\(",
+    "os\\.\\s*getenvb\\s*\\(",
+    "sys\\.argv",
+    "sys\\.orig_argv",
+    "<\\.\\.\\.\\ [\\w.\\[\\]'\\\"() ]+\\ \\.\\.\\.>",
+    "<\\.\\.\\.\\ [\\w.\\[\\]'\\\"() ]+\\ \\.\\.\\.>"
+   ],
+   "sanitizers": []
+  },
+  {
+   "id": "dangerous-system-call-tainted-env-args",
+   "langs": [
+    "python"
+   ],
+   "severity": "HIGH",
+   "message": "Found user-controlled data used in a system call. This could allow a malicious actor to execute commands. Use the 'subprocess' module instea",
+   "sinks": [
+    "os\\.\\s*system\\s*\\(",
+    "[\\w.\\[\\]'\\\"() ]+\\ =\\ __import__\\(\"os\"\\)\\\n\\.\\.\\.\\\n[\\w.\\[\\]'\\\"() ]+\\.system\\(\\.\\.\\.\\)",
+    "[\\w.\\[\\]'\\\"() ]+\\ =\\ __import__\\(\"os\"\\)\\\n\\.\\.\\.\\\ngetattr\\([\\w.\\[\\]'\\\"() ]+,\\ \"system\"\\)\\(\\.\\.\\.\\)",
+    "[\\w.\\[\\]'\\\"() ]+\\ =\\ getattr\\(os,\\ \"system\"\\)\\\n\\.\\.\\.\\\n[\\w.\\[\\]'\\\"() ]+\\(\\.\\.\\.\\)",
+    "[\\w.\\[\\]'\\\"() ]+\\ =\\ __import__\\(\"os\"\\)\\\n\\.\\.\\.\\\n[\\w.\\[\\]'\\\"() ]+\\ =\\ getattr\\([\\w.\\[\\]'\\\"() ]+,\\ \"system\"\\)\\\n\\.\\.\\.\\\n[\\w.\\[\\]'\\\"() ]+\\(\\.\\.\\.\\)",
+    "os\\.\\s*popen\\s*\\(",
+    "os\\.\\s*popen2\\s*\\(",
+    "os\\.\\s*popen3\\s*\\(",
+    "os\\.\\s*popen4\\s*\\("
+   ],
+   "sources": [
+    "os\\.environ",
+    "os\\.\\s*environ\\.\\s*get\\s*\\(",
+    "os\\.environb",
+    "os\\.\\s*environb\\.\\s*get\\s*\\(",
+    "os\\.\\s*getenv\\s*\\(",
+    "os\\.\\s*getenvb\\s*\\(",
+    "sys\\.argv",
+    "sys\\.orig_argv",
+    "<\\.\\.\\.\\ [\\w.\\[\\]'\\\"() ]+\\ \\.\\.\\.>",
+    "<\\.\\.\\.\\ [\\w.\\[\\]'\\\"() ]+\\ \\.\\.\\.>"
+   ],
+   "sanitizers": []
+  },
+  {
+   "id": "md5-used-as-password",
+   "langs": [
+    "python"
+   ],
+   "severity": "MEDIUM",
+   "message": "It looks like MD5 is used as a password hash. MD5 is not considered a secure password hash because it can be cracked by an attacker in a sho",
+   "sinks": [
+    "[\\w.\\[\\]'\\\"() ]+\\(\\.\\.\\.\\)"
+   ],
+   "sources": [
+    "hashlib\\.md5",
+    "hashlib\\.\\s*new\\s*\\(",
+    "Cryptodome\\.Hash\\.MD5",
+    "Crypto\\.Hash\\.MD5",
+    "cryptography\\.hazmat\\.primitives\\.hashes\\.MD5"
+   ],
+   "sanitizers": []
+  },
+  {
+   "id": "pyramid-direct-use-of-response",
+   "langs": [
+    "python"
+   ],
+   "severity": "HIGH",
+   "message": "Detected data rendered directly to the end user via 'Response'. This bypasses Pyramid's built-in cross-site scripting (XSS) defenses and cou",
+   "sinks": [
+    "pyramid\\.\\s*request\\.\\s*Response\\.\\s*text\\s*\\(",
+    "pyramid\\.\\s*request\\.\\s*Response\\s*\\(",
+    "[\\w.\\[\\]'\\\"() ]+\\.response\\.body\\ =\\ [\\w.\\[\\]'\\\"() ]+",
+    "[\\w.\\[\\]'\\\"() ]+\\.response\\.text\\ =\\ [\\w.\\[\\]'\\\"() ]+",
+    "[\\w.\\[\\]'\\\"() ]+\\.response\\.ubody\\ =\\ [\\w.\\[\\]'\\\"() ]+",
+    "[\\w.\\[\\]'\\\"() ]+\\.response\\.unicode_body\\ =\\ [\\w.\\[\\]'\\\"() ]+"
+   ],
+   "sources": [
+    "[\\w.\\[\\]'\\\"() ]+\\.[\\w.\\[\\]'\\\"() ]+"
+   ],
+   "sanitizers": []
+  },
+  {
+   "id": "pyramid-sqlalchemy-sql-injection",
+   "langs": [
+    "python"
+   ],
+   "severity": "HIGH",
+   "message": "Distinct, Having, Group_by, Order_by, and Filter in SQLAlchemy can cause sql injections if the developer inputs raw SQL into the before-ment",
+   "sinks": [
+    "[\\w.\\[\\]'\\\"() ]+\\.[\\w.\\[\\]'\\\"() ]+\\(\"\\.\\.\\.\"\\.[\\w.\\[\\]'\\\"() ]+\\(\\.\\.\\.,\\ [\\w.\\[\\]'\\\"() ]+,\\ \\.\\.\\.\\)\\)",
+    "[\\w.\\[\\]'\\\"() ]+\\.join\\(\\.\\.\\.\\)\\.[\\w.\\[\\]'\\\"() ]+\\(\"\\.\\.\\.\"\\.[\\w.\\[\\]'\\\"() ]+\\(\\.\\.\\.,\\ [\\w.\\[\\]'\\\"() ]+,\\ \\.\\.\\.\\)\\)"
+   ],
+   "sources": [
+    "[\\w.\\[\\]'\\\"() ]+\\.[\\w.\\[\\]'\\\"() ]+"
+   ],
+   "sanitizers": []
+  },
+  {
+   "id": "detect-angular-trust-as-method",
+   "langs": [
+    "javascript",
+    "typescript"
+   ],
+   "severity": "MEDIUM",
+   "message": "The use of $sce.trustAs can be dangerous if unsanitized user input flows through this API.",
+   "sinks": [
+    "sce\\.\\s*trustAs\\s*\\(",
+    "sce\\.\\s*trustAsHtml\\s*\\("
+   ],
+   "sources": [
+    "scope\\.X"
+   ],
+   "sanitizers": []
+  },
+  {
+   "id": "js-open-redirect",
+   "langs": [
+    "javascript",
+    "typescript"
+   ],
+   "severity": "MEDIUM",
+   "message": "The application accepts potentially user-controlled input `$PROP` which can control the location of the current window context. This can lea",
+   "sinks": [
+    "location\\.href\\ =\\ SINK",
+    "THIS\\.\\ \\.\\.\\.\\ \\.location\\.href\\ =\\ SINK",
+    "location\\.\\s*replace\\s*\\(",
+    "THIS\\.\\ \\.\\.\\.\\ \\.location\\.replace\\(SINK\\)",
+    "WINDOW\\.\\ \\.\\.\\.\\ \\.location\\ =\\ SINK"
+   ],
+   "sources": [
+    "new\\ URLSearchParams\\(WINDOW\\.\\ \\.\\.\\.\\ \\.location\\.search\\)\\.get\\('\\.\\.\\.'\\)\\\n",
+    "new\\ URLSearchParams\\(location\\.search\\)\\.get\\('\\.\\.\\.'\\)\\\n",
+    "new\\ URLSearchParams\\(WINDOW\\.\\ \\.\\.\\.\\ \\.location\\.hash\\.substring\\(1\\)\\)\\.get\\('\\.\\.\\.'\\)\\\n",
+    "new\\ URLSearchParams\\(location\\.hash\\.substring\\(1\\)\\)\\.get\\('\\.\\.\\.'\\)\\\n",
+    "PROPS\\.\\s*get\\s*\\(",
+    "PROPS\\.\\s*searchParams\\.\\s*get\\s*\\(",
+    "new\\ URL\\(WINDOW\\.\\ \\.\\.\\.\\ \\.location\\.href\\)\\.searchParams\\.get\\('\\.\\.\\.'\\)\\\n",
+    "new\\ URL\\(location\\.href\\)\\.searchParams\\.get\\('\\.\\.\\.'\\)\\\n"
+   ],
+   "sanitizers": []
+  },
+  {
+   "id": "raw-html-concat",
+   "langs": [
+    "javascript",
+    "typescript"
+   ],
+   "severity": "MEDIUM",
+   "message": "User controlled data in a HTML string may result in XSS",
+   "sinks": [
+    "<TAG\\ \\.\\.\\.",
+    "\\.\\.\\.\\ </TAG",
+    "\\[\\.\\.\\.,\\ STRING,\\ \\.\\.\\.\\]\\.join\\(\\.\\.\\.\\)",
+    "<TAG\\ \\.\\.\\.",
+    "\\[\\.\\.\\.,\\ STRING,\\ \\.\\.\\.\\]\\.join\\(\\.\\.\\.\\)",
+    "\\.\\.\\.\\ </TAG",
+    "<TAG\\ \\.\\.\\.",
+    "\\.\\.\\.\\ </TAG"
+   ],
+   "sources": [
+    "location\\.href",
+    "location\\.hash",
+    "location\\.search",
+    "WINDOW\\.\\ \\.\\.\\.\\ \\.location\\.href",
+    "WINDOW\\.\\ \\.\\.\\.\\ \\.location\\.hash",
+    "WINDOW\\.\\ \\.\\.\\.\\ \\.location\\.search"
+   ],
+   "sanitizers": [
+    "S\\.\\s*escapeHTML\\s*\\(",
+    "VALUE\\.\\s*sanitize\\s*\\(",
+    "S\\s*\\(",
+    "S\\.\\s*sanitize\\s*\\(",
+    "S\\s*\\(",
+    "S\\s*\\(",
+    "S\\s*\\(",
+    "S\\.\\s*render\\s*\\("
+   ]
+  },
+  {
+   "id": "cors-misconfiguration",
+   "langs": [
+    "javascript",
+    "typescript"
+   ],
+   "severity": "MEDIUM",
+   "message": "By letting user input control CORS parameters, there is a risk that software does not properly verify that the source of data or communicati",
+   "sinks": [
+    "RES\\.\\s*set\\s*\\(",
+    "RES\\.\\s*header\\s*\\(",
+    "RES\\.\\s*setHeader\\s*\\(",
+    "RES\\.\\s*set\\s*\\(",
+    "RES\\.\\s*writeHead\\s*\\("
+   ],
+   "sources": [
+    "REQ\\.query",
+    "REQ\\.body",
+    "REQ\\.params",
+    "REQ\\.cookies",
+    "REQ\\.headers"
+   ],
+   "sanitizers": []
+  },
+  {
+   "id": "express-data-exfiltration",
+   "langs": [
+    "javascript",
+    "typescript"
+   ],
+   "severity": "MEDIUM",
+   "message": "Depending on the context, user control data in `Object.assign` can cause web response to include data that it should not have or can lead to",
+   "sinks": [
+    "Object\\.\\s*assign\\s*\\("
+   ],
+   "sources": [
+    "REQ\\.query",
+    "REQ\\.body",
+    "REQ\\.params",
+    "REQ\\.cookies",
+    "REQ\\.headers"
+   ],
+   "sanitizers": []
+  },
+  {
+   "id": "express-expat-xxe",
+   "langs": [
+    "javascript",
+    "typescript"
+   ],
+   "severity": "HIGH",
+   "message": "Make sure that unverified user data can not reach the XML Parser, as it can result in XML External or Internal Entity (XXE) Processing vulne",
+   "sinks": [
+    "PARSER\\.\\s*parse\\s*\\(",
+    "PARSER\\.\\s*write\\s*\\("
+   ],
+   "sources": [
+    "REQ\\.query",
+    "REQ\\.body",
+    "REQ\\.params",
+    "REQ\\.cookies",
+    "REQ\\.headers"
+   ],
+   "sanitizers": []
+  },
+  {
+   "id": "express-insecure-template-usage",
+   "langs": [
+    "javascript",
+    "typescript"
+   ],
+   "severity": "MEDIUM",
+   "message": "User data from `$REQ` is being compiled into the template, which can lead to a Server Side Template Injection (SSTI) vulnerability.",
+   "sinks": [
+    "PUG\\.\\s*compile\\s*\\(",
+    "PUG\\.\\s*compileClient\\s*\\(",
+    "PUG\\.\\s*compileClientWithDependenciesTracked\\s*\\(",
+    "PUG\\.\\s*render\\s*\\(",
+    "PUG\\.\\s*template\\s*\\(",
+    "PUG\\.\\s*compile\\s*\\(",
+    "PUG\\.\\s*render\\s*\\(",
+    "PUG\\.\\s*renderString\\s*\\(",
+    "PUG\\.\\s*template\\s*\\(",
+    "PUG\\.\\s*render\\s*\\(",
+    "PUG\\.\\s*compile\\s*\\("
+   ],
+   "sources": [
+    "REQ\\.query",
+    "REQ\\.body",
+    "REQ\\.params",
+    "REQ\\.cookies",
+    "REQ\\.headers"
+   ],
+   "sanitizers": []
+  },
+  {
+   "id": "express-phantom-injection",
+   "langs": [
+    "javascript",
+    "typescript"
+   ],
+   "severity": "HIGH",
+   "message": "If unverified user data can reach the `phantom` methods it can result in Server-Side Request Forgery vulnerabilities",
+   "sinks": [
+    "PAGE\\.\\s*open\\s*\\(",
+    "PAGE\\.\\s*setContent\\s*\\(",
+    "PAGE\\.\\s*openUrl\\s*\\(",
+    "PAGE\\.\\s*evaluateJavaScript\\s*\\(",
+    "PAGE\\.\\s*property\\s*\\("
+   ],
+   "sources": [
+    "REQ\\.query",
+    "REQ\\.body",
+    "REQ\\.params",
+    "REQ\\.cookies",
+    "REQ\\.headers"
+   ],
+   "sanitizers": []
+  },
+  {
+   "id": "express-puppeteer-injection",
+   "langs": [
+    "javascript",
+    "typescript"
+   ],
+   "severity": "HIGH",
+   "message": "If unverified user data can reach the `puppeteer` methods it can result in Server-Side Request Forgery vulnerabilities",
+   "sinks": [
+    "PAGE\\.\\s*goto\\s*\\(",
+    "PAGE\\.\\s*setContent\\s*\\(",
+    "PAGE\\.\\s*evaluate\\s*\\(",
+    "PAGE\\.\\s*evaluate\\s*\\(",
+    "PAGE\\.\\s*evaluateHandle\\s*\\(",
+    "PAGE\\.\\s*evaluateHandle\\s*\\(",
+    "PAGE\\.\\s*evaluateOnNewDocument\\s*\\(",
+    "PAGE\\.\\s*evaluateOnNewDocument\\s*\\("
+   ],
+   "sources": [
+    "REQ\\.query",
+    "REQ\\.body",
+    "REQ\\.params",
+    "REQ\\.cookies",
+    "REQ\\.headers"
+   ],
+   "sanitizers": []
+  },
+  {
+   "id": "express-sandbox-code-injection",
+   "langs": [
+    "javascript",
+    "typescript"
+   ],
+   "severity": "HIGH",
+   "message": "Make sure that unverified user data can not reach `sandbox`.",
+   "sinks": [
+    "S\\.\\s*run\\s*\\(",
+    "new\\ SANDBOX\\(OPTS\\)\\.run\\(\\.\\.\\.\\)\\\n",
+    "new\\ SANDBOX\\(\\)\\.run\\(\\.\\.\\.\\)"
+   ],
+   "sources": [
+    "REQ\\.query",
+    "REQ\\.body",
+    "REQ\\.params",
+    "REQ\\.cookies",
+    "REQ\\.headers"
+   ],
+   "sanitizers": []
+  },
+  {
+   "id": "express-vm-injection",
+   "langs": [
+    "javascript",
+    "typescript"
+   ],
+   "severity": "HIGH",
+   "message": "Make sure that unverified user data can not reach `$VM`.",
+   "sinks": [
+    "VM\\.\\s*runInContext\\s*\\(",
+    "VM\\.\\s*runInNewContext\\s*\\(",
+    "VM\\.\\s*compileFunction\\s*\\(",
+    "VM\\.\\s*runInThisContext\\s*\\(",
+    "new\\ VM\\.Script\\(\\.\\.\\.\\)"
+   ],
+   "sources": [
+    "REQ\\.query",
+    "REQ\\.body",
+    "REQ\\.params",
+    "REQ\\.cookies",
+    "REQ\\.headers"
+   ],
+   "sanitizers": []
+  },
+  {
+   "id": "express-vm2-injection",
+   "langs": [
+    "javascript",
+    "typescript"
+   ],
+   "severity": "MEDIUM",
+   "message": "Make sure that unverified user data can not reach `vm2`.",
+   "sinks": [
+    "VM\\.\\s*run\\s*\\(",
+    "new\\ VM\\(\\.\\.\\.\\)\\.run\\(\\.\\.\\.\\)\\\n",
+    "new\\ NodeVM\\(\\.\\.\\.\\)\\.run\\(\\.\\.\\.\\)\\\n",
+    "new\\ VMScript\\(\\.\\.\\.\\)\\\n",
+    "new\\ VM\\(\\.\\.\\.\\)\\\n",
+    "new\\ NodeVM\\(\\.\\.\\.\\)"
+   ],
+   "sources": [
+    "REQ\\.query",
+    "REQ\\.body",
+    "REQ\\.params",
+    "REQ\\.cookies",
+    "REQ\\.headers"
+   ],
+   "sanitizers": []
+  },
+  {
+   "id": "express-wkhtmltoimage-injection",
+   "langs": [
+    "javascript",
+    "typescript"
+   ],
+   "severity": "HIGH",
+   "message": "If unverified user data can reach the `phantom` methods it can result in Server-Side Request Forgery vulnerabilities",
+   "sinks": [
+    "WK\\.\\s*generate\\s*\\("
+   ],
+   "sources": [
+    "REQ\\.query",
+    "REQ\\.body",
+    "REQ\\.params",
+    "REQ\\.cookies",
+    "REQ\\.headers"
+   ],
+   "sanitizers": []
+  },
+  {
+   "id": "express-wkhtmltopdf-injection",
+   "langs": [
+    "javascript",
+    "typescript"
+   ],
+   "severity": "HIGH",
+   "message": "If unverified user data can reach the `wkhtmltopdf` methods it can result in Server-Side Request Forgery vulnerabilities",
+   "sinks": [
+    "WK\\s*\\("
+   ],
+   "sources": [
+    "REQ\\.query",
+    "REQ\\.body",
+    "REQ\\.params",
+    "REQ\\.cookies",
+    "REQ\\.headers"
+   ],
+   "sanitizers": []
+  },
+  {
+   "id": "express-xml2json-xxe",
+   "langs": [
+    "javascript",
+    "typescript"
+   ],
+   "severity": "HIGH",
+   "message": "Make sure that unverified user data can not reach the XML Parser, as it can result in XML External or Internal Entity (XXE) Processing vulne",
+   "sinks": [
+    "EXPAT\\.\\s*toJson\\s*\\("
+   ],
+   "sources": [
+    "REQ\\.query",
+    "REQ\\.body",
+    "REQ\\.params",
+    "REQ\\.cookies",
+    "REQ\\.headers",
+    "REQ\\.\\s*files\\.\\s*ANYTHING\\.\\s*data\\.\\s*toString\\s*\\(",
+    "REQ\\.files\\.ANYTHING\\['data'\\]\\.toString\\('utf8'\\)",
+    "files\\.\\s*ANYTHING\\.\\s*data\\.\\s*toString\\s*\\(",
+    "files\\.ANYTHING\\['data'\\]\\.toString\\('utf8'\\)"
+   ],
+   "sanitizers": []
+  },
+  {
+   "id": "require-request",
+   "langs": [
+    "javascript",
+    "typescript"
+   ],
+   "severity": "HIGH",
+   "message": "If an attacker controls the x in require(x) then they can cause code to load that was not intended to run on the server.",
+   "sinks": [
+    "require\\s*\\("
+   ],
+   "sources": [
+    "REQ\\.query",
+    "REQ\\.body",
+    "REQ\\.params",
+    "REQ\\.cookies",
+    "REQ\\.headers"
+   ],
+   "sanitizers": []
+  },
+  {
+   "id": "x-frame-options-misconfiguration",
+   "langs": [
+    "javascript",
+    "typescript"
+   ],
+   "severity": "MEDIUM",
+   "message": "By letting user input control `X-Frame-Options` header, there is a risk that software does not properly verify whether or not a browser shou",
+   "sinks": [
+    "RES\\.\\s*set\\s*\\(",
+    "RES\\.\\s*header\\s*\\(",
+    "RES\\.\\s*setHeader\\s*\\(",
+    "RES\\.\\s*set\\s*\\(",
+    "RES\\.\\s*writeHead\\s*\\("
+   ],
+   "sources": [
+    "REQ\\.query",
+    "REQ\\.body",
+    "REQ\\.params",
+    "REQ\\.cookies",
+    "REQ\\.headers"
+   ],
+   "sanitizers": []
+  },
+  {
+   "id": "express-open-redirect",
+   "langs": [
+    "javascript",
+    "typescript"
+   ],
+   "severity": "MEDIUM",
+   "message": "The application redirects to a URL specified by user-supplied input `$REQ` that is not validated. This could redirect users to malicious loc",
+   "sinks": [
+    "RES\\.\\s*redirect\\s*\\(",
+    "RES\\.\\s*redirect\\s*\\(",
+    "RES\\.\\s*redirect\\s*\\(",
+    "RES\\.\\s*redirect\\s*\\(",
+    "RES\\.\\s*redirect\\s*\\(",
+    "RES\\.\\s*redirect\\s*\\(",
+    "REQ\\.\\ \\.\\.\\.\\ \\.VALUE",
+    "RES\\.\\s*redirect\\s*\\(",
+    "RES\\.\\s*redirect\\s*\\(",
+    "RES\\.\\s*redirect\\s*\\(",
+    "REQ\\.\\ \\.\\.\\.\\ \\.VALUE",
+    "RES\\.\\s*redirect\\s*\\(",
+    "RES\\.\\s*redirect\\s*\\(",
+    "RES\\.\\s*redirect\\s*\\(",
+    "REQ\\.VALUE",
+    "RES\\.\\s*redirect\\s*\\(",
+    "RES\\.\\s*redirect\\s*\\(",
+    "RES\\.\\s*redirect\\s*\\("
+   ],
+   "sources": [
+    "REQ\\.query",
+    "REQ\\.body",
+    "REQ\\.params",
+    "REQ\\.cookies",
+    "REQ\\.headers"
+   ],
+   "sanitizers": []
+  },
+  {
+   "id": "express-path-join-resolve-traversal",
+   "langs": [
+    "javascript",
+    "typescript"
+   ],
+   "severity": "MEDIUM",
+   "message": "Possible writing outside of the destination, make sure that the target path is nested in the intended destination",
+   "sinks": [
+    "PATH\\.\\s*join\\s*\\(",
+    "PATH\\.\\s*resolve\\s*\\(",
+    "path\\.\\s*join\\s*\\(",
+    "path\\.\\s*resolve\\s*\\("
+   ],
+   "sources": [
+    "REQ\\.query",
+    "REQ\\.body",
+    "REQ\\.params",
+    "REQ\\.cookies",
+    "REQ\\.headers"
+   ],
+   "sanitizers": [
+    "Y\\.\\s*replace\\s*\\(",
+    "Y\\.\\s*indexOf\\s*\\(",
+    "function\\s*\\(",
+    "FUNC\\s*\\("
+   ]
+  },
+  {
+   "id": "express-res-sendfile",
+   "langs": [
+    "javascript",
+    "typescript"
+   ],
+   "severity": "MEDIUM",
+   "message": "The application processes user-input, this is passed to res.sendFile which can allow an attacker to arbitrarily read files on the system thr",
+   "sinks": [
+    "RES\\.\\s*METH\\s*\\("
+   ],
+   "sources": [
+    "REQ\\.query",
+    "REQ\\.body",
+    "REQ\\.params",
+    "REQ\\.cookies",
+    "REQ\\.headers"
+   ],
+   "sanitizers": []
+  },
+  {
+   "id": "express-ssrf",
+   "langs": [
+    "javascript",
+    "typescript"
+   ],
+   "severity": "MEDIUM",
+   "message": "The following request $REQUEST.$METHOD() was found to be crafted from user-input `$REQ` which can lead to Server-Side Request Forgery (SSRF)",
+   "sinks": [
+    "REQUEST\\.\\s*METHOD\\s*\\(",
+    "REQUEST\\.\\s*METHOD\\s*\\(",
+    "REQUEST\\.\\s*METHOD\\s*\\(",
+    "REQUEST\\.\\s*METHOD\\s*\\(",
+    "REQUEST\\.\\s*METHOD\\s*\\(",
+    "REQUEST\\.\\s*METHOD\\s*\\(",
+    "REQ\\.\\ \\.\\.\\.\\ \\.VALUE",
+    "REQUEST\\.\\s*METHOD\\s*\\(",
+    "REQUEST\\.\\s*METHOD\\s*\\(",
+    "REQUEST\\.\\s*METHOD\\s*\\(",
+    "REQ\\.\\ \\.\\.\\.\\ \\.VALUE",
+    "REQUEST\\.\\s*METHOD\\s*\\(",
+    "REQUEST\\.\\s*METHOD\\s*\\(",
+    "REQUEST\\.\\s*METHOD\\s*\\(",
+    "REQ\\.VALUE",
+    "REQUEST\\.\\s*METHOD\\s*\\(",
+    "REQUEST\\.\\s*METHOD\\s*\\(",
+    "REQUEST\\.\\s*METHOD\\s*\\(",
+    "REQUEST\\.\\s*METHOD\\s*\\(",
+    "REQUEST\\.\\s*METHOD\\s*\\(",
+    "REQUEST\\.\\s*METHOD\\s*\\("
+   ],
+   "sources": [
+    "REQ\\.query",
+    "REQ\\.body",
+    "REQ\\.params",
+    "REQ\\.cookies",
+    "REQ\\.headers"
+   ],
+   "sanitizers": []
+  },
+  {
+   "id": "express-third-party-object-deserialization",
+   "langs": [
+    "javascript",
+    "typescript"
+   ],
+   "severity": "MEDIUM",
+   "message": "The following function call $SER.$FUNC accepts user controlled data which can result in Remote Code Execution (RCE) through Object Deseriali",
+   "sinks": [
+    "SER\\.\\s*FUNC\\s*\\("
+   ],
+   "sources": [
+    "REQ\\.query",
+    "REQ\\.body",
+    "REQ\\.params",
+    "REQ\\.cookies",
+    "REQ\\.headers",
+    "REQ\\.\\s*files\\.\\s*ANYTHING\\.\\s*data\\.\\s*toString\\s*\\(",
+    "REQ\\.files\\.ANYTHING\\['data'\\]\\.toString\\('utf8'\\)",
+    "files\\.\\s*ANYTHING\\.\\s*data\\.\\s*toString\\s*\\(",
+    "files\\.ANYTHING\\['data'\\]\\.toString\\('utf8'\\)"
+   ],
+   "sanitizers": []
+  },
+  {
+   "id": "express-xml2json-xxe-event",
+   "langs": [
+    "javascript",
+    "typescript"
+   ],
+   "severity": "MEDIUM",
+   "message": "Xml Parser is used inside Request Event. Make sure that unverified user data can not reach the XML Parser, as it can result in XML External ",
+   "sinks": [
+    "REQ\\.\\s*on\\s*\\("
+   ],
+   "sources": [
+    "REQ\\.query",
+    "REQ\\.body",
+    "REQ\\.params",
+    "REQ\\.cookies",
+    "REQ\\.headers"
+   ],
+   "sanitizers": []
+  },
+  {
+   "id": "res-render-injection",
+   "langs": [
+    "javascript",
+    "typescript"
+   ],
+   "severity": "MEDIUM",
+   "message": "User controllable data `$REQ` enters `$RES.render(...)` this can lead to the loading of other HTML/templating pages that they may not be aut",
+   "sinks": [
+    "RES\\.\\s*render\\s*\\("
+   ],
+   "sources": [
+    "REQ\\.query",
+    "REQ\\.body",
+    "REQ\\.params",
+    "REQ\\.cookies",
+    "REQ\\.headers"
+   ],
+   "sanitizers": []
+  },
+  {
+   "id": "direct-response-write",
+   "langs": [
+    "javascript",
+    "typescript"
+   ],
+   "severity": "MEDIUM",
+   "message": "Detected directly writing to a Response object from user-defined input. This bypasses any HTML escaping and may expose your application to a",
+   "sinks": [
+    "RES\\.\\s*write\\s*\\(",
+    "RES\\.\\s*send\\s*\\("
+   ],
+   "sources": [
+    "REQ\\.query",
+    "REQ\\.body",
+    "REQ\\.params"
+   ],
+   "sanitizers": [
+    "S\\.\\s*escapeHTML\\s*\\(",
+    "VALUE\\.\\s*sanitize\\s*\\(",
+    "S\\s*\\(",
+    "S\\.\\s*sanitize\\s*\\(",
+    "S\\s*\\(",
+    "S\\s*\\(",
+    "S\\s*\\(",
+    "S\\.\\s*render\\s*\\(",
+    "S\\s*\\(",
+    "RES\\.\\ \\.\\.\\.\\ \\.type\\('F'\\)\\.\\ \\.\\.\\.\\ \\.send\\(\\.\\.\\.\\)",
+    "if\\s*\\("
+   ]
+  },
+  {
+   "id": "no-stringify-keys",
+   "langs": [
+    "javascript",
+    "typescript"
+   ],
+   "severity": "MEDIUM",
+   "message": "JSON stringify does not produce a stable key ordering, and should not be relied on for producing object keys. Consider using json-stable-str",
+   "sinks": [
+    "OBJECT\\[\\.\\.\\.\\]"
+   ],
+   "sources": [
+    "JSON\\.\\s*stringify\\s*\\(",
+    "STRINGIFY\\s*\\("
+   ],
+   "sanitizers": []
+  },
+  {
+   "id": "detect-eval-with-expression",
+   "langs": [
+    "javascript",
+    "typescript"
+   ],
+   "severity": "MEDIUM",
+   "message": "Detected use of dynamic execution of JavaScript which may come from user-input, which can lead to Cross-Site-Scripting (XSS). Where possible",
+   "sinks": [
+    "eval\\s*\\(",
+    "window\\.\\s*eval\\s*\\(",
+    "new\\ Function\\(<\\.\\.\\.\\ SINK\\ \\.\\.\\.>\\)",
+    "new\\ Function\\(<\\.\\.\\.\\ SINK\\ \\.\\.\\.>\\)\\(\\.\\.\\.\\)",
+    "setTimeout\\s*\\(",
+    "setInterval\\s*\\("
+   ],
+   "sources": [
+    "PROPS\\.\\s*get\\s*\\(",
+    "location\\.href",
+    "location\\.hash",
+    "location\\.search",
+    "WINDOW\\.\\ \\.\\.\\.\\ \\.location\\.href",
+    "WINDOW\\.\\ \\.\\.\\.\\ \\.location\\.hash",
+    "WINDOW\\.\\ \\.\\.\\.\\ \\.location\\.search"
+   ],
+   "sanitizers": [
+    "location\\.href\\ =\\ FUNC\\(\\.\\.\\.\\)",
+    "location\\.hash\\ =\\ FUNC\\(\\.\\.\\.\\)",
+    "location\\.search\\ =\\ FUNC\\(\\.\\.\\.\\)",
+    "WINDOW\\.\\ \\.\\.\\.\\ \\.location\\.href\\ =\\ FUNC\\(\\.\\.\\.\\)",
+    "WINDOW\\.\\ \\.\\.\\.\\ \\.location\\.hash\\ =\\ FUNC\\(\\.\\.\\.\\)",
+    "WINDOW\\.\\ \\.\\.\\.\\ \\.location\\.search\\ =\\ FUNC\\(\\.\\.\\.\\)"
+   ]
+  },
+  {
+   "id": "insecure-object-assign",
+   "langs": [
+    "javascript",
+    "typescript"
+   ],
+   "severity": "MEDIUM",
+   "message": "Depending on the context, user control data in `Object.assign` can cause web response to include data that it should not have or can lead to",
+   "sinks": [
+    "Object\\.\\s*assign\\s*\\("
+   ],
+   "sources": [
+    "JSON\\.\\s*parse\\s*\\("
+   ],
+   "sanitizers": []
+  },
+  {
+   "id": "code-string-concat",
+   "langs": [
+    "javascript",
+    "typescript"
+   ],
+   "severity": "HIGH",
+   "message": "Found data from an Express or Next web request flowing to `eval`. If this data is user-controllable this can lead to execution of arbitrary ",
+   "sinks": [
+    "eval\\s*\\("
+   ],
+   "sources": [
+    "REQ\\.query",
+    "REQ\\.body",
+    "REQ\\.params",
+    "REQ\\.cookies",
+    "REQ\\.headers",
+    "ROUTER\\.query\\.VALUE\\ \\\n",
+    "IMPORT\\s*\\("
+   ],
+   "sanitizers": []
+  },
+  {
+   "id": "unsafe-formatstring",
+   "langs": [
+    "javascript",
+    "typescript"
+   ],
+   "severity": "LOW",
+   "message": "Detected string concatenation with a non-literal variable in a util.format / console.log function. If an attacker injects a format specifier",
+   "sinks": [
+    "console\\.\\s*LOG\\s*\\(",
+    "UTIL\\.\\s*format\\s*\\("
+   ],
+   "sources": [
+    "X\\.\\s*concat\\s*\\(",
+    "`\\.\\.\\.\\{\\.\\.\\.\\}\\.\\.\\.`\\\n"
+   ],
+   "sanitizers": []
+  },
+  {
+   "id": "express-sequelize-injection",
+   "langs": [
+    "javascript",
+    "typescript"
+   ],
+   "severity": "HIGH",
+   "message": "Detected a sequelize statement that is tainted by user-input. This could lead to SQL injection if the variable is user-controlled and is not",
+   "sinks": [
+    "sequelize\\.\\s*query\\s*\\(",
+    "DB\\.\\s*sequelize\\.\\s*query\\s*\\("
+   ],
+   "sources": [
+    "REQ\\.query",
+    "REQ\\.body",
+    "REQ\\.params",
+    "REQ\\.cookies",
+    "REQ\\.headers",
+    "REQ\\.\\s*files\\.\\s*ANYTHING\\.\\s*data\\.\\s*toString\\s*\\(",
+    "REQ\\.files\\.ANYTHING\\['data'\\]\\.toString\\('utf8'\\)",
+    "files\\.\\s*ANYTHING\\.\\s*data\\.\\s*toString\\s*\\(",
+    "files\\.ANYTHING\\['data'\\]\\.toString\\('utf8'\\)"
+   ],
+   "sanitizers": [
+    "parseInt\\s*\\(",
+    "FUNC\\.\\ \\.\\.\\.\\ \\.hash\\(\\.\\.\\.\\)"
+   ]
+  },
+  {
+   "id": "mcp-command-injection-typescript",
+   "langs": [
+    "typescript",
+    "javascript"
+   ],
+   "severity": "HIGH",
+   "message": "User-controlled MCP tool or request-handler argument flows to a shell execution sink without validation. Tool arguments originate from LLM o",
+   "sinks": [
+    "exec\\s*\\(",
+    "execSync\\s*\\(",
+    "CP\\.\\s*exec\\s*\\(",
+    "CP\\.\\s*execSync\\s*\\(",
+    "eval\\s*\\("
+   ],
+   "sources": [
+    "SRV\\.\\s*setRequestHandler\\s*\\(",
+    "SRV\\.\\s*setRequestHandler\\s*\\(",
+    "SRV\\.\\s*tool\\s*\\(",
+    "SRV\\.\\s*tool\\s*\\(",
+    "SRV\\.\\s*registerTool\\s*\\(",
+    "SRV\\.\\s*registerTool\\s*\\("
+   ],
+   "sanitizers": [
+    "z\\.\\s*parse\\s*\\(",
+    "zod\\.\\s*parse\\s*\\(",
+    "SCHEMA\\.\\s*parse\\s*\\("
+   ]
+  },
+  {
+   "id": "mcp-ssrf-typescript",
+   "langs": [
+    "typescript",
+    "javascript"
+   ],
+   "severity": "HIGH",
+   "message": "User-controlled MCP tool or request-handler argument flows to an HTTP request URL without validation. An attacker may supply internal networ",
+   "sinks": [
+    "fetch\\s*\\(",
+    "AXIOS\\s*\\(",
+    "AXIOS\\.\\s*get\\s*\\(",
+    "AXIOS\\.\\s*post\\s*\\(",
+    "AXIOS\\.\\s*put\\s*\\(",
+    "AXIOS\\.\\s*delete\\s*\\(",
+    "AXIOS\\.\\s*patch\\s*\\("
+   ],
+   "sources": [
+    "SRV\\.\\s*setRequestHandler\\s*\\(",
+    "SRV\\.\\s*setRequestHandler\\s*\\(",
+    "SRV\\.\\s*tool\\s*\\(",
+    "SRV\\.\\s*tool\\s*\\(",
+    "SRV\\.\\s*registerTool\\s*\\(",
+    "SRV\\.\\s*registerTool\\s*\\("
+   ],
+   "sanitizers": [
+    "z\\.\\s*parse\\s*\\(",
+    "zod\\.\\s*parse\\s*\\(",
+    "SCHEMA\\.\\s*parse\\s*\\("
+   ]
+  },
+  {
+   "id": "react-href-var",
+   "langs": [
+    "typescript",
+    "javascript"
+   ],
+   "severity": "MEDIUM",
+   "message": "Detected a variable used in an anchor tag with the 'href' attribute. A malicious actor may be able to input the 'javascript:' URI, which cou",
+   "sinks": [
+    "React\\.\\s*createElement\\s*\\("
+   ],
+   "sources": [
+    "X\\.Y",
+    "X\\[\\.\\.\\.\\]",
+    "`\\.\\.\\.\\{X\\}\\.\\.\\.`\\\n",
+    "SANITIZE\\ \\+\\ <\\.\\.\\.\\ X\\ \\.\\.\\.>\\\n",
+    "A\\s*\\(",
+    "SANITIZE\\.\\ \\.\\.\\.\\ \\.A\\(SOURCE\\)",
+    "A\\.\\ \\.\\.\\.\\ \\.SANITIZE\\(SOURCE\\)"
+   ],
+   "sanitizers": []
+  },
+  {
+   "id": "react-unsanitized-method",
+   "langs": [
+    "typescript",
+    "javascript"
+   ],
+   "severity": "MEDIUM",
+   "message": "Detection of $HTML from non-constant definition. This can inadvertently expose users to cross-site scripting (XSS) attacks if this comes fro",
+   "sinks": [
+    "this\\.window\\.document\\.\\ \\.\\.\\.\\ \\.HTML\\('\\.\\.\\.',SINK\\)\\ \\\n",
+    "window\\.document\\.\\ \\.\\.\\.\\ \\.HTML\\('\\.\\.\\.',SINK\\)\\ \\\n",
+    "document\\.\\s*HTML\\s*\\(",
+    "PROP\\.\\ \\.\\.\\.\\ \\.HTML\\('\\.\\.\\.',SINK\\)\\ \\\n"
+   ],
+   "sources": [
+    "X\\.Y",
+    "X\\[\\.\\.\\.\\]"
+   ],
+   "sanitizers": [
+    "S\\.\\s*escapeHTML\\s*\\(",
+    "VALUE\\.\\s*sanitize\\s*\\(",
+    "S\\s*\\(",
+    "S\\.\\s*sanitize\\s*\\(",
+    "S\\s*\\(",
+    "S\\s*\\(",
+    "S\\s*\\(",
+    "S\\.\\s*render\\s*\\("
+   ]
+  },
+  {
+   "id": "react-unsanitized-property",
+   "langs": [
+    "typescript",
+    "javascript"
+   ],
+   "severity": "MEDIUM",
+   "message": "Detection of $HTML from non-constant definition. This can inadvertently expose users to cross-site scripting (XSS) attacks if this comes fro",
+   "sinks": [
+    "BODY\\.\\ \\.\\.\\.\\ \\.HTML\\ =\\ SINK\\ \\\n",
+    "BODY\\.HTML\\ =\\ SINK\\ \\ \\\n",
+    "ReactDOM\\.\\s*findDOMNode\\s*\\("
+   ],
+   "sources": [
+    "X\\.Y",
+    "X\\[\\.\\.\\.\\]"
+   ],
+   "sanitizers": [
+    "S\\.\\s*escapeHTML\\s*\\(",
+    "VALUE\\.\\s*sanitize\\s*\\(",
+    "S\\s*\\(",
+    "S\\.\\s*sanitize\\s*\\(",
+    "S\\s*\\(",
+    "S\\s*\\(",
+    "S\\s*\\(",
+    "S\\.\\s*render\\s*\\("
+   ]
+  },
+  {
+   "id": "strict-cmd-injection",
+   "langs": [
+    "python"
+   ],
+   "severity": "HIGH",
+   "message": "command sink with unknown taint (strict)",
+   "sinks": [
+    "os\\.\\s*system\\s*\\(",
+    "getattr\\s*\\(",
+    "__import__\\s*\\(",
+    "getattr\\s*\\(",
+    "[\\w.\\[\\]'\\\"() ]+\\ =\\ __import__\\(\"os\"\\)\\\n\\.\\.\\.\\\n[\\w.\\[\\]'\\\"() ]+\\.system\\(\\.\\.\\.\\)",
+    "[\\w.\\[\\]'\\\"() ]+\\ =\\ __import__\\(\"os\"\\)\\\n\\.\\.\\.\\\ngetattr\\([\\w.\\[\\]'\\\"() ]+,\\ \"system\"\\)\\(\\.\\.\\.\\)",
+    "[\\w.\\[\\]'\\\"() ]+\\ =\\ getattr\\(os,\\ \"system\"\\)\\\n\\.\\.\\.\\\n[\\w.\\[\\]'\\\"() ]+\\(\\.\\.\\.\\)",
+    "[\\w.\\[\\]'\\\"() ]+\\ =\\ __import__\\(\"os\"\\)\\\n\\.\\.\\.\\\n[\\w.\\[\\]'\\\"() ]+\\ =\\ getattr\\([\\w.\\[\\]'\\\"() ]+,\\ \"system\"\\)\\\n\\.\\.\\.\\\n[\\w.\\[\\]'\\\"() ]+\\(\\.\\.\\.\\)",
+    "os\\.\\s*popen\\s*\\(",
+    "os\\.\\s*popen2\\s*\\(",
+    "os\\.\\s*popen3\\s*\\(",
+    "os\\.\\s*popen4\\s*\\("
+   ],
+   "sources": [
+    "flask\\.\\s*request\\.\\s*form\\.\\s*get\\s*\\(",
+    "flask\\.request\\.form\\[\\.\\.\\.\\]",
+    "flask\\.\\s*request\\.\\s*args\\.\\s*get\\s*\\(",
+    "flask\\.request\\.args\\[\\.\\.\\.\\]",
+    "flask\\.\\s*request\\.\\s*values\\.\\s*get\\s*\\(",
+    "flask\\.request\\.values\\[\\.\\.\\.\\]",
+    "flask\\.\\s*request\\.\\s*cookies\\.\\s*get\\s*\\(",
+    "flask\\.request\\.cookies\\[\\.\\.\\.\\]",
+    "flask\\.request\\.stream",
+    "flask\\.\\s*request\\.\\s*headers\\.\\s*get\\s*\\(",
+    "flask\\.request\\.headers\\[\\.\\.\\.\\]",
+    "flask\\.request\\.data",
+    "flask\\.request\\.full_path",
+    "flask\\.request\\.url",
+    "flask\\.request\\.json",
+    "flask\\.\\s*request\\.\\s*get_json\\s*\\(",
+    "flask\\.\\s*request\\.\\s*view_args\\.\\s*get\\s*\\(",
+    "flask\\.request\\.view_args\\[\\.\\.\\.\\]",
+    "request\\.[\\w.\\[\\]'\\\"() ]+\\.get\\(\\.\\.\\.\\)",
+    "request\\.[\\w.\\[\\]'\\\"() ]+\\[\\.\\.\\.\\]",
+    "[\\w.\\[\\]'\\\"() ]+\\.POST\\.get\\(\\.\\.\\.\\)",
+    "[\\w.\\[\\]'\\\"() ]+\\.POST\\[\\.\\.\\.\\]",
+    "[\\w.\\[\\]'\\\"() ]+\\.FILES\\.get\\(\\.\\.\\.\\)",
+    "[\\w.\\[\\]'\\\"() ]+\\.FILES\\[\\.\\.\\.\\]",
+    "[\\w.\\[\\]'\\\"() ]+\\.DATA\\.get\\(\\.\\.\\.\\)",
+    "[\\w.\\[\\]'\\\"() ]+\\.DATA\\[\\.\\.\\.\\]",
+    "[\\w.\\[\\]'\\\"() ]+\\.QUERY_PARAMS\\.get\\(\\.\\.\\.\\)",
+    "[\\w.\\[\\]'\\\"() ]+\\.QUERY_PARAMS\\[\\.\\.\\.\\]",
+    "[\\w.\\[\\]'\\\"() ]+\\.data\\.get\\(\\.\\.\\.\\)",
+    "[\\w.\\[\\]'\\\"() ]+\\.data\\[\\.\\.\\.\\]",
+    "[\\w.\\[\\]'\\\"() ]+\\.query_params\\.get\\(\\.\\.\\.\\)",
+    "[\\w.\\[\\]'\\\"() ]+\\.query_params\\[\\.\\.\\.\\]",
+    "[\\w.\\[\\]'\\\"() ]+\\.content_type",
+    "[\\w.\\[\\]'\\\"() ]+\\.content_type",
+    "[\\w.\\[\\]'\\\"() ]+\\.stream",
+    "[\\w.\\[\\]'\\\"() ]+\\.stream",
+    "self\\.requestline",
+    "self\\.path",
+    "self\\.headers\\[\\.\\.\\.\\]",
+    "self\\.\\s*headers\\.\\s*get\\s*\\(",
+    "self\\.rfile",
+    "[\\w.\\[\\]'\\\"() ]+\\.[\\w.\\[\\]'\\\"() ]+"
+   ],
+   "sanitizers": [
+    "shlex\\.quote",
+    "html\\.escape"
+   ],
+   "strict_missing": true
+  },
+  {
+   "id": "gcs-path-traversal",
+   "langs": [
+    "go"
+   ],
+   "severity": "MEDIUM",
+   "message": "A GCS file path was found to be crafted from user-input `$REQUEST` and concatenated with a possible base folder `$FOLDER`. This could indica",
+   "sinks": [
+    "STORAGE\\.\\s*Object\\s*\\("
+   ],
+   "sources": [
+    "fmt\\.\\s*Fprintf\\s*\\(",
+    "fmt\\.\\s*Sprintf\\s*\\(",
+    "fmt\\.\\s*Printf\\s*\\("
+   ],
+   "sanitizers": []
+  },
+  {
+   "id": "android.gitlab.kotlin_xss_rule-XSSReqParamToServletWriter",
+   "langs": [
+    "kotlin"
+   ],
+   "severity": "MEDIUM",
+   "message": "Servlet reflected cross site scripting vulnerability\n",
+   "sinks": [
+    "WRITER\\.\\s*write\\s*\\(",
+    "RES\\.\\s*getWriter\\s*\\("
+   ],
+   "sources": [
+    "REQ\\.\\s*getParameter\\s*\\("
+   ],
+   "sanitizers": []
+  },
+  {
+   "id": "MSTG-PLATFORM-2_3",
+   "langs": [
+    "java"
+   ],
+   "severity": "MEDIUM",
+   "message": "Identified a potential SQL Injection vulnerability during intent handling.",
+   "sinks": [
+    "DB\\.\\s*delete\\s*\\(",
+    "DB\\.\\s*update\\s*\\(",
+    "DB\\.\\s*updateWithOnConflict\\s*\\(",
+    "DB\\.\\s*execSQL\\s*\\(",
+    "DB\\.\\s*rawQuery\\s*\\(",
+    "DB\\.\\s*query\\s*\\(",
+    "DB\\.\\s*queryWithFactory\\s*\\(",
+    "DB\\.\\s*rawQueryWithFactory\\s*\\("
+   ],
+   "sources": [
+    "getIntent\\s*\\(",
+    "I\\.\\s*GETMETHOD\\s*\\(",
+    "I\\.\\s*GETMETHOD\\s*\\(",
+    "I\\.\\s*GETMETHOD\\s*\\(",
+    "I\\.\\s*GETMETHOD\\s*\\("
+   ],
+   "sanitizers": []
+  },
+  {
+   "id": "MSTG-PLATFORM-2_6",
+   "langs": [
+    "java"
+   ],
+   "severity": "MEDIUM",
+   "message": "Potential Fragment Injection found in the dinamically instantiated Fragment.",
+   "sinks": [
+    "Fragment\\.\\s*instantiate\\s*\\("
+   ],
+   "sources": [
+    "getIntent\\s*\\("
+   ],
+   "sanitizers": []
+  },
+  {
+   "id": "go_filesystem_rule-decompression-bomb",
+   "langs": [
+    "go"
+   ],
+   "severity": "MEDIUM",
+   "message": "Directly decompressing files or buffers may lead to a potential Denial of Service (DoS)\ndue to a decompression bomb. Decompression bombs are",
+   "sinks": [
+    "io\\.\\s*Copy\\s*\\(",
+    "io\\.\\s*CopyBuffer\\s*\\("
+   ],
+   "sources": [
+    "gzip\\.\\s*NewReader\\s*\\(",
+    "zlib\\.\\s*NewReader\\s*\\(",
+    "bzip2\\.\\s*NewReader\\s*\\(",
+    "flate\\.\\s*NewReader\\s*\\(",
+    "lzw\\.\\s*NewReader\\s*\\(",
+    "tar\\.\\s*NewReader\\s*\\(",
+    "zip\\.\\s*NewReader\\s*\\(",
+    "zlib\\.\\s*NewReaderDict\\s*\\(",
+    "flate\\.\\s*NewReaderDict\\s*\\(",
+    "zip\\.\\s*OpenReader\\s*\\("
+   ],
+   "sanitizers": [
+    "io\\.\\s*LimitReader\\s*\\("
+   ]
+  },
+  {
+   "id": "go_filesystem_rule-fileread",
+   "langs": [
+    "go"
+   ],
+   "severity": "MEDIUM",
+   "message": "The application dynamically constructs file or path information. If the path\ninformation comes from user input, it could be abused to read s",
+   "sinks": [
+    "os\\.\\s*OpenFile\\s*\\(",
+    "os\\.\\s*Open\\s*\\(",
+    "os\\.\\s*ReadFile\\s*\\(",
+    "ioutil\\.\\s*ReadFile\\s*\\("
+   ],
+   "sources": [
+    "os\\.\\s*Getenv\\s*\\(",
+    "fmt\\.\\s*Sprintf\\s*\\(",
+    "filepath\\.\\s*Join\\s*\\(",
+    "path\\.\\s*Join\\s*\\("
+   ],
+   "sanitizers": []
+  },
+  {
+   "id": "go_filesystem_rule-ziparchive",
+   "langs": [
+    "go"
+   ],
+   "severity": "MEDIUM",
+   "message": "The application may be vulnerable to a path traversal if it extracts untrusted archive files.\nThis vulnerability is colloquially known as 'Z",
+   "sinks": [
+    "filepath\\.\\s*Join\\s*\\("
+   ],
+   "sources": [
+    "zip\\.\\s*OpenReader\\s*\\(",
+    "tar\\.\\s*OpenReader\\s*\\("
+   ],
+   "sanitizers": []
+  },
+  {
+   "id": "go_injection_rule-ssrf",
+   "langs": [
+    "go"
+   ],
+   "severity": "MEDIUM",
+   "message": "Server-Side-Request-Forgery (SSRF) exploits backend systems that initiate requests to third\nparties.\nIf user input is used in constructing o",
+   "sinks": [
+    "http\\.\\s*Head\\s*\\(",
+    "http\\.\\s*Get\\s*\\(",
+    "http\\.\\s*Post\\s*\\(",
+    "http\\.\\s*PostForm\\s*\\(",
+    "http\\.\\s*NewRequest\\s*\\(",
+    "http\\.\\s*DefaultClient\\.\\s*Head\\s*\\(",
+    "http\\.\\s*DefaultClient\\.\\s*Get\\s*\\(",
+    "http\\.\\s*DefaultClient\\.\\s*Post\\s*\\(",
+    "http\\.\\s*DefaultClient\\.\\s*PostForm\\s*\\(",
+    "http\\.\\s*NewRequestWithContext\\s*\\(",
+    "ftp\\.\\s*Dial\\s*\\(",
+    "ldap\\.\\s*DialURL\\s*\\(",
+    "smtp\\.\\s*Dial\\s*\\(",
+    "retryablehttp\\.\\s*NewRequest\\s*\\(",
+    "C\\.\\s*Get\\s*\\(",
+    "C\\.\\s*Post\\s*\\(",
+    "C\\.\\s*PostForm\\s*\\(",
+    "C\\.\\s*Head\\s*\\("
+   ],
+   "sources": [
+    "os\\.\\s*Getenv\\s*\\("
+   ],
+   "sanitizers": []
+  },
+  {
+   "id": "go_sql_rule-concat-sqli",
+   "langs": [
+    "go"
+   ],
+   "severity": "MEDIUM",
+   "message": "SQL Injection is a critical vulnerability that can lead to data or system compromise. By\ndynamically generating SQL query strings, user inpu",
+   "sinks": [
+    "DB\\.\\s*METHOD\\s*\\("
+   ],
+   "sources": [
+    "fmt\\.\\s*Sprintf\\s*\\("
+   ],
+   "sanitizers": []
+  },
+  {
+   "id": "react-native.platform.dynamic-linking-open-url",
+   "langs": [
+    "javascript",
+    "typescript"
+   ],
+   "severity": "MEDIUM",
+   "message": "Untrusted URL reaches Linking.openURL without validation.",
+   "sinks": [
+    "Linking\\.\\s*openURL\\s*\\("
+   ],
+   "sources": [
+    "Linking\\.\\s*getInitialURL\\s*\\("
+   ],
+   "sanitizers": [
+    "Linking\\.\\s*canOpenURL\\s*\\(",
+    "URL\\.\\s*startsWith\\s*\\(",
+    "ALLOWED\\.\\s*includes\\s*\\("
+   ]
+  },
+  {
+   "id": "react-native.platform.native-module-untrusted-input",
+   "langs": [
+    "javascript",
+    "typescript"
+   ],
+   "severity": "MEDIUM",
+   "message": "External data reaches a NativeModules bridge call without validation.",
+   "sinks": [
+    "NativeModules\\.\\s*MODULE\\.\\s*METHOD\\s*\\("
+   ],
+   "sources": [
+    "REQUEST\\.\\s*json\\s*\\("
+   ],
+   "sanitizers": [
+    "SCHEMA\\.\\s*parse\\s*\\(",
+    "SCHEMA\\.\\s*safeParse\\s*\\(",
+    "validate\\s*\\(",
+    "sanitize\\s*\\("
+   ]
+  },
+  {
+   "id": "MSTG-PLATFORM-2_3",
+   "langs": [
+    "java"
+   ],
+   "severity": "MEDIUM",
+   "message": "Identified a potential SQL Injection vulnerability during intent handling.",
+   "sinks": [
+    "DB\\.\\s*delete\\s*\\(",
+    "DB\\.\\s*update\\s*\\(",
+    "DB\\.\\s*updateWithOnConflict\\s*\\(",
+    "DB\\.\\s*execSQL\\s*\\(",
+    "DB\\.\\s*rawQuery\\s*\\(",
+    "DB\\.\\s*query\\s*\\(",
+    "DB\\.\\s*queryWithFactory\\s*\\(",
+    "DB\\.\\s*rawQueryWithFactory\\s*\\("
+   ],
+   "sources": [
+    "getIntent\\s*\\(",
+    "I\\.\\s*GETMETHOD\\s*\\(",
+    "I\\.\\s*GETMETHOD\\s*\\(",
+    "I\\.\\s*GETMETHOD\\s*\\(",
+    "I\\.\\s*GETMETHOD\\s*\\("
+   ],
+   "sanitizers": []
+  },
+  {
+   "id": "MSTG-PLATFORM-2_6",
+   "langs": [
+    "java"
+   ],
+   "severity": "MEDIUM",
+   "message": "Potential Fragment Injection found in the dinamically instantiated Fragment.",
+   "sinks": [
+    "Fragment\\.\\s*instantiate\\s*\\("
+   ],
+   "sources": [
+    "getIntent\\s*\\("
+   ],
+   "sanitizers": []
+  },
+  {
+   "id": "bench-web-taint",
+   "langs": [
+    "python"
+   ],
+   "severity": "HIGH",
+   "message": "web input reaches a dangerous sink",
+   "sinks": [
+    "(?<![\\w.])(?:eval|exec)\\s*\\(",
+    "(?:os\\s*\\.\\s*)?(?:system|popen)\\s*\\(",
+    "(?:subprocess\\.(?:run|call|Popen))\\s*\\("
+   ],
+   "sources": [
+    "(?<![\\w.])request\\b"
+   ],
+   "sanitizers": [
+    "shlex\\.quote",
+    "html\\.escape"
+   ]
+  }
+ ]
+}

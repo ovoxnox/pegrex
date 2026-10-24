@@ -1,0 +1,13 @@
+# PegRex pre-commit integration: one gate composing the engine's existing
+# checks (cognitive budget report + refinement-contract discharge) over the
+# staged Python files. Refuses loudly outside a git repository.
+- id: pegrex-gate
+  name: pegrex gate (cognitive budget + refinement contracts)
+  entry: python tools/ci_gate.py --staged
+  language: python
+  types: [python]
+  description: >-
+    PegRex CI gate: reports per-function cognitive complexity (fails only
+    with --fail-on-over, which pre-commit users can pass via args) and
+    discharges `# requires:` / `# ensures:` refinement contracts, failing on
+    any violated contract. Runs entirely offline; never guesses.

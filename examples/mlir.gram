@@ -1,0 +1,9 @@
+Module    <== `module` @`{` Op* @`}`
+Op        <== OpName ArgList? Region*
+OpName    <-- {[%a][%w.]*} SKIP
+ArgList   <-- `(` {~ (!`)` .)* ~} `)`
+Region    <== `{` Op* @`}`
+
+test      <-- `x`
+SKIP      <-- (%s / LINEBREAK)*
+LINEBREAK <-- %cn %cr? / %cr

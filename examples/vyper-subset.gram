@@ -1,0 +1,26 @@
+Source   <== SKIP TopLevel*
+TopLevel <-- FuncDef / EventDef
+FuncDef  <== Decorator* `def` @Name `(` Params? @`)` (`->` Name)? `:`
+             Body
+Decorator <-- `@` Name (`(` (!LINEBREAK .)* `)`)? LINEBREAK?
+EventDef <== `event` @Name `:` Body
+
+Body     <-- Statement+
+Statement <-- SKIP (Return / IfStmt / Assign / ExprStmt)
+Return   <== `return` @Expr LINEBREAK?
+IfStmt   <== `if` @Cond `:` Body (`else` `:` Body)~?
+Assign   <== Name @`:` Type @`=` Expr LINEBREAK?
+ExprStmt <-- Call LINEBREAK?
+Expr     <-- Call / Cond / Name / Number
+Call     <== Name `(` (Expr (`,` @Expr)*)? @`)`
+Cond     <-- {!LINEBREAK !`:` .}+
+Params   <-- Param (`,` @Param)*
+Param    <-- Name @`:` Type
+Type     <-- {[_%a][_%w]*} SKIP
+Name     <-- {[_%a][_%w]*} SKIP
+Number   <-- {[+-]? %d+ ('.' %d+)?} -> tonumber SKIP
+
+Keyword  <-- `def` / `return` / `if` / `else` / `event` / `log`
+NAME_SUFFIX <-- [_%w]+
+SKIP     <-- (%s / LINEBREAK)*
+LINEBREAK <-- %cn %cr? / %cr

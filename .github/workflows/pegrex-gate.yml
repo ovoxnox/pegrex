@@ -1,0 +1,22 @@
+name: pegrex-gate
+
+# The composed local/CI gate (m150) as a standalone workflow. Verdicts are
+# three-valued; the gate fails loudly naming every failed check.
+on:
+  workflow_dispatch:
+  pull_request:
+
+jobs:
+  gate:
+    runs-on: athenaos
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # verify_patch needs the PR base ref available
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: install engine dependency
+        run: pip install pydantic
+      - name: pegrex gate (cognitive budget over budget = fail)
+        run: python tools/ci_gate.py --fail-on-over .

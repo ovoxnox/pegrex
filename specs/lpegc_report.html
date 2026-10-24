@@ -1,0 +1,126 @@
+<!doctype html>
+<html lang=en><head><meta charset=utf-8>
+<meta name=viewport content="width=device-width,initial-scale=1">
+<title>pegrex/lpegc/compiler.py</title><style>
+:root{--bg:#04050d;--panel:rgba(13,17,38,.72);--edge:rgba(0,240,255,.22);
+  --cyan:#00f0ff;--mag:#ff00a8;--grn:#39ff14;--dim:#7a86b8;--txt:#c9d4ff}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--txt);
+  font:14px/1.55 "JetBrains Mono",ui-monospace,Menlo,Consolas,monospace;}
+body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;
+  background:repeating-linear-gradient(0deg,rgba(255,255,255,.028) 0 1px,transparent 1px 3px);}
+body::after{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;
+  background:radial-gradient(60% 40% at 15% 0%,rgba(255,0,168,.10),transparent 60%),
+  radial-gradient(50% 35% at 90% 10%,rgba(0,240,255,.10),transparent 60%);}
+.wrap{position:relative;z-index:1;max-width:1040px;margin:0 auto;padding:34px 22px 60px}
+header.hero{position:relative;padding:26px 26px 22px;border:1px solid var(--edge);
+  background:linear-gradient(160deg,rgba(0,240,255,.06),rgba(255,0,168,.05) 60%,rgba(0,0,0,0));
+  clip-path:polygon(0 0,calc(100% - 26px) 0,100% 26px,100% 100%,26px 100%,0 calc(100% - 26px));}
+h1{margin:0;font-size:26px;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--cyan);text-shadow:0 0 18px rgba(0,240,255,.65),0 0 46px rgba(0,240,255,.30);}
+.sub{color:var(--dim);margin-top:6px;letter-spacing:.06em}
+.stats{display:flex;flex-wrap:wrap;gap:10px;margin:20px 0 8px}
+.chip{--c:var(--cyan);border:1px solid color-mix(in srgb,var(--c) 45%,transparent);
+  color:var(--c);background:color-mix(in srgb,var(--c) 9%,transparent);
+  padding:4px 12px;border-radius:3px;letter-spacing:.08em;font-size:12px;
+  text-shadow:0 0 10px var(--c);}
+.chip b{margin-left:6px}
+details.sev{margin:16px 0;border:1px solid var(--edge);background:var(--panel);
+  backdrop-filter:blur(6px);border-radius:6px;overflow:hidden}
+details.sev>summary{cursor:pointer;list-style:none;padding:12px 16px;
+  letter-spacing:.12em;font-weight:700;display:flex;gap:10px;align-items:center;
+  background:rgba(255,255,255,.02);}
+details.sev>summary::-webkit-details-marker{display:none}
+details.sev>summary::after{content:"b8";margin-left:auto;color:var(--dim);
+  transition:transform .15s}
+details.sev[open]>summary::after{transform:rotate(90deg)}
+.sevdot{--c:var(--cyan);width:10px;height:10px;border-radius:50%;background:var(--c);
+  box-shadow:0 0 12px var(--c)}
+details.finding{border-top:1px solid rgba(255,255,255,.05)}
+details.finding>summary{cursor:pointer;list-style:none;display:flex;gap:12px;
+  align-items:center;padding:9px 16px}
+details.finding>summary::-webkit-details-marker{display:none}
+details.finding>summary:hover{background:rgba(0,240,255,.05)}
+.badge{--c:var(--cyan);color:var(--c);border:1px solid color-mix(in srgb,var(--c) 55%,transparent);
+  padding:1px 8px;font-size:11px;border-radius:2px;letter-spacing:.1em;
+  text-shadow:0 0 8px var(--c);min-width:76px;text-align:center}
+.rule{color:var(--txt)}
+.loc{color:var(--dim);font-size:12px}
+.chev{margin-left:auto;color:var(--dim)}
+details.finding .ev{padding:4px 18px 14px 116px;color:#a9b6e8;white-space:pre-wrap;
+  font-size:13px;border-left:2px solid rgba(0,240,255,.25);margin:0 16px 12px;}
+details.raw pre{max-height:340px;overflow:auto;background:rgba(0,0,0,.45);
+  border:1px solid var(--edge);padding:14px;border-radius:6px;font-size:12px}
+footer{margin-top:34px;color:var(--dim);font-size:12px;letter-spacing:.08em;
+  display:flex;justify-content:space-between;border-top:1px solid rgba(255,255,255,.06);
+  padding-top:14px}
+</style></head><body><div class=wrap>
+<header class=hero><h1>pegrex/lpegc/compiler.py</h1>
+<div class=sub>pegrex security export -- 6 finding(s) -- 2026-10-24 05:40</div>
+<div class=stats><span class=chip style=--c:#ff6b35>HIGH <b>1</b></span><span class=chip style=--c:#ffb300>MEDIUM <b>5</b></span></div></header>
+<details class=sev open><summary><span class=sevdot style=--c:#ff6b35></span>HIGH <b>1</b></summary><details class=finding><summary><span class=badge style=--c:#ff6b35>HIGH</span><span class=rule>useless-literal-set</span><span class=loc>L40</span><span class=chev>▸</span></summary><div class=ev>set()</div></details></details><details class=sev><summary><span class=sevdot style=--c:#ffb300></span>MEDIUM <b>5</b></summary><details class=finding><summary><span class=badge style=--c:#ffb300>MEDIUM</span><span class=rule>global-autoescape-off</span><span class=loc>L23</span><span class=chev>▸</span></summary><div class=ev>OPTIONS</div></details><details class=finding><summary><span class=badge style=--c:#ffb300>MEDIUM</span><span class=rule>attr-mutable-initializer</span><span class=loc>L33</span><span class=chev>▸</span></summary><div class=ev>dict(defs or {})</div></details><details class=finding><summary><span class=badge style=--c:#ffb300>MEDIUM</span><span class=rule>useless-literal</span><span class=loc>L33</span><span class=chev>▸</span></summary><div class=ev>dict(defs or {})</div></details><details class=finding><summary><span class=badge style=--c:#ffb300>MEDIUM</span><span class=rule>global-autoescape-off</span><span class=loc>L34</span><span class=chev>▸</span></summary><div class=ev>OPTIONS</div></details><details class=finding><summary><span class=badge style=--c:#ffb300>MEDIUM</span><span class=rule>attr-mutable-initializer</span><span class=loc>L40</span><span class=chev>▸</span></summary><div class=ev>set()</div></details></details>
+<details class="sev raw"><summary><span class=sevdot style=--c:#8b949e></span>
+RAW JSON</summary><pre>[
+ {
+  &quot;id&quot;: &quot;useless-literal-set&quot;,
+  &quot;severity&quot;: &quot;HIGH&quot;,
+  &quot;confidence&quot;: &quot;high&quot;,
+  &quot;line&quot;: 40,
+  &quot;evidence&quot;: &quot;set()&quot;,
+  &quot;message&quot;: &quot;`$X` is uselessly assigned twice inside the creation of the set&quot;,
+  &quot;kind&quot;: &quot;pattern&quot;,
+  &quot;function&quot;: null
+ },
+ {
+  &quot;id&quot;: &quot;global-autoescape-off&quot;,
+  &quot;severity&quot;: &quot;MEDIUM&quot;,
+  &quot;confidence&quot;: &quot;low&quot;,
+  &quot;line&quot;: 23,
+  &quot;evidence&quot;: &quot;OPTIONS&quot;,
+  &quot;message&quot;: &quot;Autoescape is globally disbaled for this Django application. If you are rendering any web pages, this exposes your application to cross-site&quot;,
+  &quot;kind&quot;: &quot;pattern&quot;,
+  &quot;function&quot;: null
+ },
+ {
+  &quot;id&quot;: &quot;attr-mutable-initializer&quot;,
+  &quot;severity&quot;: &quot;MEDIUM&quot;,
+  &quot;confidence&quot;: &quot;high&quot;,
+  &quot;line&quot;: 33,
+  &quot;evidence&quot;: &quot;dict(defs or {})&quot;,
+  &quot;message&quot;: &quot;Unsafe usage of mutable initializer with attr.s decorator. Multiple instances of this class will re-use the same data structure, which is li&quot;,
+  &quot;kind&quot;: &quot;pattern&quot;,
+  &quot;function&quot;: null
+ },
+ {
+  &quot;id&quot;: &quot;useless-literal&quot;,
+  &quot;severity&quot;: &quot;MEDIUM&quot;,
+  &quot;confidence&quot;: &quot;high&quot;,
+  &quot;line&quot;: 33,
+  &quot;evidence&quot;: &quot;dict(defs or {})&quot;,
+  &quot;message&quot;: &quot;key `$X` is uselessly assigned twice&quot;,
+  &quot;kind&quot;: &quot;pattern&quot;,
+  &quot;function&quot;: null
+ },
+ {
+  &quot;id&quot;: &quot;global-autoescape-off&quot;,
+  &quot;severity&quot;: &quot;MEDIUM&quot;,
+  &quot;confidence&quot;: &quot;low&quot;,
+  &quot;line&quot;: 34,
+  &quot;evidence&quot;: &quot;OPTIONS&quot;,
+  &quot;message&quot;: &quot;Autoescape is globally disbaled for this Django application. If you are rendering any web pages, this exposes your application to cross-site&quot;,
+  &quot;kind&quot;: &quot;pattern&quot;,
+  &quot;function&quot;: null
+ },
+ {
+  &quot;id&quot;: &quot;attr-mutable-initializer&quot;,
+  &quot;severity&quot;: &quot;MEDIUM&quot;,
+  &quot;confidence&quot;: &quot;high&quot;,
+  &quot;line&quot;: 40,
+  &quot;evidence&quot;: &quot;set()&quot;,
+  &quot;message&quot;: &quot;Unsafe usage of mutable initializer with attr.s decorator. Multiple instances of this class will re-use the same data structure, which is li&quot;,
+  &quot;kind&quot;: &quot;pattern&quot;,
+  &quot;function&quot;: null
+ }
+]</pre></details>
+<footer><span>PEGREX // EXPORT MODULE</span><span>PROOF &gt; PROMISE</span></footer>
+</div></body></html>

@@ -1,0 +1,8 @@
+SExpr   <== SKIP Atom+
+Atom    <-- Number / String / Symbol / List
+List    <== `(` Atom* @`)`
+Number  <-- {[+-]? %d+ ('.' %d+)?} -> tonumber SKIP
+String  <-- `"` {~ (!`"` .)* ~} @`"` SKIP
+Symbol  <-- {!Delim {[_%w+-*/<>=!?]+}} SKIP
+Delim   <-- `(` / `)` / `"` / %s
+SKIP    <-- %s*

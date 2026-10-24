@@ -1,0 +1,104 @@
+{
+ "name": "codepaths security refactor",
+ "preprocess": {
+  "language": "py",
+  "source_files": [
+   "codepaths.py"
+  ],
+  "context": "findings in codepaths_audit.json"
+ },
+ "tasks": [
+  {
+   "order": 1,
+   "priority": "HIGH",
+   "task": "[open-never-closed] file object opened without corresponding close",
+   "lines": [
+    53
+   ],
+   "verify": "python tools/secaudit.py codepaths.py --json | audit['open-never-closed'] count == 0"
+  },
+  {
+   "order": 2,
+   "priority": "HIGH",
+   "task": "[useless-literal-set] `$X` is uselessly assigned twice inside the creation of the set",
+   "lines": [
+    106
+   ],
+   "verify": "python tools/secaudit.py codepaths.py --json | audit['useless-literal-set'] count == 0"
+  },
+  {
+   "order": 3,
+   "priority": "MEDIUM",
+   "task": "[use-sys-exit] Detected use of `exit`. Use `sys.exit` over the python shell `exit` built-in. `exit` is a helper for the interactive shell and may not be av",
+   "lines": [
+    40
+   ],
+   "verify": "python tools/secaudit.py codepaths.py --json | audit['use-sys-exit'] count == 0"
+  },
+  {
+   "order": 4,
+   "priority": "MEDIUM",
+   "task": "[path-traversal-join] Data from request is passed to os.path.join() and to open(). This is a path traversal vulnerability, which can lead to sensitive data being ",
+   "lines": [
+    53
+   ],
+   "verify": "python tools/secaudit.py codepaths.py --json | audit['path-traversal-join'] count == 0"
+  },
+  {
+   "order": 5,
+   "priority": "MEDIUM",
+   "task": "[path-traversal-open] Found request data in a call to 'open'. Ensure the request data is validated or sanitized, otherwise it could result in path traversal attac",
+   "lines": [
+    53
+   ],
+   "verify": "python tools/secaudit.py codepaths.py --json | audit['path-traversal-open'] count == 0"
+  },
+  {
+   "order": 6,
+   "priority": "MEDIUM",
+   "task": "[unspecified-open-encoding] Missing 'encoding' parameter. 'open()' uses device locale encodings by default, corrupting files with special characters. Specify the encodi",
+   "lines": [
+    53
+   ],
+   "verify": "python tools/secaudit.py codepaths.py --json | audit['unspecified-open-encoding'] count == 0"
+  },
+  {
+   "order": 7,
+   "priority": "MEDIUM",
+   "task": "[file-object-redefined-before-close] Detected a file object that is redefined and never closed. This could leak file descriptors and unnecessarily consume system resources.",
+   "lines": [
+    53
+   ],
+   "verify": "python tools/secaudit.py codepaths.py --json | audit['file-object-redefined-before-close'] count == 0"
+  },
+  {
+   "order": 8,
+   "priority": "MEDIUM",
+   "task": "[attr-mutable-initializer] Unsafe usage of mutable initializer with attr.s decorator. Multiple instances of this class will re-use the same data structure, which is li",
+   "lines": [
+    106
+   ],
+   "verify": "python tools/secaudit.py codepaths.py --json | audit['attr-mutable-initializer'] count == 0"
+  },
+  {
+   "order": 9,
+   "priority": "MEDIUM",
+   "task": "[regex_dos] Detected usage of re.compile with an inefficient regular expression. This can lead to regular expression denial of service, which can result",
+   "lines": [
+    169
+   ],
+   "verify": "python tools/secaudit.py codepaths.py --json | audit['regex_dos'] count == 0"
+  }
+ ],
+ "postprocess": {
+  "expected_artifacts": [
+   "codepaths.py (refactored)",
+   "tests/"
+  ],
+  "invariants": [
+   "audit total findings reduced to agreed floor",
+   "refactored module passes its test suite",
+   "behavior preserved on a fixed sample input"
+  ]
+ }
+}

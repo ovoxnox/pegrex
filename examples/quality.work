@@ -1,0 +1,13 @@
+work quality_analyst {
+  goal: detect data anomalies before they ship
+  inputs: [dataset, threshold]
+  outputs: [report]
+  tools: [audit, gaps]
+  invariants: [zero critical findings, report exists]
+  workflow: [collect_data -> detect_anomaly -> write_report]
+  executors: {
+    collect_data: code
+    detect_anomaly: rule
+    write_report: slm
+  }
+}

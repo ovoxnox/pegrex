@@ -1,0 +1,26 @@
+Work        <== `work` @Name `{` Field* @`}`
+Name        <-- {[a-zA-Z_][a-zA-Z0-9_]*} SKIP
+Field       <-- SKIP (Goal / Inputs / Outputs / Tools / Memory /
+                       Invariants / Workflow / Executors)
+
+Goal        <== `goal` @`:` Text
+Inputs      <== `inputs` @`:` List
+Outputs     <== `outputs` @`:` List
+Tools       <== `tools` @`:` List
+Memory      <== `memory` @`:` Text
+Invariants  <== `invariants` @`:` List
+Workflow    <== `workflow` @`:` `[` StepList @`]`
+Executors   <== `executors` @`:` `{` ExecPair* @`}`
+
+StepList    <-- Step (`->` @Step)*
+Step        <-- {!`]` !`}` Name}
+ExecPair    <-- SKIP Name @`:` ExecKind
+ExecKind    <-- `code`->'code' / `rule`->'rule' / `ml`->'ml' / `slm`->'slm'
+
+List        <-- `[` Item (`,` @Item)* @`]`
+Item        <-- {~ (!`,` !`]` !LINEBREAK .)* ~}
+Text        <-- {~ (!LINEBREAK .)* ~}
+LINEBREAK   <-- %cn %cr? / %cr
+SKIP        <-- (%s / LINEBREAK / `,`?)*
+
+NAME_SUFFIX <-- [_%w]+

@@ -1,0 +1,8 @@
+Url     <== Scheme @`://` Host (`:` Port)? Path~? @Query~?
+Scheme  <-- {[a-zA-Z][a-zA-Z0-9+.-]*}
+Host    <-- {!`/` !`?` !`:` !%sp .}+
+Port    <-- {%d+}
+Path    <-- {~ (`/` {!`?` !%sp .})+ ~}
+Query   <-- `?` {~ !%sp . ~}
+
+SKIP     <-- %s*

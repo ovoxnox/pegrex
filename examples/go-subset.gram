@@ -1,0 +1,36 @@
+SourceFile <-- SKIP TopLevel*
+TopLevel   <-- FuncDecl
+
+FuncDecl   <== `func` @Name Signature `{` Statement* @`}`
+Signature  <-- @`(` Params? @`)` Type~?
+Params     <-- Param (`,` @Param)*
+Param      <-- Name @Type
+Type       <-- Name
+
+Statement  <-- SKIP (Return / IfStmt / Assign / ExprStmt)
+Return     <== `return` @Expr @`;`~?
+IfStmt     <== `if` @Cond `{` Statement* @`}` (`else` IfStmt / `else` `{` Statement* @`}`)~?
+Assign     <== ExprName `=` Expr @`;`~?
+ExprStmt   <-- Call `;`~?
+
+Expr       <-- AddSub
+Cond       <-- AddSub opcmp*
+AddSub     <-- MulDiv opadd*
+MulDiv     <-- Unary opmul*
+Unary      <-- Primary
+Primary    <-- Number / Call / ExprName / `(` @Expr @`)`
+
+Call       <== Name `(` (Expr (`,` @Expr)*)? @`)`
+ExprName   <-- Name
+Name       <-- !Keyword %s* {[_%a][_%w]*} SKIP
+Number     <-- %s* {[+-]? %d+} -> tonumber SKIP
+
+opadd      :BinOp <== (`+`->'add' / `-`->'sub') MulDiv
+opmul      :BinOp <== (`*`->'mul' / `/`->'div') Unary
+opcmp      :BinOp <== (`==`->'eq' / `!=`->'ne' / `<=`->'le' / `>=`->'ge' / `<`->'lt' / `>`->'gt') AddSub
+
+Keyword    <-- `func` / `if` / `else` / `return`
+NAME_SUFFIX <-- [_%w]+
+SKIP       <-- (%s / LINEBREAK)*
+LINEBREAK  <-- `//` (!LINEBREAK_RAW .)* LINEBREAK_RAW / LINEBREAK_RAW
+LINEBREAK_RAW <-- %cn %cr? / %cr

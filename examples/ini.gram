@@ -1,0 +1,8 @@
+Ini      <== SKIP (Section / Entry / Comment)*
+Section  <== `[` {!`]` .}+ @`]`
+Entry    <== Key @`=` Value
+Key      <-- {[A-Za-z0-9_.-]+} SKIP
+Value    <-- {~ (!LINEBREAK .)* ~} LINEBREAK?
+Comment  <-- `;` (!LINEBREAK .)* LINEBREAK?
+LINEBREAK <-- %cn %cr? / %cr %cn?
+SKIP     <-- (%s / LINEBREAK)*

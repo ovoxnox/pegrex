@@ -1,0 +1,4 @@
+this is not mlir at all
+def python_code(): pass
+% this is not a real op line
+%x = totally-not-an-op ????

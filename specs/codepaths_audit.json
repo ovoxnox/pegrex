@@ -1,0 +1,77 @@
+{
+ "tool": "codepaths",
+ "source": "codepaths.py",
+ "audit_engine": "pegrex secaudit (semgrep-derived catalog + taint)",
+ "findings": [
+  {
+   "id": "open-never-closed",
+   "severity": "HIGH",
+   "line": 53,
+   "evidence": "r2pipe.open(binpath)",
+   "fix": "file object opened without corresponding close"
+  },
+  {
+   "id": "useless-literal-set",
+   "severity": "HIGH",
+   "line": 106,
+   "evidence": "set()",
+   "fix": "`$X` is uselessly assigned twice inside the creation of the set"
+  },
+  {
+   "id": "use-sys-exit",
+   "severity": "MEDIUM",
+   "line": 40,
+   "evidence": "sys.exit(2)",
+   "fix": "Detected use of `exit`. Use `sys.exit` over the python shell `exit` built-in. `exit` is a helper for the interactive shell and may not be av"
+  },
+  {
+   "id": "path-traversal-join",
+   "severity": "MEDIUM",
+   "line": 53,
+   "evidence": "r2pipe.open(binpath)",
+   "fix": "Data from request is passed to os.path.join() and to open(). This is a path traversal vulnerability, which can lead to sensitive data being "
+  },
+  {
+   "id": "path-traversal-open",
+   "severity": "MEDIUM",
+   "line": 53,
+   "evidence": "r2pipe.open(binpath)",
+   "fix": "Found request data in a call to 'open'. Ensure the request data is validated or sanitized, otherwise it could result in path traversal attac"
+  },
+  {
+   "id": "unspecified-open-encoding",
+   "severity": "MEDIUM",
+   "line": 53,
+   "evidence": "r2pipe.open(binpath)",
+   "fix": "Missing 'encoding' parameter. 'open()' uses device locale encodings by default, corrupting files with special characters. Specify the encodi"
+  },
+  {
+   "id": "file-object-redefined-before-close",
+   "severity": "MEDIUM",
+   "line": 53,
+   "evidence": "r2pipe.open(binpath)",
+   "fix": "Detected a file object that is redefined and never closed. This could leak file descriptors and unnecessarily consume system resources."
+  },
+  {
+   "id": "attr-mutable-initializer",
+   "severity": "MEDIUM",
+   "line": 106,
+   "evidence": "set()",
+   "fix": "Unsafe usage of mutable initializer with attr.s decorator. Multiple instances of this class will re-use the same data structure, which is li"
+  },
+  {
+   "id": "regex_dos",
+   "severity": "MEDIUM",
+   "line": 169,
+   "evidence": "sinks_re.append(re.compile(sink_re))",
+   "fix": "Detected usage of re.compile with an inefficient regular expression. This can lead to regular expression denial of service, which can result"
+  },
+  {
+   "id": "regex_dos",
+   "severity": "MEDIUM",
+   "line": 169,
+   "evidence": "re.compile(sink_re)",
+   "fix": "Detected usage of re.compile with an inefficient regular expression. This can lead to regular expression denial of service, which can result"
+  }
+ ]
+}

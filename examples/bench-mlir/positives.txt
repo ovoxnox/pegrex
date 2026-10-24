@@ -1,0 +1,6 @@
+%c0 = arith.constant 0 : i32
+%n = memref.alloc(%n) : memref<?xf32>
+%v = hivm.hir.load %p : f32
+%r = arith.addi %a, %b : i32
+%s = hivm.hir.alloc : memref<8xf32>
+%d = memref.dim %m, %c0 : index

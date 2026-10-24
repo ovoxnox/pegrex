@@ -1,0 +1,1268 @@
+{
+ "schema_version": "1.0",
+ "kind": "ai-refactor-spec",
+ "meta": {
+  "name": "lpegc_health",
+  "generated_by": "mkspec",
+  "created_at": "2026-10-24T05:24:19",
+  "source_sha256": "-",
+  "language": "multi (python 4)",
+  "analyzers": [
+   "dependencies",
+   "documentation",
+   "quality",
+   "security",
+   "structure",
+   "testing"
+  ],
+  "opus": [
+   "architecture",
+   "documentation",
+   "refactor",
+   "security",
+   "testing"
+  ],
+  "finding_count": 124,
+  "profile": "full"
+ },
+ "preprocess": {
+  "language": "",
+  "entrypoints": [],
+  "source_files": [
+   "__init__.py",
+   "compiler.py",
+   "diagnostics.py",
+   "parser.py"
+  ],
+  "dependencies": {
+   "stdlib": [],
+   "third_party": [],
+   "local": []
+  },
+  "context": "124 findings across 6 analyzers",
+  "read_first": [],
+  "constraints": {
+   "must_preserve": [
+    "runtime behavior",
+    "cli interface",
+    "public API"
+   ],
+   "style_guide": "PEP 8",
+   "python_version": ">=3.9",
+   "max_lines_per_function": 40,
+   "allowed_operations": [
+    "refactor-internals",
+    "add-tests",
+    "add-docstrings",
+    "split-modules",
+    "rename-locals",
+    "extract-helpers"
+   ],
+   "forbidden_operations": [
+    "change-cli-interface",
+    "add-runtime-dependencies",
+    "delete-public-symbols",
+    "skip-verify-commands"
+   ]
+  },
+  "environment": {
+   "python": "3.12",
+   "required_tools": [
+    "python",
+    "tools/secaudit.py"
+   ],
+   "optional_tools": [
+    "pytest",
+    "mypy",
+    "pydocstyle",
+    "ruff"
+   ]
+  }
+ },
+ "analysis": {
+  "opus": {
+   "security": {
+    "task_count": 7,
+    "summary": "__init__.py: 1 security finding(s); compiler.py: 6 security finding(s); diagnostics.py: 0 security finding(s); parser.py: 4 security finding(s)"
+   },
+   "refactor": {
+    "task_count": 1,
+    "summary": "__init__.py: 0 maintainability finding(s); loc=6 functions=0 max_nesting=4; compiler.py: 1 maintainability finding(s); loc=588 functions=32 max_nesting=23; diagnostics.py: 0 maintainability finding(s); loc=33 functions=1 max_nesting=13; parser.py: 0 maintainability finding(s); loc=128 functions=9 max_nesting=11"
+   },
+   "testing": {
+    "task_count": 31,
+    "summary": "__init__.py: 0 function(s) without tests; compiler.py: 31 function(s) without tests; diagnostics.py: 0 function(s) without tests; parser.py: 0 function(s) without tests"
+   },
+   "documentation": {
+    "task_count": 1,
+    "summary": "__init__.py: 0 public symbol(s) undocumented; compiler.py: 31 public symbol(s) undocumented; diagnostics.py: 0 public symbol(s) undocumented; parser.py: 0 public symbol(s) undocumented"
+   },
+   "architecture": {
+    "task_count": 4,
+    "summary": "__init__.py: 0 functions; deps: stdlib=0 third_party=0; compiler.py: 32 functions; deps: stdlib=3 third_party=0; diagnostics.py: 1 functions; deps: stdlib=3 third_party=0; parser.py: 9 functions; deps: stdlib=3 third_party=0"
+   }
+  },
+  "finding_counts": {
+   "security": {
+    "total": 11,
+    "by_severity": {
+     "MEDIUM": 9,
+     "HIGH": 2
+    }
+   },
+   "structure": {
+    "total": 46,
+    "by_severity": {
+     "INFO": 46
+    }
+   },
+   "dependencies": {
+    "total": 4,
+    "by_severity": {
+     "INFO": 4
+    }
+   },
+   "quality": {
+    "total": 1,
+    "by_severity": {
+     "MEDIUM": 1
+    }
+   },
+   "testing": {
+    "total": 31,
+    "by_severity": {
+     "MEDIUM": 31
+    }
+   },
+   "documentation": {
+    "total": 31,
+    "by_severity": {
+     "LOW": 31
+    }
+   }
+  },
+  "arch_index": {
+   "containers": [
+    {
+     "id": "lpegc",
+     "path": "~/pegrex/pegrex/lpegc",
+     "description": "124 findings across 6 analyzers",
+     "modules": [
+      {
+       "file": "~/pegrex/pegrex/lpegc",
+       "id": "__init__",
+       "boundary": "compiler.py: __init__ (bytes=422 ~lines=10 branches=0)",
+       "owns": [
+        "function"
+       ]
+      },
+      {
+       "file": "~/pegrex/pegrex/lpegc",
+       "id": "wh",
+       "boundary": "compiler.py: wh (bytes=344 ~lines=8 branches=2)",
+       "owns": [
+        "function"
+       ]
+      },
+      {
+       "file": "~/pegrex/pegrex/lpegc",
+       "id": "(anon)",
+       "boundary": "compiler.py: (anon) (bytes=85 ~lines=2 branches=0)",
+       "owns": [
+        "function"
+       ]
+      },
+      {
+       "file": "~/pegrex/pegrex/lpegc",
+       "id": "len",
+       "boundary": "compiler.py: len (bytes=138 ~lines=3 branches=1)",
+       "owns": [
+        "function"
+       ]
+      },
+      {
+       "file": "~/pegrex/pegrex/lpegc",
+       "id": "(anon)",
+       "boundary": "compiler.py: (anon) (bytes=125 ~lines=3 branches=1)",
+       "owns": [
+        "function"
+       ]
+      },
+      {
+       "file": "~/pegrex/pegrex/lpegc",
+       "id": "(anon)",
+       "boundary": "compiler.py: (anon) (bytes=94 ~lines=2 branches=0)",
+       "owns": [
+        "function"
+       ]
+      },
+      {
+       "file": "~/pegrex/pegrex/lpegc",
+       "id": "(anon)",
+       "boundary": "compiler.py: (anon) (bytes=532 ~lines=13 branches=4)",
+       "owns": [
+        "function"
+       ]
+      },
+      {
+       "file": "~/pegrex/pegrex/lpegc",
+       "id": "(anon)",
+       "boundary": "compiler.py: (anon) (bytes=408 ~lines=10 branches=2)",
+       "owns": [
+        "function"
+       ]
+      },
+      {
+       "file": "~/pegrex/pegrex/lpegc",
+       "id": "(anon)",
+       "boundary": "compiler.py: (anon) (bytes=342 ~lines=8 branches=2)",
+       "owns": [
+        "function"
+       ]
+      },
+      {
+       "file": "~/pegrex/pegrex/lpegc",
+       "id": "lf.defs",
+       "boundary": "compiler.py: lf.defs (bytes=415 ~lines=10 branches=3)",
+       "owns": [
+        "function"
+       ]
+      },
+      {
+       "file": "~/pegrex/pegrex/lpegc",
+       "id": "mar\")",
+       "boundary": "compiler.py: mar\") (bytes=286 ~lines=7 branches=2)",
+       "owns": [
+        "function"
+       ]
+      },
+      {
+       "file": "~/pegrex/pegrex/lpegc",
+       "id": "nd(nm)",
+       "boundary": "compiler.py: nd(nm) (bytes=257 ~lines=6 branches=2)",
+       "owns": [
+        "function"
+       ]
+      },
+      {
+       "file": "~/pegrex/pegrex/lpegc",
+       "id": "t.find(\"`\"",
+       "boundary": "compiler.py: t.find(\"`\" (bytes=1516 ~lines=37 branches=4)",
+       "owns": [
+        "function"
+       ]
+      },
+      {
+       "file": "~/pegrex/pegrex/lpegc",
+       "id": "(anon)",
+       "boundary": "compiler.py: (anon) (bytes=783 ~lines=19 branches=3)",
+       "owns": [
+        "function"
+       ]
+      },
+      {
+       "file": "~/pegrex/pegrex/lpegc",
+       "id": "(anon)",
+       "boundary": "compiler.py: (anon) (bytes=200 ~lines=5 branches=1)",
+       "owns": [
+        "function"
+       ]
+      },
+      {
+       "file": "~/pegrex/pegrex/lpegc",
+       "id": "non-pat",
+       "boundary": "compiler.py: non-pat (bytes=484 ~lines=12 branches=2)",
+       "owns": [
+        "function"
+       ]
+      },
+      {
+       "file": "~/pegrex/pegrex/lpegc",
+       "id": "(anon)",
+       "boundary": "compiler.py: (anon) (bytes=224 ~lines=5 branches=2)",
+       "owns": [
+        "function"
+       ]
+      },
+      {
+       "file": "~/pegrex/pegrex/lpegc",
+       "id": "(anon)",
+       "boundary": "compiler.py: (anon) (bytes=2373 ~lines=59 branches=7)",
+       "owns": [
+        "function"
+       ]
+      },
+      {
+       "file": "~/pegrex/pegrex/lpegc",
+       "id": "(anon)",
+       "boundary": "compiler.py: (anon) (bytes=261 ~lines=6 branches=2)",
+       "owns": [
+        "function"
+       ]
+      }
+     ]
+    }
+   ]
+  }
+ },
+ "tasks": [
+  {
+   "priority": "P1",
+   "severity": "HIGH",
+   "title": "[compiler.py] [useless-literal-set] `$X` is uselessly assigned twice inside the creation of the set",
+   "lines": [
+    40
+   ],
+   "acceptance_criteria": [
+    "the flagged pattern no longer matches useless-literal-set",
+    "no regression in surrounding behavior"
+   ],
+   "verify": [
+    "python tools/secaudit.py ~/pegrex/pegrex/lpegc/compiler.py | useless-literal-set count == 0"
+   ],
+   "estimate": "M",
+   "risk": "medium",
+   "depends_on": [],
+   "view": "security",
+   "id": "T01"
+  },
+  {
+   "priority": "P1",
+   "severity": "HIGH",
+   "title": "[parser.py] [useless-literal-set] `$X` is uselessly assigned twice inside the creation of the set",
+   "lines": [
+    128
+   ],
+   "acceptance_criteria": [
+    "the flagged pattern no longer matches useless-literal-set",
+    "no regression in surrounding behavior"
+   ],
+   "verify": [
+    "python tools/secaudit.py ~/pegrex/pegrex/lpegc/parser.py | useless-literal-set count == 0"
+   ],
+   "estimate": "M",
+   "risk": "medium",
+   "depends_on": [],
+   "view": "security",
+   "id": "T02"
+  },
+  {
+   "priority": "P2",
+   "severity": "MEDIUM",
+   "title": "[__init__.py] [global-autoescape-off] Autoescape is globally disbaled for this Django application. If you are rendering any web pages, this exposes your application to cross-site",
+   "lines": [
+    5
+   ],
+   "acceptance_criteria": [
+    "the flagged pattern no longer matches global-autoescape-off",
+    "no regression in surrounding behavior"
+   ],
+   "verify": [
+    "python tools/secaudit.py ~/pegrex/pegrex/lpegc/__init__.py | global-autoescape-off count == 0"
+   ],
+   "estimate": "S",
+   "risk": "low",
+   "depends_on": [],
+   "view": "security",
+   "id": "T03"
+  },
+  {
+   "priority": "P2",
+   "severity": "MEDIUM",
+   "title": "[compiler.py] [global-autoescape-off] Autoescape is globally disbaled for this Django application. If you are rendering any web pages, this exposes your application to cross-site",
+   "lines": [
+    23,
+    34
+   ],
+   "acceptance_criteria": [
+    "the flagged pattern no longer matches global-autoescape-off",
+    "no regression in surrounding behavior"
+   ],
+   "verify": [
+    "python tools/secaudit.py ~/pegrex/pegrex/lpegc/compiler.py | global-autoescape-off count == 0"
+   ],
+   "estimate": "S",
+   "risk": "low",
+   "depends_on": [],
+   "view": "security",
+   "id": "T04"
+  },
+  {
+   "priority": "P2",
+   "severity": "MEDIUM",
+   "title": "[compiler.py] [attr-mutable-initializer] Unsafe usage of mutable initializer with attr.s decorator. Multiple instances of this class will re-use the same data structure, which is li",
+   "lines": [
+    33,
+    40
+   ],
+   "acceptance_criteria": [
+    "the flagged pattern no longer matches attr-mutable-initializer",
+    "no regression in surrounding behavior"
+   ],
+   "verify": [
+    "python tools/secaudit.py ~/pegrex/pegrex/lpegc/compiler.py | attr-mutable-initializer count == 0"
+   ],
+   "estimate": "S",
+   "risk": "low",
+   "depends_on": [],
+   "view": "security",
+   "id": "T05"
+  },
+  {
+   "priority": "P2",
+   "severity": "MEDIUM",
+   "title": "[compiler.py] [useless-literal] key `$X` is uselessly assigned twice",
+   "lines": [
+    33
+   ],
+   "acceptance_criteria": [
+    "the flagged pattern no longer matches useless-literal",
+    "no regression in surrounding behavior"
+   ],
+   "verify": [
+    "python tools/secaudit.py ~/pegrex/pegrex/lpegc/compiler.py | useless-literal count == 0"
+   ],
+   "estimate": "S",
+   "risk": "low",
+   "depends_on": [],
+   "view": "security",
+   "id": "T06"
+  },
+  {
+   "priority": "P2",
+   "severity": "MEDIUM",
+   "title": "[parser.py] [attr-mutable-initializer] Unsafe usage of mutable initializer with attr.s decorator. Multiple instances of this class will re-use the same data structure, which is li",
+   "lines": [
+    39,
+    48,
+    128
+   ],
+   "acceptance_criteria": [
+    "the flagged pattern no longer matches attr-mutable-initializer",
+    "no regression in surrounding behavior"
+   ],
+   "verify": [
+    "python tools/secaudit.py ~/pegrex/pegrex/lpegc/parser.py | attr-mutable-initializer count == 0"
+   ],
+   "estimate": "S",
+   "risk": "low",
+   "depends_on": [],
+   "view": "security",
+   "id": "T07"
+  },
+  {
+   "priority": "P2",
+   "severity": "MEDIUM",
+   "title": "[compiler.py] [long-function] split into focused helpers",
+   "lines": [
+    264
+   ],
+   "acceptance_criteria": [
+    "smell eliminated",
+    "function behavior unchanged"
+   ],
+   "verify": [
+    "python -m py_compile ~/pegrex/pegrex/lpegc/compiler.py",
+    "tests still pass"
+   ],
+   "estimate": "S",
+   "risk": "low",
+   "depends_on": [],
+   "view": "refactor",
+   "id": "T08"
+  },
+  {
+   "priority": "P2",
+   "severity": "MEDIUM",
+   "title": "[compiler.py] [untested-function] add test_wh (happy + edge paths)",
+   "lines": [
+    48
+   ],
+   "acceptance_criteria": [
+    "test_wh exists and passes",
+    "covers at least one edge case"
+   ],
+   "verify": [
+    "python -m pytest test_wh.py -q"
+   ],
+   "estimate": "M",
+   "risk": "low",
+   "depends_on": [],
+   "view": "testing",
+   "id": "T09"
+  },
+  {
+   "priority": "P2",
+   "severity": "MEDIUM",
+   "title": "[compiler.py] [untested-function] add test_(anon) (happy + edge paths)",
+   "lines": [
+    60
+   ],
+   "acceptance_criteria": [
+    "test_(anon) exists and passes",
+    "covers at least one edge case"
+   ],
+   "verify": [
+    "python -m pytest test_(anon).py -q"
+   ],
+   "estimate": "M",
+   "risk": "low",
+   "depends_on": [],
+   "view": "testing",
+   "id": "T10"
+  },
+  {
+   "priority": "P2",
+   "severity": "MEDIUM",
+   "title": "[compiler.py] [untested-function] add test_len (happy + edge paths)",
+   "lines": [
+    65
+   ],
+   "acceptance_criteria": [
+    "test_len exists and passes",
+    "covers at least one edge case"
+   ],
+   "verify": [
+    "python -m pytest test_len.py -q"
+   ],
+   "estimate": "M",
+   "risk": "low",
+   "depends_on": [],
+   "view": "testing",
+   "id": "T11"
+  },
+  {
+   "priority": "P2",
+   "severity": "MEDIUM",
+   "title": "[compiler.py] [untested-function] add test_(anon) (happy + edge paths)",
+   "lines": [
+    71
+   ],
+   "acceptance_criteria": [
+    "test_(anon) exists and passes",
+    "covers at least one edge case"
+   ],
+   "verify": [
+    "python -m pytest test_(anon).py -q"
+   ],
+   "estimate": "M",
+   "risk": "low",
+   "depends_on": [],
+   "view": "testing",
+   "id": "T12"
+  },
+  {
+   "priority": "P2",
+   "severity": "MEDIUM",
+   "title": "[compiler.py] [untested-function] add test_(anon) (happy + edge paths)",
+   "lines": [
+    77
+   ],
+   "acceptance_criteria": [
+    "test_(anon) exists and passes",
+    "covers at least one edge case"
+   ],
+   "verify": [
+    "python -m pytest test_(anon).py -q"
+   ],
+   "estimate": "M",
+   "risk": "low",
+   "depends_on": [],
+   "view": "testing",
+   "id": "T13"
+  },
+  {
+   "priority": "P2",
+   "severity": "MEDIUM",
+   "title": "[compiler.py] [untested-function] add test_(anon) (happy + edge paths)",
+   "lines": [
+    83
+   ],
+   "acceptance_criteria": [
+    "test_(anon) exists and passes",
+    "covers at least one edge case"
+   ],
+   "verify": [
+    "python -m pytest test_(anon).py -q"
+   ],
+   "estimate": "M",
+   "risk": "low",
+   "depends_on": [],
+   "view": "testing",
+   "id": "T14"
+  },
+  {
+   "priority": "P2",
+   "severity": "MEDIUM",
+   "title": "[compiler.py] [untested-function] add test_(anon) (happy + edge paths)",
+   "lines": [
+    100
+   ],
+   "acceptance_criteria": [
+    "test_(anon) exists and passes",
+    "covers at least one edge case"
+   ],
+   "verify": [
+    "python -m pytest test_(anon).py -q"
+   ],
+   "estimate": "M",
+   "risk": "low",
+   "depends_on": [],
+   "view": "testing",
+   "id": "T15"
+  },
+  {
+   "priority": "P2",
+   "severity": "MEDIUM",
+   "title": "[compiler.py] [untested-function] add test_(anon) (happy + edge paths)",
+   "lines": [
+    113
+   ],
+   "acceptance_criteria": [
+    "test_(anon) exists and passes",
+    "covers at least one edge case"
+   ],
+   "verify": [
+    "python -m pytest test_(anon).py -q"
+   ],
+   "estimate": "M",
+   "risk": "low",
+   "depends_on": [],
+   "view": "testing",
+   "id": "T16"
+  },
+  {
+   "priority": "P2",
+   "severity": "MEDIUM",
+   "title": "[compiler.py] [untested-function] add test_lf.defs (happy + edge paths)",
+   "lines": [
+    125
+   ],
+   "acceptance_criteria": [
+    "test_lf.defs exists and passes",
+    "covers at least one edge case"
+   ],
+   "verify": [
+    "python -m pytest test_lf.defs.py -q"
+   ],
+   "estimate": "M",
+   "risk": "low",
+   "depends_on": [],
+   "view": "testing",
+   "id": "T17"
+  },
+  {
+   "priority": "P2",
+   "severity": "MEDIUM",
+   "title": "[compiler.py] [untested-function] add test_mar\") (happy + edge paths)",
+   "lines": [
+    140
+   ],
+   "acceptance_criteria": [
+    "test_mar\") exists and passes",
+    "covers at least one edge case"
+   ],
+   "verify": [
+    "python -m pytest test_mar\").py -q"
+   ],
+   "estimate": "M",
+   "risk": "low",
+   "depends_on": [],
+   "view": "testing",
+   "id": "T18"
+  },
+  {
+   "priority": "P2",
+   "severity": "MEDIUM",
+   "title": "[compiler.py] [untested-function] add test_nd(nm) (happy + edge paths)",
+   "lines": [
+    149
+   ],
+   "acceptance_criteria": [
+    "test_nd(nm) exists and passes",
+    "covers at least one edge case"
+   ],
+   "verify": [
+    "python -m pytest test_nd(nm).py -q"
+   ],
+   "estimate": "M",
+   "risk": "low",
+   "depends_on": [],
+   "view": "testing",
+   "id": "T19"
+  },
+  {
+   "priority": "P2",
+   "severity": "MEDIUM",
+   "title": "[compiler.py] [untested-function] add test_t.find(\"`\" (happy + edge paths)",
+   "lines": [
+    159
+   ],
+   "acceptance_criteria": [
+    "test_t.find(\"`\" exists and passes",
+    "covers at least one edge case"
+   ],
+   "verify": [
+    "python -m pytest test_t.find(\"`\".py -q"
+   ],
+   "estimate": "M",
+   "risk": "low",
+   "depends_on": [],
+   "view": "testing",
+   "id": "T20"
+  },
+  {
+   "priority": "P2",
+   "severity": "MEDIUM",
+   "title": "[compiler.py] [untested-function] add test_(anon) (happy + edge paths)",
+   "lines": [
+    206
+   ],
+   "acceptance_criteria": [
+    "test_(anon) exists and passes",
+    "covers at least one edge case"
+   ],
+   "verify": [
+    "python -m pytest test_(anon).py -q"
+   ],
+   "estimate": "M",
+   "risk": "low",
+   "depends_on": [],
+   "view": "testing",
+   "id": "T21"
+  },
+  {
+   "priority": "P2",
+   "severity": "MEDIUM",
+   "title": "[compiler.py] [untested-function] add test_(anon) (happy + edge paths)",
+   "lines": [
+    234
+   ],
+   "acceptance_criteria": [
+    "test_(anon) exists and passes",
+    "covers at least one edge case"
+   ],
+   "verify": [
+    "python -m pytest test_(anon).py -q"
+   ],
+   "estimate": "M",
+   "risk": "low",
+   "depends_on": [],
+   "view": "testing",
+   "id": "T22"
+  },
+  {
+   "priority": "P2",
+   "severity": "MEDIUM",
+   "title": "[compiler.py] [untested-function] add test_non-pat (happy + edge paths)",
+   "lines": [
+    239
+   ],
+   "acceptance_criteria": [
+    "test_non-pat exists and passes",
+    "covers at least one edge case"
+   ],
+   "verify": [
+    "python -m pytest test_non-pat.py -q"
+   ],
+   "estimate": "M",
+   "risk": "low",
+   "depends_on": [],
+   "view": "testing",
+   "id": "T23"
+  },
+  {
+   "priority": "P2",
+   "severity": "MEDIUM",
+   "title": "[compiler.py] [untested-function] add test_(anon) (happy + edge paths)",
+   "lines": [
+    257
+   ],
+   "acceptance_criteria": [
+    "test_(anon) exists and passes",
+    "covers at least one edge case"
+   ],
+   "verify": [
+    "python -m pytest test_(anon).py -q"
+   ],
+   "estimate": "M",
+   "risk": "low",
+   "depends_on": [],
+   "view": "testing",
+   "id": "T24"
+  },
+  {
+   "priority": "P2",
+   "severity": "MEDIUM",
+   "title": "[compiler.py] [untested-function] add test_(anon) (happy + edge paths)",
+   "lines": [
+    264
+   ],
+   "acceptance_criteria": [
+    "test_(anon) exists and passes",
+    "covers at least one edge case"
+   ],
+   "verify": [
+    "python -m pytest test_(anon).py -q"
+   ],
+   "estimate": "M",
+   "risk": "low",
+   "depends_on": [],
+   "view": "testing",
+   "id": "T25"
+  },
+  {
+   "priority": "P2",
+   "severity": "MEDIUM",
+   "title": "[compiler.py] [untested-function] add test_(anon) (happy + edge paths)",
+   "lines": [
+    321
+   ],
+   "acceptance_criteria": [
+    "test_(anon) exists and passes",
+    "covers at least one edge case"
+   ],
+   "verify": [
+    "python -m pytest test_(anon).py -q"
+   ],
+   "estimate": "M",
+   "risk": "low",
+   "depends_on": [],
+   "view": "testing",
+   "id": "T26"
+  },
+  {
+   "priority": "P2",
+   "severity": "MEDIUM",
+   "title": "[compiler.py] [untested-function] add test_(anon) (happy + edge paths)",
+   "lines": [
+    337
+   ],
+   "acceptance_criteria": [
+    "test_(anon) exists and passes",
+    "covers at least one edge case"
+   ],
+   "verify": [
+    "python -m pytest test_(anon).py -q"
+   ],
+   "estimate": "M",
+   "risk": "low",
+   "depends_on": [],
+   "view": "testing",
+   "id": "T27"
+  },
+  {
+   "priority": "P2",
+   "severity": "MEDIUM",
+   "title": "[compiler.py] [untested-function] add test_(anon) (happy + edge paths)",
+   "lines": [
+    384
+   ],
+   "acceptance_criteria": [
+    "test_(anon) exists and passes",
+    "covers at least one edge case"
+   ],
+   "verify": [
+    "python -m pytest test_(anon).py -q"
+   ],
+   "estimate": "M",
+   "risk": "low",
+   "depends_on": [],
+   "view": "testing",
+   "id": "T28"
+  },
+  {
+   "priority": "P2",
+   "severity": "MEDIUM",
+   "title": "[compiler.py] [untested-function] add test_(anon) (happy + edge paths)",
+   "lines": [
+    401
+   ],
+   "acceptance_criteria": [
+    "test_(anon) exists and passes",
+    "covers at least one edge case"
+   ],
+   "verify": [
+    "python -m pytest test_(anon).py -q"
+   ],
+   "estimate": "M",
+   "risk": "low",
+   "depends_on": [],
+   "view": "testing",
+   "id": "T29"
+  },
+  {
+   "priority": "P2",
+   "severity": "MEDIUM",
+   "title": "[compiler.py] [untested-function] add test_(anon) (happy + edge paths)",
+   "lines": [
+    419
+   ],
+   "acceptance_criteria": [
+    "test_(anon) exists and passes",
+    "covers at least one edge case"
+   ],
+   "verify": [
+    "python -m pytest test_(anon).py -q"
+   ],
+   "estimate": "M",
+   "risk": "low",
+   "depends_on": [],
+   "view": "testing",
+   "id": "T30"
+  },
+  {
+   "priority": "P2",
+   "severity": "MEDIUM",
+   "title": "[compiler.py] [untested-function] add test_complemen (happy + edge paths)",
+   "lines": [
+    426
+   ],
+   "acceptance_criteria": [
+    "test_complemen exists and passes",
+    "covers at least one edge case"
+   ],
+   "verify": [
+    "python -m pytest test_complemen.py -q"
+   ],
+   "estimate": "M",
+   "risk": "low",
+   "depends_on": [],
+   "view": "testing",
+   "id": "T31"
+  },
+  {
+   "priority": "P2",
+   "severity": "MEDIUM",
+   "title": "[compiler.py] [untested-function] add test_irst. (happy + edge paths)",
+   "lines": [
+    436
+   ],
+   "acceptance_criteria": [
+    "test_irst. exists and passes",
+    "covers at least one edge case"
+   ],
+   "verify": [
+    "python -m pytest test_irst..py -q"
+   ],
+   "estimate": "M",
+   "risk": "low",
+   "depends_on": [],
+   "view": "testing",
+   "id": "T32"
+  },
+  {
+   "priority": "P2",
+   "severity": "MEDIUM",
+   "title": "[compiler.py] [untested-function] add test_(anon) (happy + edge paths)",
+   "lines": [
+    465
+   ],
+   "acceptance_criteria": [
+    "test_(anon) exists and passes",
+    "covers at least one edge case"
+   ],
+   "verify": [
+    "python -m pytest test_(anon).py -q"
+   ],
+   "estimate": "M",
+   "risk": "low",
+   "depends_on": [],
+   "view": "testing",
+   "id": "T33"
+  },
+  {
+   "priority": "P2",
+   "severity": "MEDIUM",
+   "title": "[compiler.py] [untested-function] add test_return (happy + edge paths)",
+   "lines": [
+    481
+   ],
+   "acceptance_criteria": [
+    "test_return exists and passes",
+    "covers at least one edge case"
+   ],
+   "verify": [
+    "python -m pytest test_return.py -q"
+   ],
+   "estimate": "M",
+   "risk": "low",
+   "depends_on": [],
+   "view": "testing",
+   "id": "T34"
+  },
+  {
+   "priority": "P2",
+   "severity": "MEDIUM",
+   "title": "[compiler.py] [untested-function] add test_ssion (happy + edge paths)",
+   "lines": [
+    500
+   ],
+   "acceptance_criteria": [
+    "test_ssion exists and passes",
+    "covers at least one edge case"
+   ],
+   "verify": [
+    "python -m pytest test_ssion.py -q"
+   ],
+   "estimate": "M",
+   "risk": "low",
+   "depends_on": [],
+   "view": "testing",
+   "id": "T35"
+  },
+  {
+   "priority": "P2",
+   "severity": "MEDIUM",
+   "title": "[compiler.py] [untested-function] add test_(anon) (happy + edge paths)",
+   "lines": [
+    544
+   ],
+   "acceptance_criteria": [
+    "test_(anon) exists and passes",
+    "covers at least one edge case"
+   ],
+   "verify": [
+    "python -m pytest test_(anon).py -q"
+   ],
+   "estimate": "M",
+   "risk": "low",
+   "depends_on": [],
+   "view": "testing",
+   "id": "T36"
+  },
+  {
+   "priority": "P2",
+   "severity": "MEDIUM",
+   "title": "[compiler.py] [untested-function] add test_(anon) (happy + edge paths)",
+   "lines": [
+    567
+   ],
+   "acceptance_criteria": [
+    "test_(anon) exists and passes",
+    "covers at least one edge case"
+   ],
+   "verify": [
+    "python -m pytest test_(anon).py -q"
+   ],
+   "estimate": "M",
+   "risk": "low",
+   "depends_on": [],
+   "view": "testing",
+   "id": "T37"
+  },
+  {
+   "priority": "P2",
+   "severity": "MEDIUM",
+   "title": "[compiler.py] [untested-function] add test_hildren: (happy + edge paths)",
+   "lines": [
+    580
+   ],
+   "acceptance_criteria": [
+    "test_hildren: exists and passes",
+    "covers at least one edge case"
+   ],
+   "verify": [
+    "python -m pytest test_hildren:.py -q"
+   ],
+   "estimate": "M",
+   "risk": "low",
+   "depends_on": [],
+   "view": "testing",
+   "id": "T38"
+  },
+  {
+   "priority": "P2",
+   "severity": "MEDIUM",
+   "title": "[compiler.py] [untested-function] add test_(anon) (happy + edge paths)",
+   "lines": [
+    589
+   ],
+   "acceptance_criteria": [
+    "test_(anon) exists and passes",
+    "covers at least one edge case"
+   ],
+   "verify": [
+    "python -m pytest test_(anon).py -q"
+   ],
+   "estimate": "M",
+   "risk": "low",
+   "depends_on": [],
+   "view": "testing",
+   "id": "T39"
+  },
+  {
+   "priority": "P2",
+   "severity": "MEDIUM",
+   "title": "[compiler.py] Split module: 588 lines, 32 functions",
+   "lines": [
+    1
+   ],
+   "acceptance_criteria": [
+    "module split by responsibility (CLI / engine / output)",
+    "public API preserved via re-exports",
+    "each new module under 200 lines"
+   ],
+   "verify": [
+    "python -m py_compile on each new module",
+    "top-level import still works"
+   ],
+   "estimate": "L",
+   "risk": "medium",
+   "depends_on": [
+    "security tasks complete"
+   ],
+   "view": "architecture",
+   "id": "T40"
+  },
+  {
+   "priority": "P3",
+   "severity": "LOW",
+   "title": "[compiler.py] Add docstrings to 31 public symbols",
+   "lines": [
+    48,
+    60,
+    65,
+    71,
+    77,
+    83,
+    100,
+    113,
+    125,
+    140,
+    149,
+    159,
+    206,
+    234,
+    239,
+    257,
+    264,
+    321,
+    337,
+    384,
+    401,
+    419,
+    426,
+    436,
+    465,
+    481,
+    500,
+    544,
+    567,
+    580,
+    589
+   ],
+   "acceptance_criteria": [
+    "every public function/class has a docstring",
+    "docstrings follow project style"
+   ],
+   "verify": [
+    "pydocstyle ~/pegrex/pegrex/lpegc/compiler.py --select=D103"
+   ],
+   "estimate": "S",
+   "risk": "low",
+   "depends_on": [],
+   "view": "documentation",
+   "id": "T41"
+  },
+  {
+   "priority": "P3",
+   "severity": "LOW",
+   "title": "[compiler.py] Extract helpers from largest functions: (anon), t.find(\"`\", ssion",
+   "lines": [
+    264,
+    159,
+    500
+   ],
+   "acceptance_criteria": [
+    "each extracted helper has one job"
+   ],
+   "verify": [
+    "tests pass",
+    "function outputs identical"
+   ],
+   "estimate": "M",
+   "risk": "low",
+   "depends_on": [],
+   "view": "architecture",
+   "id": "T42"
+  },
+  {
+   "priority": "P3",
+   "severity": "LOW",
+   "title": "[diagnostics.py] Extract helpers from largest functions: __init__",
+   "lines": [
+    23
+   ],
+   "acceptance_criteria": [
+    "each extracted helper has one job"
+   ],
+   "verify": [
+    "tests pass",
+    "function outputs identical"
+   ],
+   "estimate": "M",
+   "risk": "low",
+   "depends_on": [],
+   "view": "architecture",
+   "id": "T43"
+  },
+  {
+   "priority": "P3",
+   "severity": "LOW",
+   "title": "[parser.py] Extract helpers from largest functions: _kids, _foldleft, _rfoldleft",
+   "lines": [
+    17,
+    27,
+    47
+   ],
+   "acceptance_criteria": [
+    "each extracted helper has one job"
+   ],
+   "verify": [
+    "tests pass",
+    "function outputs identical"
+   ],
+   "estimate": "M",
+   "risk": "low",
+   "depends_on": [],
+   "view": "architecture",
+   "id": "T44"
+  }
+ ],
+ "postprocess": {
+  "expected_artifacts": [],
+  "invariants": [
+   "all verify commands in tasks pass",
+   "module imports cleanly",
+   "python -m py_compile succeeds on every touched file"
+  ],
+  "gates": [
+   {
+    "name": "audit_clean",
+    "command": "python tools/secaudit.py <source>",
+    "pass_when": "no CRITICAL/HIGH findings remain"
+   },
+   {
+    "name": "tests_pass",
+    "command": "python -m pytest -q",
+    "pass_when": "exit 0"
+   },
+   {
+    "name": "behavior_preserved",
+    "command": "run the tool on a fixed sample; diff output",
+    "pass_when": "identical output"
+   }
+  ],
+  "rollback": "git checkout -- <source>",
+  "handoff": "human review required if any task has risk == 'medium' or 'high'"
+ },
+ "agent_directives": {
+  "objective": "Execute tasks in priority order; after each task, run its verify commands.",
+  "loop": "audit -> fix -> re-verify -> next task; stop when all gates pass.",
+  "max_iterations_per_task": 5,
+  "report_format": "per-task: id, status(pass/fail), verify output summary; final: gate results",
+  "escalate_when": "a verify command fails 5 times, or a task requires a forbidden operation"
+ },
+ "contract_check": []
+}

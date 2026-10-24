@@ -1,0 +1,20 @@
+name: gate
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  certificates:
+    runs-on: athenaos
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install deps
+        run: pip install pydantic pytest tree-sitter tree-sitter-python tree-sitter-go tree-sitter-rust tree-sitter-javascript
+      - name: Unit tests
+        run: python run_tests.py
+      - name: Grammar lint
+        run: python tools/grammar_lint.py examples/*.gram

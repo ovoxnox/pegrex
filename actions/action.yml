@@ -1,0 +1,43 @@
+name: pegrex-gate
+description: >-
+  PegRex CI gate: cognitive-complexity budgets, refinement-contract
+  discharge, and optional verify_patch proof between two refs. Three-valued
+  verdicts, loud refusals, stdlib-only runtime (pydantic is the engine's one
+  install-time dependency).
+branding:
+  icon: shield
+  color: purple
+inputs:
+  fail-on-over:
+    description: fail the gate when a function exceeds its cognitive-complexity budget (or cannot be analyzed)
+    required: false
+    default: "false"
+  paths:
+    description: files or directories to gate
+    required: false
+    default: "."
+  base:
+    description: optional verify_patch 'before' ref/path
+    required: false
+    default: ""
+  head:
+    description: optional verify_patch 'after' ref/path
+    required: false
+    default: ""
+runs:
+  using: composite
+  steps:
+    - uses: actions/setup-python@v5
+      with:
+        python-version: "3.12"
+    - name: install engine dependency
+      run: pip install pydantic
+      shell: bash
+    - name: run pegrex gate
+      run: >-
+        python "${{ github.action_path }}/tools/ci_gate.py"
+        ${{ inputs.fail-on-over == 'true' && '--fail-on-over' || '' }}
+        ${{ inputs.base != '' && format('--base {0}', inputs.base) || '' }}
+        ${{ inputs.head != '' && format('--head {0}', inputs.head) || '' }}
+        ${{ inputs.paths }}
+      shell: bash

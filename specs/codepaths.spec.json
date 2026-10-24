@@ -1,0 +1,1429 @@
+{
+ "schema_version": "1.0",
+ "kind": "ai-refactor-spec",
+ "meta": {
+  "name": "codepaths",
+  "generated_by": "mkspec",
+  "created_at": "2026-10-20T05:23:18",
+  "source_sha256": "4174be15a009",
+  "language": "python",
+  "analyzers": [
+   "dependencies",
+   "documentation",
+   "quality",
+   "security",
+   "structure",
+   "testing"
+  ],
+  "views": [],
+  "finding_count": 58,
+  "profile": "full",
+  "opus": [
+   "architecture",
+   "documentation",
+   "refactor",
+   "security",
+   "testing"
+  ]
+ },
+ "preprocess": {
+  "language": "",
+  "entrypoints": [],
+  "source_files": [
+   "codepaths.py"
+  ],
+  "dependencies": {
+   "stdlib": [],
+   "third_party": [],
+   "local": []
+  },
+  "context": "58 findings across 6 analyzers",
+  "read_first": [],
+  "constraints": {
+   "must_preserve": [
+    "runtime behavior",
+    "cli interface",
+    "public API"
+   ],
+   "style_guide": "PEP 8",
+   "python_version": ">=3.9",
+   "max_lines_per_function": 40,
+   "allowed_operations": [
+    "refactor-internals",
+    "add-tests",
+    "add-docstrings",
+    "split-modules",
+    "rename-locals",
+    "extract-helpers"
+   ],
+   "forbidden_operations": [
+    "change-cli-interface",
+    "add-runtime-dependencies",
+    "delete-public-symbols",
+    "skip-verify-commands"
+   ]
+  },
+  "environment": {
+   "python": "3.12",
+   "required_tools": [
+    "python",
+    "tools/secaudit.py"
+   ],
+   "optional_tools": [
+    "pytest",
+    "mypy",
+    "pydocstyle",
+    "ruff"
+   ]
+  }
+ },
+ "analysis": {
+  "findings_by_analyzer": {
+   "security": [
+    {
+     "analyzer": "security",
+     "check_id": "R2-CMD-INJECTION",
+     "severity": "CRITICAL",
+     "line": 116,
+     "evidence": "self.r2pipe.cmdj(\"axtj @ %s\" % callee)",
+     "symbol": "",
+     "metric": {},
+     "fix": "radare2 cmd string interpolation"
+    },
+    {
+     "analyzer": "security",
+     "check_id": "open-never-closed",
+     "severity": "HIGH",
+     "line": 53,
+     "evidence": "r2pipe.open(binpath)",
+     "symbol": "",
+     "metric": {},
+     "fix": "file object opened without corresponding close"
+    },
+    {
+     "analyzer": "security",
+     "check_id": "useless-literal-set",
+     "severity": "HIGH",
+     "line": 106,
+     "evidence": "set()",
+     "symbol": "",
+     "metric": {},
+     "fix": "`$X` is uselessly assigned twice inside the creation of the set"
+    },
+    {
+     "analyzer": "security",
+     "check_id": "DICT-ACCESS-UNGUARDED",
+     "severity": "HIGH",
+     "line": 277,
+     "evidence": "int(\"%s %s\" % (binary.functions[sink_name]['addr'], sink_name))",
+     "symbol": "",
+     "metric": {},
+     "fix": "unguarded dict subscript"
+    },
+    {
+     "analyzer": "security",
+     "check_id": "use-sys-exit",
+     "severity": "MEDIUM",
+     "line": 40,
+     "evidence": "sys.exit(2)",
+     "symbol": "",
+     "metric": {},
+     "fix": "Detected use of `exit`. Use `sys.exit` over the python shell `exit` built-in. `exit` is a helper for the interactive shell and may not be av"
+    },
+    {
+     "analyzer": "security",
+     "check_id": "path-traversal-join",
+     "severity": "MEDIUM",
+     "line": 53,
+     "evidence": "r2pipe.open(binpath)",
+     "symbol": "",
+     "metric": {},
+     "fix": "Data from request is passed to os.path.join() and to open(). This is a path traversal vulnerability, which can lead to sensitive data being "
+    },
+    {
+     "analyzer": "security",
+     "check_id": "path-traversal-open",
+     "severity": "MEDIUM",
+     "line": 53,
+     "evidence": "r2pipe.open(binpath)",
+     "symbol": "",
+     "metric": {},
+     "fix": "Found request data in a call to 'open'. Ensure the request data is validated or sanitized, otherwise it could result in path traversal attac"
+    },
+    {
+     "analyzer": "security",
+     "check_id": "unspecified-open-encoding",
+     "severity": "MEDIUM",
+     "line": 53,
+     "evidence": "r2pipe.open(binpath)",
+     "symbol": "",
+     "metric": {},
+     "fix": "Missing 'encoding' parameter. 'open()' uses device locale encodings by default, corrupting files with special characters. Specify the encodi"
+    },
+    {
+     "analyzer": "security",
+     "check_id": "file-object-redefined-before-close",
+     "severity": "MEDIUM",
+     "line": 53,
+     "evidence": "r2pipe.open(binpath)",
+     "symbol": "",
+     "metric": {},
+     "fix": "Detected a file object that is redefined and never closed. This could leak file descriptors and unnecessarily consume system resources."
+    },
+    {
+     "analyzer": "security",
+     "check_id": "attr-mutable-initializer",
+     "severity": "MEDIUM",
+     "line": 106,
+     "evidence": "set()",
+     "symbol": "",
+     "metric": {},
+     "fix": "Unsafe usage of mutable initializer with attr.s decorator. Multiple instances of this class will re-use the same data structure, which is li"
+    },
+    {
+     "analyzer": "security",
+     "check_id": "regex_dos",
+     "severity": "MEDIUM",
+     "line": 169,
+     "evidence": "sinks_re.append(re.compile(sink_re))",
+     "symbol": "",
+     "metric": {},
+     "fix": "Detected usage of re.compile with an inefficient regular expression. This can lead to regular expression denial of service, which can result"
+    },
+    {
+     "analyzer": "security",
+     "check_id": "GLOBAL-ARGS-COUPLING",
+     "severity": "MEDIUM",
+     "line": 189,
+     "evidence": "Binary(args.binpath)",
+     "symbol": "",
+     "metric": {},
+     "fix": "module-global args coupling"
+    },
+    {
+     "analyzer": "security",
+     "check_id": "GLOBAL-ARGS-COUPLING",
+     "severity": "MEDIUM",
+     "line": 206,
+     "evidence": "Binary(args.binpath)",
+     "symbol": "",
+     "metric": {},
+     "fix": "module-global args coupling"
+    },
+    {
+     "analyzer": "security",
+     "check_id": "GLOBAL-ARGS-COUPLING",
+     "severity": "MEDIUM",
+     "line": 253,
+     "evidence": "nary(args.binpath)",
+     "symbol": "",
+     "metric": {},
+     "fix": "module-global args coupling"
+    },
+    {
+     "analyzer": "security",
+     "check_id": "GLOBAL-ARGS-COUPLING",
+     "severity": "MEDIUM",
+     "line": 266,
+     "evidence": "nary(args.binpath)",
+     "symbol": "",
+     "metric": {},
+     "fix": "module-global args coupling"
+    },
+    {
+     "analyzer": "security",
+     "check_id": "GLOBAL-ARGS-COUPLING",
+     "severity": "MEDIUM",
+     "line": 307,
+     "evidence": "int_sink_paths(args.sources, 'exec')",
+     "symbol": "",
+     "metric": {},
+     "fix": "module-global args coupling"
+    },
+    {
+     "analyzer": "security",
+     "check_id": "GLOBAL-ARGS-COUPLING",
+     "severity": "MEDIUM",
+     "line": 313,
+     "evidence": "int_paths(args.sources, args.sinks)",
+     "symbol": "",
+     "metric": {},
+     "fix": "module-global args coupling"
+    },
+    {
+     "analyzer": "security",
+     "check_id": "PRINT-NOT-LOGGING",
+     "severity": "LOW",
+     "line": 187,
+     "evidence": "print('[+] Analyzing all referenced code with radare2')",
+     "symbol": "",
+     "metric": {},
+     "fix": "print() in library code"
+    },
+    {
+     "analyzer": "security",
+     "check_id": "PRINT-NOT-LOGGING",
+     "severity": "LOW",
+     "line": 205,
+     "evidence": "print('[+] Analyzing all referenced code with radare2..')",
+     "symbol": "",
+     "metric": {},
+     "fix": "print() in library code"
+    },
+    {
+     "analyzer": "security",
+     "check_id": "PRINT-NOT-LOGGING",
+     "severity": "LOW",
+     "line": 208,
+     "evidence": "print('[+] Finding paths betwen %i sources and %i sinks..' % (len(sources), len(sinks)))",
+     "symbol": "",
+     "metric": {},
+     "fix": "print() in library code"
+    },
+    {
+     "analyzer": "security",
+     "check_id": "PRINT-NOT-LOGGING",
+     "severity": "LOW",
+     "line": 218,
+     "evidence": "print('\\n[+] Path %d of %d between %s and %s\\n' % (flist_i+1, len(paths_list), start_end[0",
+     "symbol": "",
+     "metric": {},
+     "fix": "print() in library code"
+    },
+    {
+     "analyzer": "security",
+     "check_id": "PRINT-NOT-LOGGING",
+     "severity": "LOW",
+     "line": 233,
+     "evidence": "print(\n                            '\u25b6 %s%s%s%s' % (\n                                func_a",
+     "symbol": "",
+     "metric": {},
+     "fix": "print() in library code"
+    }
+   ],
+   "structure": [
+    {
+     "analyzer": "structure",
+     "check_id": "function",
+     "severity": "INFO",
+     "line": 37,
+     "evidence": "error (bytes=93 ~lines=2 branches=0)",
+     "symbol": "error",
+     "metric": {
+      "bytes": 93,
+      "lines": 2,
+      "branches": 0
+     },
+     "fix": ""
+    },
+    {
+     "analyzer": "structure",
+     "check_id": "function",
+     "severity": "INFO",
+     "line": 47,
+     "evidence": "__init__ (bytes=177 ~lines=4 branches=0)",
+     "symbol": "__init__",
+     "metric": {
+      "bytes": 177,
+      "lines": 4,
+      "branches": 0
+     },
+     "fix": ""
+    },
+    {
+     "analyzer": "structure",
+     "check_id": "function",
+     "severity": "INFO",
+     "line": 57,
+     "evidence": "_analyze (bytes=22 ~lines=0 branches=0)",
+     "symbol": "_analyze",
+     "metric": {
+      "bytes": 22,
+      "lines": 0,
+      "branches": 0
+     },
+     "fix": ""
+    },
+    {
+     "analyzer": "structure",
+     "check_id": "function",
+     "severity": "INFO",
+     "line": 60,
+     "evidence": "_load_functions (bytes=368 ~lines=9 branches=3)",
+     "symbol": "_load_functions",
+     "metric": {
+      "bytes": 368,
+      "lines": 9,
+      "branches": 3
+     },
+     "fix": ""
+    },
+    {
+     "analyzer": "structure",
+     "check_id": "function",
+     "severity": "INFO",
+     "line": 72,
+     "evidence": "_name_function (bytes=591 ~lines=14 branches=4)",
+     "symbol": "_name_function",
+     "metric": {
+      "bytes": 591,
+      "lines": 14,
+      "branches": 4
+     },
+     "fix": ""
+    },
+    {
+     "analyzer": "structure",
+     "check_id": "function",
+     "severity": "INFO",
+     "line": 89,
+     "evidence": "close (bytes=18 ~lines=0 branches=0)",
+     "symbol": "close",
+     "metric": {
+      "bytes": 18,
+      "lines": 0,
+      "branches": 0
+     },
+     "fix": ""
+    },
+    {
+     "analyzer": "structure",
+     "check_id": "function",
+     "severity": "INFO",
+     "line": 92,
+     "evidence": "paths_between (bytes=3121 ~lines=78 branches=12)",
+     "symbol": "paths_between",
+     "metric": {
+      "bytes": 3121,
+      "lines": 78,
+      "branches": 12
+     },
+     "fix": ""
+    },
+    {
+     "analyzer": "structure",
+     "check_id": "function",
+     "severity": "INFO",
+     "line": 164,
+     "evidence": "_find_sinks_in_functions (bytes=415 ~lines=10 branches=4)",
+     "symbol": "_find_sinks_in_functions",
+     "metric": {
+      "bytes": 415,
+      "lines": 10,
+      "branches": 4
+     },
+     "fix": ""
+    },
+    {
+     "analyzer": "structure",
+     "check_id": "function",
+     "severity": "INFO",
+     "line": 182,
+     "evidence": "print_sink_paths (bytes=433 ~lines=10 branches=2)",
+     "symbol": "print_sink_paths",
+     "metric": {
+      "bytes": 433,
+      "lines": 10,
+      "branches": 2
+     },
+     "fix": ""
+    },
+    {
+     "analyzer": "structure",
+     "check_id": "function",
+     "severity": "INFO",
+     "line": 199,
+     "evidence": "print_paths (bytes=1899 ~lines=47 branches=11)",
+     "symbol": "print_paths",
+     "metric": {
+      "bytes": 1899,
+      "lines": 47,
+      "branches": 11
+     },
+     "fix": ""
+    },
+    {
+     "analyzer": "structure",
+     "check_id": "function",
+     "severity": "INFO",
+     "line": 249,
+     "evidence": "int_functions() (bytes=326 ~lines=8 branches=2)",
+     "symbol": "int_functions()",
+     "metric": {
+      "bytes": 326,
+      "lines": 8,
+      "branches": 2
+     },
+     "fix": ""
+    },
+    {
+     "analyzer": "structure",
+     "check_id": "function",
+     "severity": "INFO",
+     "line": 262,
+     "evidence": "int_sinks(c (bytes=553 ~lines=13 branches=3)",
+     "symbol": "int_sinks(c",
+     "metric": {
+      "bytes": 553,
+      "lines": 13,
+      "branches": 3
+     },
+     "fix": ""
+    },
+    {
+     "analyzer": "structure",
+     "check_id": "file-metrics",
+     "severity": "INFO",
+     "line": 0,
+     "evidence": "loc=322 functions=12 max_nesting=26",
+     "symbol": "",
+     "metric": {
+      "loc": 322,
+      "functions": 12,
+      "max_nesting": 26
+     },
+     "fix": ""
+    }
+   ],
+   "quality": [
+    {
+     "analyzer": "quality",
+     "check_id": "long-function",
+     "severity": "MEDIUM",
+     "line": 92,
+     "evidence": "paths_between is long",
+     "symbol": "paths_between",
+     "metric": {},
+     "fix": "split into focused helpers"
+    },
+    {
+     "analyzer": "quality",
+     "check_id": "long-function",
+     "severity": "MEDIUM",
+     "line": 199,
+     "evidence": "print_paths is long",
+     "symbol": "print_paths",
+     "metric": {},
+     "fix": "split into focused helpers"
+    },
+    {
+     "analyzer": "quality",
+     "check_id": "print-in-code",
+     "severity": "LOW",
+     "line": 233,
+     "evidence": "print(\n                            '\u25b6 %s%s%s%s' % (\n                  ",
+     "symbol": "",
+     "metric": {},
+     "fix": "use logging"
+    },
+    {
+     "analyzer": "quality",
+     "check_id": "print-in-code",
+     "severity": "LOW",
+     "line": 218,
+     "evidence": "print('\\n[+] Path %d of %d between %s and %s\\n' % (flist_i+1, len(path",
+     "symbol": "",
+     "metric": {},
+     "fix": "use logging"
+    },
+    {
+     "analyzer": "quality",
+     "check_id": "print-in-code",
+     "severity": "LOW",
+     "line": 208,
+     "evidence": "print('[+] Finding paths betwen %i sources and %i sinks..' % (len(sour",
+     "symbol": "",
+     "metric": {},
+     "fix": "use logging"
+    },
+    {
+     "analyzer": "quality",
+     "check_id": "print-in-code",
+     "severity": "LOW",
+     "line": 205,
+     "evidence": "print('[+] Analyzing all referenced code with radare2..')",
+     "symbol": "",
+     "metric": {},
+     "fix": "use logging"
+    },
+    {
+     "analyzer": "quality",
+     "check_id": "print-in-code",
+     "severity": "LOW",
+     "line": 194,
+     "evidence": "print_paths(sources, found_sinks, binary)",
+     "symbol": "",
+     "metric": {},
+     "fix": "use logging"
+    },
+    {
+     "analyzer": "quality",
+     "check_id": "print-in-code",
+     "severity": "LOW",
+     "line": 187,
+     "evidence": "print('[+] Analyzing all referenced code with radare2')",
+     "symbol": "",
+     "metric": {},
+     "fix": "use logging"
+    }
+   ],
+   "testing": [
+    {
+     "analyzer": "testing",
+     "check_id": "untested-function",
+     "severity": "MEDIUM",
+     "line": 37,
+     "evidence": "no test_error found",
+     "symbol": "error",
+     "metric": {},
+     "fix": "add test_error (happy + edge paths)"
+    },
+    {
+     "analyzer": "testing",
+     "check_id": "untested-function",
+     "severity": "MEDIUM",
+     "line": 89,
+     "evidence": "no test_close found",
+     "symbol": "close",
+     "metric": {},
+     "fix": "add test_close (happy + edge paths)"
+    },
+    {
+     "analyzer": "testing",
+     "check_id": "untested-function",
+     "severity": "MEDIUM",
+     "line": 92,
+     "evidence": "no test_paths_between found",
+     "symbol": "paths_between",
+     "metric": {},
+     "fix": "add test_paths_between (happy + edge paths)"
+    },
+    {
+     "analyzer": "testing",
+     "check_id": "untested-function",
+     "severity": "MEDIUM",
+     "line": 182,
+     "evidence": "no test_print_sink_paths found",
+     "symbol": "print_sink_paths",
+     "metric": {},
+     "fix": "add test_print_sink_paths (happy + edge paths)"
+    },
+    {
+     "analyzer": "testing",
+     "check_id": "untested-function",
+     "severity": "MEDIUM",
+     "line": 199,
+     "evidence": "no test_print_paths found",
+     "symbol": "print_paths",
+     "metric": {},
+     "fix": "add test_print_paths (happy + edge paths)"
+    },
+    {
+     "analyzer": "testing",
+     "check_id": "untested-function",
+     "severity": "MEDIUM",
+     "line": 249,
+     "evidence": "no test_int_functions() found",
+     "symbol": "int_functions()",
+     "metric": {},
+     "fix": "add test_int_functions() (happy + edge paths)"
+    },
+    {
+     "analyzer": "testing",
+     "check_id": "untested-function",
+     "severity": "MEDIUM",
+     "line": 262,
+     "evidence": "no test_int_sinks(c found",
+     "symbol": "int_sinks(c",
+     "metric": {},
+     "fix": "add test_int_sinks(c (happy + edge paths)"
+    }
+   ],
+   "documentation": [
+    {
+     "analyzer": "documentation",
+     "check_id": "missing-docstring",
+     "severity": "LOW",
+     "line": 37,
+     "evidence": "error has no docstring",
+     "symbol": "error",
+     "metric": {},
+     "fix": "docstring: purpose, params, returns, raises"
+    },
+    {
+     "analyzer": "documentation",
+     "check_id": "missing-docstring",
+     "severity": "LOW",
+     "line": 89,
+     "evidence": "close has no docstring",
+     "symbol": "close",
+     "metric": {},
+     "fix": "docstring: purpose, params, returns, raises"
+    },
+    {
+     "analyzer": "documentation",
+     "check_id": "missing-docstring",
+     "severity": "LOW",
+     "line": 92,
+     "evidence": "paths_between has no docstring",
+     "symbol": "paths_between",
+     "metric": {},
+     "fix": "docstring: purpose, params, returns, raises"
+    },
+    {
+     "analyzer": "documentation",
+     "check_id": "missing-docstring",
+     "severity": "LOW",
+     "line": 182,
+     "evidence": "print_sink_paths has no docstring",
+     "symbol": "print_sink_paths",
+     "metric": {},
+     "fix": "docstring: purpose, params, returns, raises"
+    },
+    {
+     "analyzer": "documentation",
+     "check_id": "missing-docstring",
+     "severity": "LOW",
+     "line": 199,
+     "evidence": "print_paths has no docstring",
+     "symbol": "print_paths",
+     "metric": {},
+     "fix": "docstring: purpose, params, returns, raises"
+    },
+    {
+     "analyzer": "documentation",
+     "check_id": "missing-docstring",
+     "severity": "LOW",
+     "line": 249,
+     "evidence": "int_functions() has no docstring",
+     "symbol": "int_functions()",
+     "metric": {},
+     "fix": "docstring: purpose, params, returns, raises"
+    },
+    {
+     "analyzer": "documentation",
+     "check_id": "missing-docstring",
+     "severity": "LOW",
+     "line": 262,
+     "evidence": "int_sinks(c has no docstring",
+     "symbol": "int_sinks(c",
+     "metric": {},
+     "fix": "docstring: purpose, params, returns, raises"
+    }
+   ],
+   "dependencies": [
+    {
+     "analyzer": "dependencies",
+     "check_id": "imports",
+     "severity": "INFO",
+     "line": 0,
+     "evidence": "stdlib=4 third_party=1",
+     "symbol": "",
+     "metric": {
+      "stdlib": [
+       "argparse",
+       "re",
+       "sys",
+       "time"
+      ],
+      "third_party": [
+       "r2pipe"
+      ]
+     },
+     "fix": ""
+    }
+   ]
+  },
+  "opus": {
+   "security": {
+    "task_count": 13,
+    "summary": "22 security finding(s)"
+   },
+   "refactor": {
+    "task_count": 2,
+    "summary": "2 maintainability finding(s); loc=322 functions=12 max_nesting=26"
+   },
+   "testing": {
+    "task_count": 7,
+    "summary": "7 function(s) without tests"
+   },
+   "documentation": {
+    "task_count": 1,
+    "summary": "7 public symbol(s) undocumented"
+   },
+   "architecture": {
+    "task_count": 2,
+    "summary": "12 functions; deps: stdlib=4 third_party=1"
+   }
+  },
+  "metrics": {},
+  "notes": "",
+  "arch_index": {
+   "containers": [
+    {
+     "id": "codepaths",
+     "path": "codepaths.py",
+     "description": "58 findings across 6 analyzers",
+     "modules": [
+      {
+       "file": "codepaths.py",
+       "id": "error",
+       "boundary": "error (bytes=93 ~lines=2 branches=0)",
+       "owns": [
+        "function"
+       ]
+      },
+      {
+       "file": "codepaths.py",
+       "id": "__init__",
+       "boundary": "__init__ (bytes=177 ~lines=4 branches=0)",
+       "owns": [
+        "function"
+       ]
+      },
+      {
+       "file": "codepaths.py",
+       "id": "_analyze",
+       "boundary": "_analyze (bytes=22 ~lines=0 branches=0)",
+       "owns": [
+        "function"
+       ]
+      },
+      {
+       "file": "codepaths.py",
+       "id": "_load_functions",
+       "boundary": "_load_functions (bytes=368 ~lines=9 branches=3)",
+       "owns": [
+        "function"
+       ]
+      },
+      {
+       "file": "codepaths.py",
+       "id": "_name_function",
+       "boundary": "_name_function (bytes=591 ~lines=14 branches=4)",
+       "owns": [
+        "function"
+       ]
+      },
+      {
+       "file": "codepaths.py",
+       "id": "close",
+       "boundary": "close (bytes=18 ~lines=0 branches=0)",
+       "owns": [
+        "function"
+       ]
+      },
+      {
+       "file": "codepaths.py",
+       "id": "paths_between",
+       "boundary": "paths_between (bytes=3121 ~lines=78 branches=12)",
+       "owns": [
+        "function"
+       ]
+      },
+      {
+       "file": "codepaths.py",
+       "id": "_find_sinks_in_functions",
+       "boundary": "_find_sinks_in_functions (bytes=415 ~lines=10 branches=4)",
+       "owns": [
+        "function"
+       ]
+      },
+      {
+       "file": "codepaths.py",
+       "id": "print_sink_paths",
+       "boundary": "print_sink_paths (bytes=433 ~lines=10 branches=2)",
+       "owns": [
+        "function"
+       ]
+      },
+      {
+       "file": "codepaths.py",
+       "id": "print_paths",
+       "boundary": "print_paths (bytes=1899 ~lines=47 branches=11)",
+       "owns": [
+        "function"
+       ]
+      },
+      {
+       "file": "codepaths.py",
+       "id": "int_functions()",
+       "boundary": "int_functions() (bytes=326 ~lines=8 branches=2)",
+       "owns": [
+        "function"
+       ]
+      },
+      {
+       "file": "codepaths.py",
+       "id": "int_sinks(c",
+       "boundary": "int_sinks(c (bytes=553 ~lines=13 branches=3)",
+       "owns": [
+        "function"
+       ]
+      }
+     ]
+    }
+   ]
+  }
+ },
+ "tasks": [
+  {
+   "priority": "P0",
+   "severity": "CRITICAL",
+   "title": "[R2-CMD-INJECTION] radare2 cmd string interpolation",
+   "lines": [
+    116
+   ],
+   "acceptance_criteria": [
+    "the flagged pattern no longer matches R2-CMD-INJECTION",
+    "no regression in surrounding behavior"
+   ],
+   "verify": [
+    "python tools/secaudit.py codepaths.py | R2-CMD-INJECTION count == 0"
+   ],
+   "estimate": "M",
+   "risk": "medium",
+   "depends_on": [],
+   "view": "security",
+   "id": "T01"
+  },
+  {
+   "priority": "P1",
+   "severity": "HIGH",
+   "title": "[open-never-closed] file object opened without corresponding close",
+   "lines": [
+    53
+   ],
+   "acceptance_criteria": [
+    "the flagged pattern no longer matches open-never-closed",
+    "no regression in surrounding behavior"
+   ],
+   "verify": [
+    "python tools/secaudit.py codepaths.py | open-never-closed count == 0"
+   ],
+   "estimate": "M",
+   "risk": "medium",
+   "depends_on": [],
+   "view": "security",
+   "id": "T02"
+  },
+  {
+   "priority": "P1",
+   "severity": "HIGH",
+   "title": "[useless-literal-set] `$X` is uselessly assigned twice inside the creation of the set",
+   "lines": [
+    106
+   ],
+   "acceptance_criteria": [
+    "the flagged pattern no longer matches useless-literal-set",
+    "no regression in surrounding behavior"
+   ],
+   "verify": [
+    "python tools/secaudit.py codepaths.py | useless-literal-set count == 0"
+   ],
+   "estimate": "M",
+   "risk": "medium",
+   "depends_on": [],
+   "view": "security",
+   "id": "T03"
+  },
+  {
+   "priority": "P1",
+   "severity": "HIGH",
+   "title": "[DICT-ACCESS-UNGUARDED] unguarded dict subscript",
+   "lines": [
+    277
+   ],
+   "acceptance_criteria": [
+    "the flagged pattern no longer matches DICT-ACCESS-UNGUARDED",
+    "no regression in surrounding behavior"
+   ],
+   "verify": [
+    "python tools/secaudit.py codepaths.py | DICT-ACCESS-UNGUARDED count == 0"
+   ],
+   "estimate": "M",
+   "risk": "medium",
+   "depends_on": [],
+   "view": "security",
+   "id": "T04"
+  },
+  {
+   "priority": "P2",
+   "severity": "MEDIUM",
+   "title": "[use-sys-exit] Detected use of `exit`. Use `sys.exit` over the python shell `exit` built-in. `exit` is a helper for the interactive shell and may not be av",
+   "lines": [
+    40
+   ],
+   "acceptance_criteria": [
+    "the flagged pattern no longer matches use-sys-exit",
+    "no regression in surrounding behavior"
+   ],
+   "verify": [
+    "python tools/secaudit.py codepaths.py | use-sys-exit count == 0"
+   ],
+   "estimate": "S",
+   "risk": "low",
+   "depends_on": [],
+   "view": "security",
+   "id": "T05"
+  },
+  {
+   "priority": "P2",
+   "severity": "MEDIUM",
+   "title": "[path-traversal-join] Data from request is passed to os.path.join() and to open(). This is a path traversal vulnerability, which can lead to sensitive data being ",
+   "lines": [
+    53
+   ],
+   "acceptance_criteria": [
+    "the flagged pattern no longer matches path-traversal-join",
+    "no regression in surrounding behavior"
+   ],
+   "verify": [
+    "python tools/secaudit.py codepaths.py | path-traversal-join count == 0"
+   ],
+   "estimate": "S",
+   "risk": "low",
+   "depends_on": [],
+   "view": "security",
+   "id": "T06"
+  },
+  {
+   "priority": "P2",
+   "severity": "MEDIUM",
+   "title": "[path-traversal-open] Found request data in a call to 'open'. Ensure the request data is validated or sanitized, otherwise it could result in path traversal attac",
+   "lines": [
+    53
+   ],
+   "acceptance_criteria": [
+    "the flagged pattern no longer matches path-traversal-open",
+    "no regression in surrounding behavior"
+   ],
+   "verify": [
+    "python tools/secaudit.py codepaths.py | path-traversal-open count == 0"
+   ],
+   "estimate": "S",
+   "risk": "low",
+   "depends_on": [],
+   "view": "security",
+   "id": "T07"
+  },
+  {
+   "priority": "P2",
+   "severity": "MEDIUM",
+   "title": "[unspecified-open-encoding] Missing 'encoding' parameter. 'open()' uses device locale encodings by default, corrupting files with special characters. Specify the encodi",
+   "lines": [
+    53
+   ],
+   "acceptance_criteria": [
+    "the flagged pattern no longer matches unspecified-open-encoding",
+    "no regression in surrounding behavior"
+   ],
+   "verify": [
+    "python tools/secaudit.py codepaths.py | unspecified-open-encoding count == 0"
+   ],
+   "estimate": "S",
+   "risk": "low",
+   "depends_on": [],
+   "view": "security",
+   "id": "T08"
+  },
+  {
+   "priority": "P2",
+   "severity": "MEDIUM",
+   "title": "[file-object-redefined-before-close] Detected a file object that is redefined and never closed. This could leak file descriptors and unnecessarily consume system resources.",
+   "lines": [
+    53
+   ],
+   "acceptance_criteria": [
+    "the flagged pattern no longer matches file-object-redefined-before-close",
+    "no regression in surrounding behavior"
+   ],
+   "verify": [
+    "python tools/secaudit.py codepaths.py | file-object-redefined-before-close count == 0"
+   ],
+   "estimate": "S",
+   "risk": "low",
+   "depends_on": [],
+   "view": "security",
+   "id": "T09"
+  },
+  {
+   "priority": "P2",
+   "severity": "MEDIUM",
+   "title": "[attr-mutable-initializer] Unsafe usage of mutable initializer with attr.s decorator. Multiple instances of this class will re-use the same data structure, which is li",
+   "lines": [
+    106
+   ],
+   "acceptance_criteria": [
+    "the flagged pattern no longer matches attr-mutable-initializer",
+    "no regression in surrounding behavior"
+   ],
+   "verify": [
+    "python tools/secaudit.py codepaths.py | attr-mutable-initializer count == 0"
+   ],
+   "estimate": "S",
+   "risk": "low",
+   "depends_on": [],
+   "view": "security",
+   "id": "T10"
+  },
+  {
+   "priority": "P2",
+   "severity": "MEDIUM",
+   "title": "[regex_dos] Detected usage of re.compile with an inefficient regular expression. This can lead to regular expression denial of service, which can result",
+   "lines": [
+    169
+   ],
+   "acceptance_criteria": [
+    "the flagged pattern no longer matches regex_dos",
+    "no regression in surrounding behavior"
+   ],
+   "verify": [
+    "python tools/secaudit.py codepaths.py | regex_dos count == 0"
+   ],
+   "estimate": "S",
+   "risk": "low",
+   "depends_on": [],
+   "view": "security",
+   "id": "T11"
+  },
+  {
+   "priority": "P2",
+   "severity": "MEDIUM",
+   "title": "[GLOBAL-ARGS-COUPLING] module-global args coupling",
+   "lines": [
+    189,
+    206,
+    253,
+    266,
+    307,
+    313
+   ],
+   "acceptance_criteria": [
+    "the flagged pattern no longer matches GLOBAL-ARGS-COUPLING",
+    "no regression in surrounding behavior"
+   ],
+   "verify": [
+    "python tools/secaudit.py codepaths.py | GLOBAL-ARGS-COUPLING count == 0"
+   ],
+   "estimate": "S",
+   "risk": "low",
+   "depends_on": [],
+   "view": "security",
+   "id": "T12"
+  },
+  {
+   "priority": "P2",
+   "severity": "MEDIUM",
+   "title": "[long-function] split into focused helpers",
+   "lines": [
+    92
+   ],
+   "acceptance_criteria": [
+    "smell eliminated",
+    "function behavior unchanged"
+   ],
+   "verify": [
+    "python -m py_compile codepaths.py",
+    "tests still pass"
+   ],
+   "estimate": "S",
+   "risk": "low",
+   "depends_on": [],
+   "view": "refactor",
+   "id": "T13"
+  },
+  {
+   "priority": "P2",
+   "severity": "MEDIUM",
+   "title": "[long-function] split into focused helpers",
+   "lines": [
+    199
+   ],
+   "acceptance_criteria": [
+    "smell eliminated",
+    "function behavior unchanged"
+   ],
+   "verify": [
+    "python -m py_compile codepaths.py",
+    "tests still pass"
+   ],
+   "estimate": "S",
+   "risk": "low",
+   "depends_on": [],
+   "view": "refactor",
+   "id": "T14"
+  },
+  {
+   "priority": "P2",
+   "severity": "MEDIUM",
+   "title": "[untested-function] add test_error (happy + edge paths)",
+   "lines": [
+    37
+   ],
+   "acceptance_criteria": [
+    "test_error exists and passes",
+    "covers at least one edge case"
+   ],
+   "verify": [
+    "python -m pytest test_error.py -q"
+   ],
+   "estimate": "M",
+   "risk": "low",
+   "depends_on": [],
+   "view": "testing",
+   "id": "T15"
+  },
+  {
+   "priority": "P2",
+   "severity": "MEDIUM",
+   "title": "[untested-function] add test_close (happy + edge paths)",
+   "lines": [
+    89
+   ],
+   "acceptance_criteria": [
+    "test_close exists and passes",
+    "covers at least one edge case"
+   ],
+   "verify": [
+    "python -m pytest test_close.py -q"
+   ],
+   "estimate": "M",
+   "risk": "low",
+   "depends_on": [],
+   "view": "testing",
+   "id": "T16"
+  },
+  {
+   "priority": "P2",
+   "severity": "MEDIUM",
+   "title": "[untested-function] add test_paths_between (happy + edge paths)",
+   "lines": [
+    92
+   ],
+   "acceptance_criteria": [
+    "test_paths_between exists and passes",
+    "covers at least one edge case"
+   ],
+   "verify": [
+    "python -m pytest test_paths_between.py -q"
+   ],
+   "estimate": "M",
+   "risk": "low",
+   "depends_on": [],
+   "view": "testing",
+   "id": "T17"
+  },
+  {
+   "priority": "P2",
+   "severity": "MEDIUM",
+   "title": "[untested-function] add test_print_sink_paths (happy + edge paths)",
+   "lines": [
+    182
+   ],
+   "acceptance_criteria": [
+    "test_print_sink_paths exists and passes",
+    "covers at least one edge case"
+   ],
+   "verify": [
+    "python -m pytest test_print_sink_paths.py -q"
+   ],
+   "estimate": "M",
+   "risk": "low",
+   "depends_on": [],
+   "view": "testing",
+   "id": "T18"
+  },
+  {
+   "priority": "P2",
+   "severity": "MEDIUM",
+   "title": "[untested-function] add test_print_paths (happy + edge paths)",
+   "lines": [
+    199
+   ],
+   "acceptance_criteria": [
+    "test_print_paths exists and passes",
+    "covers at least one edge case"
+   ],
+   "verify": [
+    "python -m pytest test_print_paths.py -q"
+   ],
+   "estimate": "M",
+   "risk": "low",
+   "depends_on": [],
+   "view": "testing",
+   "id": "T19"
+  },
+  {
+   "priority": "P2",
+   "severity": "MEDIUM",
+   "title": "[untested-function] add test_int_functions() (happy + edge paths)",
+   "lines": [
+    249
+   ],
+   "acceptance_criteria": [
+    "test_int_functions() exists and passes",
+    "covers at least one edge case"
+   ],
+   "verify": [
+    "python -m pytest test_int_functions().py -q"
+   ],
+   "estimate": "M",
+   "risk": "low",
+   "depends_on": [],
+   "view": "testing",
+   "id": "T20"
+  },
+  {
+   "priority": "P2",
+   "severity": "MEDIUM",
+   "title": "[untested-function] add test_int_sinks(c (happy + edge paths)",
+   "lines": [
+    262
+   ],
+   "acceptance_criteria": [
+    "test_int_sinks(c exists and passes",
+    "covers at least one edge case"
+   ],
+   "verify": [
+    "python -m pytest test_int_sinks(c.py -q"
+   ],
+   "estimate": "M",
+   "risk": "low",
+   "depends_on": [],
+   "view": "testing",
+   "id": "T21"
+  },
+  {
+   "priority": "P2",
+   "severity": "MEDIUM",
+   "title": "Split module: 322 lines, 12 functions",
+   "lines": [
+    1
+   ],
+   "acceptance_criteria": [
+    "module split by responsibility (CLI / engine / output)",
+    "public API preserved via re-exports",
+    "each new module under 200 lines"
+   ],
+   "verify": [
+    "python -m py_compile on each new module",
+    "top-level import still works"
+   ],
+   "estimate": "L",
+   "risk": "medium",
+   "depends_on": [
+    "security tasks complete"
+   ],
+   "view": "architecture",
+   "id": "T22"
+  },
+  {
+   "priority": "P3",
+   "severity": "LOW",
+   "title": "[PRINT-NOT-LOGGING] print() in library code",
+   "lines": [
+    187,
+    205,
+    208,
+    218,
+    233
+   ],
+   "acceptance_criteria": [
+    "the flagged pattern no longer matches PRINT-NOT-LOGGING",
+    "no regression in surrounding behavior"
+   ],
+   "verify": [
+    "python tools/secaudit.py codepaths.py | PRINT-NOT-LOGGING count == 0"
+   ],
+   "estimate": "S",
+   "risk": "low",
+   "depends_on": [],
+   "view": "security",
+   "id": "T23"
+  },
+  {
+   "priority": "P3",
+   "severity": "LOW",
+   "title": "Add docstrings to 7 public symbols",
+   "lines": [
+    37,
+    89,
+    92,
+    182,
+    199,
+    249,
+    262
+   ],
+   "acceptance_criteria": [
+    "every public function/class has a docstring",
+    "docstrings follow project style"
+   ],
+   "verify": [
+    "pydocstyle codepaths.py --select=D103"
+   ],
+   "estimate": "S",
+   "risk": "low",
+   "depends_on": [],
+   "view": "documentation",
+   "id": "T24"
+  },
+  {
+   "priority": "P3",
+   "severity": "LOW",
+   "title": "Extract helpers from largest functions: paths_between, print_paths, _name_function",
+   "lines": [
+    92,
+    199,
+    72
+   ],
+   "acceptance_criteria": [
+    "each extracted helper has one job"
+   ],
+   "verify": [
+    "tests pass",
+    "function outputs identical"
+   ],
+   "estimate": "M",
+   "risk": "low",
+   "depends_on": [],
+   "view": "architecture",
+   "id": "T25"
+  }
+ ],
+ "postprocess": {
+  "expected_artifacts": [],
+  "invariants": [
+   "all verify commands in tasks pass",
+   "module imports cleanly",
+   "python -m py_compile succeeds on every touched file"
+  ],
+  "gates": [
+   {
+    "name": "audit_clean",
+    "command": "python tools/secaudit.py <source>",
+    "pass_when": "no CRITICAL/HIGH findings remain"
+   },
+   {
+    "name": "tests_pass",
+    "command": "python -m pytest -q",
+    "pass_when": "exit 0"
+   },
+   {
+    "name": "behavior_preserved",
+    "command": "run the tool on a fixed sample; diff output",
+    "pass_when": "identical output"
+   }
+  ],
+  "rollback": "git checkout -- <source>",
+  "handoff": "human review required if any task has risk == 'medium' or 'high'"
+ },
+ "agent_directives": {
+  "objective": "Execute tasks in priority order; after each task, run its verify commands.",
+  "loop": "audit -> fix -> re-verify -> next task; stop when all gates pass.",
+  "max_iterations_per_task": 5,
+  "report_format": "per-task: id, status(pass/fail), verify output summary; final: gate results",
+  "escalate_when": "a verify command fails 5 times, or a task requires a forbidden operation"
+ },
+ "contract_check": []
+}

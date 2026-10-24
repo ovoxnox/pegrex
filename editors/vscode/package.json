@@ -1,0 +1,26 @@
+{
+  "name": "pegrex-vscode",
+  "displayName": "PegRex",
+  "description": "PegRex path contracts in the editor: hover contracts, codeLens path counts, and one-click contract display. Bundles zero node dependencies.",
+  "publisher": "ovoxnox",
+  "license": "MIT",
+  "version": "0.1.0",
+  "engines": {
+    "vscode": "^1.85.0"
+  },
+  "categories": ["Other", "Programming Languages"],
+  "activationEvents": ["onLanguage:python"],
+  "main": "./extension.js",
+  "contributes": {
+    "configuration": {
+      "title": "PegRex",
+      "properties": {
+        "pegrex.pythonPath": {
+          "type": "string",
+          "default": "python",
+          "description": "Python interpreter used to launch the pegrex LSP server (must have pegrex importable, e.g. pip install pegrex or a repo checkout as workspace)."
+        }
+      }
+    }
+  }
+}
