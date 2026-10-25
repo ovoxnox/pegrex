@@ -7,6 +7,7 @@ paths
 from __future__ import annotations
 
 import re
+import time
 from dataclasses import dataclass, field
 
 from .sym import Not, Op, Sym
@@ -34,36 +35,81 @@ class PathFormula:
         return NL.join(["(set-logic QF_NIA)", decls, body, "(check-sat)", ""])
 
 
-class PathEnumerator:
-    """Enumerate CFG paths; loops unrolled at most `unroll` times."""
+@dataclass
+class PathEnumeration:
+    """Complete paths or an explicit resource UNKNOWN, never a partial proof."""
+    paths: list[list[int]]
+    complete: bool
+    unknowns: list[str] = field(default_factory=list)
+    visited: int = 0
 
-    def __init__(self, cfg, unroll: int = 2) -> None:
+    @property
+    def verdict(self) -> str:
+        return "ok" if self.complete else "unknown"
+
+
+class PathExplosion(RuntimeError):
+    """Legacy list API cannot represent incomplete enumeration safely."""
+
+
+class PathEnumerator:
+    """Enumerate CFG paths deterministically with optional resource limits."""
+
+    def __init__(self, cfg, unroll: int = 2, *, max_paths: int | None = None,
+                 timeout_ms: int | None = None) -> None:
         self.cfg, self.unroll = cfg, unroll
+        self.max_paths, self.timeout_ms = max_paths, timeout_ms
         self._backs = {(e.src, e.dst) for e in cfg.edges if e.kind == "back"}
 
-    def enumerate(self, entry: int = 0) -> list[list[int]]:"
+    def enumerate_bounded(self, entry: int = 0, *, max_paths: int | None = None,
+                          timeout_ms: int | None = None) -> PathEnumeration:
+        cap = self.max_paths if max_paths is None else max_paths
+        timeout = self.timeout_ms if timeout_ms is None else timeout_ms
+        deadline = time.monotonic() + timeout / 1000 if timeout is not None else None
         paths: list[list[int]] = []
-        seen: set[tuple] = set()  # O(1) membership, not an O(P)
-                                  # linear scan of `paths` itself
+        seen: set[tuple] = set()
+        unknowns: list[str] = []
+        visited = 0
 
-        def dfs(b: int, visits: dict, acc: tuple) -> None:
-            acc += (b,)
-            if self.cfg.blocks[b].term == "ret" or not self.cfg.successors(b):
-                if acc not in seen:          # veritesting-lite: state merging
-                    seen.add(acc)
-                    paths.append(list(acc))  # identical paths collapse
+        def dfs(block: int, visits: dict, acc: tuple) -> None:
+            nonlocal visited
+            if unknowns:
                 return
-            for dst, e in self.cfg.successors(b):
-                key = (e.src, e.dst)
+            visited += 1
+            if deadline is not None and time.monotonic() > deadline:
+                unknowns.append(f"path enumeration exceeded {timeout}ms")
+                return
+            acc += (block,)
+            successors = sorted(self.cfg.successors(block),
+                                key=lambda item: (item[0], item[1].kind, str(item[1].cond)))
+            if self.cfg.blocks[block].term == "ret" or not successors:
+                if acc not in seen:
+                    if cap is not None and len(paths) >= cap:
+                        unknowns.append(f"path count cap {cap} exceeded")
+                        return
+                    seen.add(acc)
+                    paths.append(list(acc))
+                return
+            for dst, edge in successors:
+                key = (edge.src, edge.dst)
                 if key in self._backs and visits.get(key, 0) >= self.unroll:
                     continue
-                v2 = dict(visits)
+                next_visits = dict(visits)
                 if key in self._backs:
-                    v2[key] = v2.get(key, 0) + 1
-                dfs(dst, v2, acc)
+                    next_visits[key] = next_visits.get(key, 0) + 1
+                dfs(dst, next_visits, acc)
+                if unknowns:
+                    return
 
         dfs(entry, {}, ())
-        return paths
+        complete = not unknowns
+        return PathEnumeration(paths if complete else [], complete, unknowns, visited)
+
+    def enumerate(self, entry: int = 0) -> list[list[int]]:
+        result = self.enumerate_bounded(entry)
+        if not result.complete:
+            raise PathExplosion("; ".join(result.unknowns))
+        return result.paths
 
 
 def _ssa_rename(expr, env):

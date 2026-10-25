@@ -37,24 +37,29 @@ class CallGraph:
 
 
 def build_call_graph(source: str, lang: str = "python",
-                     all_functions: bool = True) -> CallGraph:
+                     all_functions: bool = True, *, tree=None) -> CallGraph:
     """Extract the call graph from source.  Per-function bodies are walked;
     call nodes resolve to callee names (unresolved callees become '?'-free
     external nodes when external=True)."""
     import sys as _sys
     root = _sys.path and None
-    import pipeline  # frontends
-    if lang == "python":
-        bodies = pipeline.python_functions(source)
-        parse, tags, mk = pipeline.python_frontend()
-        _ = parse  # noqa
-        call_tag = "call"
+    import pipeline
+    from .languages import normalize_language, get_language
+    normalized = normalize_language(lang)
+    if normalized is None:
+        raise ValueError(f"unsupported call-graph language {lang!r}")
+    spec = get_language(normalized)
+    if "callgraph" not in spec.capabilities:
+        raise NotImplementedError(f"call graph unsupported for {normalized}: {spec.notes}")
+    if normalized == "python":
+        bodies = pipeline.python_functions(source, tree=tree)
+        call_tags = {"call", "call_expression"}
     else:
-        parse, tags, mk = pipeline.FRONTENDS[lang]()
-        bodies = {"": parse(source)}
-        call_tag = "call_expression" if lang in ("javascript", "typescript",
-                                                 "solidity", "kotlin",
-                                                 "zig") else "call"
+        if tree is None:
+            parse, tags, mk = pipeline.frontend_for(normalized)
+            tree = parse(source)
+        bodies = {"": tree}
+        call_tags = {"call_expression", "call"}
 
     g = CallGraph()
     fn_names = set(bodies.keys()) if lang == "python" else set()
@@ -68,7 +73,7 @@ def build_call_graph(source: str, lang: str = "python",
         while stack:
             n = stack.pop()
             if isinstance(n, Node):
-                if n.tag == call_tag:
+                if n.tag in call_tags:
                     callee = _callee_name(n, source)
                     if callee:
                         g.functions[fname]["calls"].add(callee)

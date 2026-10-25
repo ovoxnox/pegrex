@@ -41,9 +41,11 @@ def induce(positives, negatives, seed, rounds=60, seed_lm=42):
     """induce(positives, negatives, seed, rounds, seed_lm): see module docstring."""
     from .mini_llm import NGramLM
     random.seed(seed_lm)
-    corpus = " ".join(p.read_text()
-                      for p in pathlib.Path(__file__).parent.parent
-                      .joinpath("examples").glob("*.gram"))
+    grammar_roots = (pathlib.Path(__file__).parent / "grammars",
+                     pathlib.Path(__file__).resolve().parent.parent / "examples")
+    grammar_files = sorted({path for root in grammar_roots if root.is_dir()
+                            for path in root.glob("*.gram")}, key=lambda path: path.name)
+    corpus = " ".join(path.read_text(encoding="utf-8") for path in grammar_files)
     lm = NGramLM(n=2)
     lm.train(corpus)
     best, score = seed, fitness(seed, positives, negatives)

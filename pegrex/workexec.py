@@ -7,6 +7,7 @@ from __future__ import annotations
 
 import json
 import pathlib
+import sys
 
 from .work import compile_work
 

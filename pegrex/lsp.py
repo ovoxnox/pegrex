@@ -14,16 +14,17 @@ from __future__ import annotations
 import json
 import re
 
-from . import api
-from .wire import temp_source
+from .sessions import AnalysisSession
 
 _FUN_RX = re.compile(r"^def\s+([A-Za-z_]\w*)\s*\(([^)]*)\):", re.M)
 
 
-def _contracts_for(source, fn_name):
-    with temp_source(source) as p:
-        return [f"{' ∧ '.join(sorted(map(str, cs))) or 'true'} → {res}"
-                for cs, res in api.contracts(p)]
+def _contracts_for(source, fn_name, doc=None):
+    session = (_DOCS.get(doc, {}).get("session") if doc is not None else None)
+    if session is None or session.source != source:
+        session = AnalysisSession(source)
+    return [f"{' ∧ '.join(sorted(map(str, cs))) or 'true'} → {res}"
+            for cs, res in session.contracts(fn_name)]
 
 
 def _fn_at(source, line):
@@ -59,18 +60,11 @@ def _defs(source):
     return out
 
 
-def _status(block):
-    """(n_paths, n_proved, contract lines) for one function's source.
-
-    A path counts proved when every constraint survives lowering into the
-    linear-arithmetic fragment (pegrex.refine's normalization seam); a path
-    with opaque/non-linear constraints is unknown -- reported, never faked
-    as proved. A path the engine refuses to analyze at all is unknown too."""
+def _status_rows(rows):
+    """Count proved paths; opaque/non-linear constraints remain UNKNOWN."""
     from .linsolve import parse_atom
     from .refine import _norm_constraint
     proved, lines = 0, []
-    with temp_source(block) as p:
-        rows = api.contracts(p)
     for cs, res in rows:
         lines.append(f"{' ∧ '.join(sorted(map(str, cs))) or 'true'} → {res}")
         ok = True
@@ -78,21 +72,30 @@ def _status(block):
             try:
                 parse_atom(_norm_constraint(str(c)))
             except Exception:
-                ok = False # opaque constraint: safe direction
+                ok = False
                 break
         proved += ok
     return len(rows), proved, lines
 
 
+def _status(block):
+    """Compatibility helper for one isolated function block."""
+    return _status_rows(AnalysisSession(block).contracts())
+
+
 def _lenses(doc, version, source):
-    """One CodeLens per top-level def, cached per document version."""
+    """One CodeLens per top-level def, cached by content digest."""
     hit = _CLCACHE.get(doc)
-    if hit and hit["version"] == version:
+    session = _DOCS.get(doc, {}).get("session")
+    if session is None or session.source != source:
+        session = AnalysisSession(source)
+        _DOCS.setdefault(doc, {})["session"] = session
+    if hit and hit["source_sha256"] == session.digest:
         return hit["lenses"]
     lenses = []
     for name, line, block in _defs(source):
         try:
-            n, proved, _ = _status(block)
+            n, proved, _ = _status_rows(session.contracts(name))
             unknown = n - proved
             title = f"pegrex: {n} paths · {proved} proved / {unknown} unknown"
         except Exception as e:  # engine refusal: loud, not a fake
@@ -103,7 +106,7 @@ def _lenses(doc, version, source):
                               "character": len(source.splitlines()[line])}},
             "command": {"title": title, "command": "pegrex.showContracts",
                         "arguments": [doc, name]}})
-    _CLCACHE[doc] = {"version": version, "lenses": lenses}
+    _CLCACHE[doc] = {"source_sha256": session.digest, "lenses": lenses}
     return lenses
 
 
@@ -137,7 +140,7 @@ def _h_hover(mid, params):
     hit = _fn_at(source, line)
     if hit is None:
         return _ok(mid)
-    contracts = _contracts_for(source, hit[0])
+    contracts = _contracts_for(source, hit[0], doc)
     if not contracts:
         return _ok(mid)
     md = f"**path contracts: {hit[0]}**\n\n" + "\n\n".join(
@@ -174,17 +177,29 @@ def _h_execute(mid, params):
     if block is None:
         return _err(mid, -32602, f"no such function {fn!r} in {doc}")
     try:
-        _, _, lines = _status(block)
+        session = _DOCS[doc].get("session")
+        if session is None or session.source != source:
+            session = AnalysisSession(source)
+            _DOCS[doc]["session"] = session
+        _, _, lines = _status_rows(session.contracts(fn))
     except Exception as e:
         return _err(mid, -32603, f"contract analysis refused: {e!r}")
     return _ok(mid, f"contracts: {fn}\n" + "\n".join(lines))
 
 
+def _update_doc(uri, text, version):
+    previous = _DOCS.get(uri, {})
+    session = previous.get("session")
+    if session is None or session.source != text:
+        session = AnalysisSession(text, path=uri)
+    _DOCS[uri] = {"text": text, "version": version, "session": session}
+    _CLCACHE.pop(uri, None)
+
+
 def _h_did_open(mid, params):
     try:
         td = params["textDocument"]
-        _DOCS[td["uri"]] = {"text": td["text"], "version": td.get("version")}
-        _CLCACHE.pop(td["uri"], None)
+        _update_doc(td["uri"], td["text"], td.get("version"))
         return _ok(mid)
     except (KeyError, TypeError):
         return _err(mid, -32602, "bad didOpen params")
@@ -193,9 +208,8 @@ def _h_did_open(mid, params):
 def _h_did_change(mid, params):
     try:
         doc = _uri(params)
-        _DOCS[doc] = {"text": params["contentChanges"][-1]["text"],
-                      "version": params["textDocument"].get("version")}
-        _CLCACHE.pop(doc, None)
+        _update_doc(doc, params["contentChanges"][-1]["text"],
+                    params["textDocument"].get("version"))
         return _ok(mid)
     except (KeyError, TypeError, IndexError):
         return _err(mid, -32602, "bad didChange params")

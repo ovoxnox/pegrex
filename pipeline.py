@@ -11,8 +11,20 @@ import json
 import pathlib
 import sys
 
-ROOT = pathlib.Path(__file__).parent
+ROOT = pathlib.Path(__file__).resolve().parent
 sys.path.insert(0, str(ROOT))
+
+
+def _grammar_file(name: str) -> pathlib.Path:
+    """Resolve bundled grammars from a checkout or an installed wheel."""
+    candidates = (ROOT / "examples" / name,
+                  ROOT / "pegrex" / "grammars" / name,
+                  ROOT / "grammars" / name)
+    for candidate in candidates:
+        if candidate.is_file():
+            return candidate
+    raise FileNotFoundError(f"bundled grammar {name!r} is missing from: " +
+                            ", ".join(str(path) for path in candidates))
 
 from pegrex import compile_grammar, peg
 from pegrex.peg import Node
@@ -71,7 +83,7 @@ def _cond_c(node, src):
 
 
 #def lua_frontend():
-#    gram = (ROOT / "examples" / "lua.gram").read_text()
+#    gram = _grammar_file("lua.gram").read_text(encoding="utf-8")
 #    start, rules = compile_grammar(gram)
 #
 #    def parse(src):
@@ -83,7 +95,7 @@ def _cond_c(node, src):
 
 
 def c_frontend():
-    gram = (ROOT / "examples" / "c11.gram").read_text()
+    gram = _grammar_file("c11.gram").read_text(encoding="utf-8")
     typedefs = set()
 
     def is_typedef(s, pos, node):
@@ -103,7 +115,12 @@ def c_frontend():
     defs = {"is_typedef": is_typedef, "set_typedef": set_typedef}
     start, rules = compile_grammar(gram, defs=defs)
 
-    def parse(src):
+    def parse(src, _name=None):
+        if _name is not None:
+            bodies = c_functions(src)
+            if _name not in bodies:
+                raise ValueError(f"no C function named {_name!r} found")
+            return bodies[_name]
         ast, err, _ = peg.run(start, src, rules, defs=defs)
         assert err is None, err
 
@@ -134,43 +151,38 @@ def c_frontend():
 
 
 def ts_frontend(lang):
-    """Generic tree-sitter frontend (python/go/rust): parse -> normalize ->
-    function body, with cond/render factories for full contracts."""
+    """Registry-backed Tree-sitter frontend with a stdlib Python fallback."""
     import re
-    from tree_sitter import Language, Parser
-    import tree_sitter_python, tree_sitter_go, tree_sitter_rust
-    from pegrex.tree_sitter_bridge import ts_to_pegrex, TAGSPECS
+    from pegrex.tree_sitter_bridge import parse as bridge_parse, TAGSPECS
+    from pegrex.languages import get_language, normalize_language
+    lang = normalize_language(lang) or lang
+    spec = get_language(lang)
+    tag_spec_lang = spec.tag_spec or lang
 
-    import tree_sitter_javascript, tree_sitter_solidity, tree_sitter_julia, \
-        tree_sitter_kotlin, tree_sitter_zig
-    mods = {"python": tree_sitter_python, "go": tree_sitter_go,
-            "rust": tree_sitter_rust, "javascript": tree_sitter_javascript,
-            "solidity": tree_sitter_solidity, "julia": tree_sitter_julia,
-            "kotlin": tree_sitter_kotlin, "zig": tree_sitter_zig}
-    lang_obj = Language(mods[lang].language())
-
-    def parse(src, _name=None):
+    def parse(src, _name=None, tree=None):
         from pegrex.peg import Node as _N
-        root = Parser(lang_obj).parse(src.encode()).root_node
-        tree = ts_to_pegrex(root, src)
-        body = _first_function(tree, lang)
-        block_tag = getattr(TAGSPECS[lang], "block", "block")
+        if lang == "python":
+            tree = bridge_parse(lang, src) if tree is None else tree
+            if tree.tag == "module":
+                from pegrex.python_ast import parse_function_body
+                body = parse_function_body(src, _name)
+            else:
+                body = tree
+        else:
+            tree = bridge_parse(lang, src) if tree is None else tree
+            body = _first_function(tree, lang, _name)
+        block_tag = getattr(TAGSPECS.get(tag_spec_lang), "block", "block")
         if not isinstance(block_tag, str) or block_tag.startswith("__"):
             block_tag = "block"
-        SKIP_TAGS = ("signature", "parameters", "identifier", "modifiers",
-                     "function_value_parameters", "formal_parameters",
-                     "type", "user_type", "type_identifier", "nullable_type")
-        if body is not None and body.tag in ("function_definition",
-                                             "function_declaration",
-                                             "function_item"):
-            kids = [c for c in body.children
-                    if getattr(c, "tag", "") not in SKIP_TAGS]
-            if (len(kids) == 1 and kids[0].tag in
-                    ("block", "statement_block", "statements")):
+        skip_tags = ("signature", "parameters", "identifier", "modifiers",
+                     "function_value_parameters", "formal_parameters", "type",
+                     "user_type", "type_identifier", "nullable_type")
+        if body is not None and body.tag in ("function_definition", "function_declaration", "function_item"):
+            kids = [c for c in body.children if getattr(c, "tag", "") not in skip_tags]
+            if len(kids) == 1 and kids[0].tag in ("block", "statement_block", "statements"):
                 return kids[0]
             body = _N(block_tag, body.pos, body.endpos, kids)
-        elif body is not None and body.tag not in ("block", "statement_block",
-                                                   "statements"):
+        elif body is not None and body.tag not in ("block", "statement_block", "statements"):
             body = _N(block_tag, body.pos, body.endpos, list(body.children))
         return body
 
@@ -225,26 +237,28 @@ def ts_frontend(lang):
             else (src or "")[st.pos:st.endpos]
         return t.replace("return", "").strip()
 
-    return parse, TAGSPECS[lang], make_cond
+    return parse, TAGSPECS[tag_spec_lang], make_cond
 
 
-def _first_function(tree, lang):
+def _first_function(tree, lang, name=None):
     from pegrex.peg import Node as _N
-    fn_tag = {"python": "function_definition",
-              "go": "function_declaration",
-              "rust": "function_item",
-              "javascript": "function_declaration",
-              "solidity": "function_definition",
-              "julia": "function_definition",
-              "kotlin": "function_declaration",
-              "zig": "function_declaration"}[lang]
+    from pegrex.languages import get_language
+    spec = get_language(lang)
+    tag_language = spec.tag_spec or spec.name
+    tag_spec = get_language(tag_language)
+    fn_tag = spec.function_tag or tag_spec.function_tag
+    if not fn_tag:
+        raise ValueError(f"no function node tag registered for {lang!r}")
     first = [None]
 
     def walk(n):
         if isinstance(n, _N):
             if n.tag == fn_tag and first[0] is None:
                 kids = [c for c in n.children if isinstance(c, _N)]
-                first[0] = n # the function node itself
+                fn_name = next((str(c.children[0]) for c in kids
+                                if c.tag in {"identifier", "type_identifier"} and c.children), None)
+                if name is None or fn_name == name:
+                    first[0] = n  # the selected function node itself
             for c in n.children:
                 walk(c)
         elif isinstance(n, list):
@@ -288,94 +302,60 @@ def zig_frontend():
 
 
 def typescript_frontend():
-    """Real TypeScript (incl. AssemblyScript): tree-sitter-typescript parses
-    generics that the JS grammar misparses as comparisons."""
-    import tree_sitter_typescript
-    from tree_sitter import Language, Parser
-    from pegrex.tree_sitter_bridge import ts_to_pegrex, TAGSPECS
-    lang_obj = Language(tree_sitter_typescript.language_typescript())
-
-    def parse(src, _name=None):
-        from pegrex.peg import Node as _N
-        root = Parser(lang_obj).parse(src.encode()).root_node
-        tree = ts_to_pegrex(root, src)
-        body = _first_function(tree, "javascript")
-        if body is not None and body.tag not in ("block", "statement_block",
-                                                 "statements"):
-            body = _N("block", body.pos, body.endpos, list(body.children))
-        return body
-
-    _OPS = {"<": Lt, "<=": Le, ">": Gt, ">=": Ge,
-            "==": Eq, "!=": lambda a, b: Not(Eq(a, b))}
-
-    def make_cond(src):
-        import re as _re
-        def atom(txt):
-            t = txt.strip()
-            if t.startswith("(") and t.endswith(")"):
-                t = t[1:-1].strip()
-            m = _re.match(r"\s*([A-Za-z_]\w*)\s*(<=|>=|<|>|==|!=)\s*"
-                          r"(-?\d+|[A-Za-z_]\w*)$", t)
-            a, b = m.group(1), m.group(3)
-            av = V(a) if not a.lstrip("-").isdigit() else const(int(a))
-            bv = V(b) if not b.lstrip("-").isdigit() else const(int(b))
-            return _OPS[m.group(2)](av, bv)
-        def cond(node, _s=src):
-            txt = node.children[0] if node.children and \
-                isinstance(node.children[0], str) else _s[node.pos:node.endpos]
-            txt = txt.strip()
-            or_parts = _re.split(r"\s*(?:or|\|\|)\s*", txt)
-            if len(or_parts) > 1:
-                from pegrex.sym import Or as _Or
-                return _Or(*[atom(x) for x in or_parts])
-            parts = _re.split(r"\s*(?:and|&&)\s*", txt)
-            if len(parts) > 1:
-                from pegrex.sym import And as _And
-                return _And(*[atom(x) for x in parts])
-            return atom(txt)
-        return cond
-
-    return parse, TAGSPECS["javascript"], make_cond
+    """Typescript shares the parser binding and CFG tags registered for JS."""
+    return ts_frontend("typescript")
 
 
-FRONTENDS = {"c": c_frontend, "python": python_frontend,
-             "go": go_frontend, "rust": rust_frontend,
-             "javascript": javascript_frontend,
-             "solidity": solidity_frontend, "julia": julia_frontend,
-             "kotlin": kotlin_frontend, "zig": zig_frontend}
+from pegrex.languages import frontend_registry as _frontend_registry
+_FRONTEND_FACTORY_NAMES = _frontend_registry()
+FRONTENDS = {language: globals()[factory_name]
+             for language, factory_name in _FRONTEND_FACTORY_NAMES.items()
+             if callable(globals().get(factory_name))}
+
+
+def frontend_for(language):
+    """Resolve a contract frontend via the central capability registry."""
+    from pegrex.languages import get_contract_frontend
+    return get_contract_frontend(language)()
 
 
 def lua_functions(src):
     """Parse a chunk; return {name: body} for every local function."""
     import pegrex as _p
-    start, rules = compile_grammar((ROOT / "examples" / "lua.gram").read_text())
+    start, rules = compile_grammar(_grammar_file("lua.gram").read_text(encoding="utf-8"))
     ast, err, _ = peg.run(start, src, rules)
     assert err is None, err
     return {f.children[0].children[0]: f.children[2] for f in ast.children}
 
 
-def python_functions(src):
-    """{name: body} for every top-level def (real tree-sitter)."""
-    parse, _, _ = python_frontend()
-    import tree_sitter_python
-    from tree_sitter import Language, Parser
-    from pegrex.tree_sitter_bridge import ts_to_pegrex
+def python_functions(src, tree=None):
+    """Return {name: body} for every top-level Python function.
+
+    Language selection and parser fallback are owned by tree_sitter_bridge;
+    this helper only extracts the historical compatibility view.
+    """
+    from pegrex.tree_sitter_bridge import parse as parse_source
     from pegrex.peg import Node
-    root = Parser(Language(tree_sitter_python.language())).parse(
-        src.encode()).root_node
-    tree = ts_to_pegrex(root, src)
+    tree = parse_source("python", src) if tree is None else tree
     out = {}
-    def walk(n):
-        if isinstance(n, Node):
-            if n.tag == "function_definition":
-                kids = [c for c in n.children if isinstance(c, Node)]
-                name = kids[0].children[0]
-                out[name] = kids[-1]
-            for c in n.children:
-                walk(c)
-        elif isinstance(n, list):
-            for c in n:
-                walk(c)
+    def walk(node):
+        if isinstance(node, Node):
+            if node.tag == "function_definition":
+                children = [child for child in node.children if isinstance(child, Node)]
+                if len(children) >= 2 and children[0].tag == "identifier":
+                    name = children[0].children[0] if children[0].children else None
+                    body = next((child for child in reversed(children)
+                                 if child.tag in ("block", "statement_block", "statements")), None)
+                    if name and body is not None:
+                        out[str(name)] = body
+            # Do not walk nested functions under an outer function again as
+            # top-level entries; nested names are handled by the owning scope.
+            if node.tag != "function_definition":
+                for child in node.children:
+                    walk(child)
+        elif isinstance(node, list):
+            for child in node:
+                walk(child)
     walk(tree)
     return out
 
@@ -402,7 +382,7 @@ def c_functions(src):
             typedefs.add(d.children[0])
         return True
     defs = {"is_typedef": is_typedef, "set_typedef": set_typedef}
-    start, rules = compile_grammar((ROOT / "examples" / "c11.gram").read_text(),
+    start, rules = compile_grammar(_grammar_file("c11.gram").read_text(encoding="utf-8"),
                                    defs=defs)
     ast, err, _ = peg.run(start, src, rules, defs=defs)
     assert err is None, err
@@ -427,7 +407,7 @@ FUNCTIONS = {"c": c_functions, "python": python_functions}
 def c_parse_full(src):
     """Parse a C translation unit and return the whole AST (unlike
     c_frontend().parse, which extracts a single function body)."""
-    gram = (ROOT / "examples" / "c11.gram").read_text()
+    gram = _grammar_file("c11.gram").read_text(encoding="utf-8")
     typedefs = set()
 
     def is_typedef(s, pos, node):
@@ -468,14 +448,99 @@ def path_constraints(cfg, cond, unroll):
     return sorted(out, key=str)
 
 
+def _invariant_value(expression: str, results: dict):
+    """Evaluate a small data-only invariant language, never Python builtins."""
+    import ast
+    tree = ast.parse(expression, mode="eval")
+
+    def value(node):
+        if isinstance(node, ast.Expression):
+            return value(node.body)
+        if isinstance(node, ast.Constant):
+            return node.value
+        if isinstance(node, ast.Name) and node.id == "results":
+            return results
+        if isinstance(node, ast.Subscript):
+            return value(node.value)[value(node.slice)]
+        if isinstance(node, ast.List):
+            return [value(x) for x in node.elts]
+        if isinstance(node, ast.Tuple):
+            return tuple(value(x) for x in node.elts)
+        if isinstance(node, ast.BoolOp):
+            values = [value(x) for x in node.values]
+            return all(values) if isinstance(node.op, ast.And) else any(values)
+        if isinstance(node, ast.UnaryOp) and isinstance(node.op, ast.Not):
+            return not value(node.operand)
+        if isinstance(node, ast.Compare):
+            left = value(node.left)
+            for op, comparator in zip(node.ops, node.comparators):
+                right = value(comparator)
+                if isinstance(op, ast.Eq): ok = left == right
+                elif isinstance(op, ast.NotEq): ok = left != right
+                elif isinstance(op, ast.Lt): ok = left < right
+                elif isinstance(op, ast.LtE): ok = left <= right
+                elif isinstance(op, ast.Gt): ok = left > right
+                elif isinstance(op, ast.GtE): ok = left >= right
+                elif isinstance(op, ast.In): ok = left in right
+                elif isinstance(op, ast.NotIn): ok = left not in right
+                else: raise ValueError(f"unsupported comparison: {type(op).__name__}")
+                if not ok:
+                    return False
+                left = right
+            return True
+        if isinstance(node, ast.Call) and isinstance(node.func, ast.Name) \
+                and node.func.id in ("len", "sum", "min", "max") \
+                and not node.keywords:
+            return {"len": len, "sum": sum, "min": min, "max": max}[
+                node.func.id](*[value(x) for x in node.args])
+        raise ValueError(f"unsupported invariant syntax: {ast.dump(node, include_attributes=False)}")
+
+    return value(tree)
+
+
+def _postprocess(spec: dict, results: dict) -> None:
+    """Check cross-variant identity, materialize artifacts, and evaluate data invariants."""
+    langs = [variant["language"] for variant in spec["variants"]]
+    for lang in langs[1:]:
+        if results[lang] != results[langs[0]]:
+            raise ValueError(f"invariant violated: {langs[0]} != {lang}")
+        if results[lang + ":contract"] != results[langs[0] + ":contract"]:
+            raise ValueError(f"contract mismatch: {langs[0]} != {lang}")
+        if (lang + ":whole") in results and (langs[0] + ":whole") in results:
+            if results[lang + ":whole"] != results[langs[0] + ":whole"]:
+                raise ValueError(f"whole-program mismatch: {langs[0]} != {lang}")
+    post = spec.get("postprocess", {})
+    for artifact in post.get("expected_artifacts", []):
+        text = results.get("artifacts", {}).get(pathlib.Path(artifact).name)
+        if text is not None and "artifacts/" not in artifact:
+            out = ROOT / artifact
+            if not out.exists():
+                out.write_text(text + "\n")
+            if not out.exists():
+                raise ValueError(f"missing artifact {artifact}")
+            print(f"  artifact: {artifact}")
+    for invariant in post.get("invariants", []):
+        if not _invariant_value(invariant, results):
+            raise ValueError(f"invariant violated: {invariant}")
+    print("POSTPROCESS invariants hold -- certificate issued")
+
+
 def run_spec(spec_path):
     spec = json.loads((ROOT / spec_path).read_text())
     print(f"== pipeline: {spec['name']} ==")
     results = {}
+    from pegrex.languages import normalize_language, get_language
     for variant in spec["variants"]:
-        lang = variant["language"]
-        src = (ROOT / variant["source"]).read_text()
-        parse, tagspec, make_cond = FRONTENDS[lang]()
+        requested_lang = variant["language"]
+        lang = normalize_language(requested_lang)
+        if lang is None:
+            raise ValueError(f"unsupported language in spec: {requested_lang!r}")
+        language_spec = get_language(lang)
+        if "contracts" not in language_spec.capabilities:
+            raise NotImplementedError(
+                f"contract extraction unsupported for {lang}: {language_spec.notes}")
+        src = (ROOT / variant["source"]).read_text(encoding="utf-8")
+        parse, tagspec, make_cond = frontend_for(lang)
         body = parse(src)      # PREPROCESS
         cfg = CFGBuilder(tagspec).build(body)  # CFG
         results[lang] = path_constraints(cfg, make_cond(src),
@@ -528,34 +593,14 @@ def run_spec(spec_path):
                              ir["target_template"], ir.get("path_guard"),
                              ir.get("slots", {}))
             emitted = translate(body, [rule], results[lang], src=src)
-            assert emitted, f"idiom {ir['name']!r} matched nothing on {lang}"
+            if not emitted:
+                raise ValueError(f"idiom {ir['name']!r} matched nothing on {lang}")
             for name, text in emitted:
                 print(f"  idiom[{lang}] {name}: {text}")
                 results.setdefault("artifacts", {})[ir["name"]] = text
         for p in results[lang]:
             print(f"      {sorted(p)}")
-    # POSTPROCESS
-    langs = [v["language"] for v in spec["variants"]]
-    for lang in langs[1:]:
-        assert results[lang] == results[langs[0]], \
-            f"invariant violated: {langs[0]} != {lang}"
-        assert results[lang + ":contract"] == results[langs[0] + ":contract"], \
-            f"contract mismatch: {langs[0]} != {lang}"
-        if (lang + ":whole") in results and (langs[0] + ":whole") in results:
-            assert results[lang + ":whole"] == results[langs[0] + ":whole"], \
-                f"whole-program mismatch: {langs[0]} != {lang}"
-    # write expected artifacts, then check they exist
-    for art in spec.get("postprocess", {}).get("expected_artifacts", []):
-        text = results.get("artifacts", {}).get(pathlib.Path(art).name, None)
-        if text is not None and "artifacts/" not in art:
-            out = ROOT / art
-            if not out.exists():
-                out.write_text(text + "\n")
-            assert out.exists(), f"missing artifact {art}"
-            print(f"  artifact: {art}")
-    for inv in spec.get("postprocess", {}).get("invariants", []):
-        assert eval(inv, {"results": results}), f"invariant failed: {inv}"
-    print("POSTPROCESS invariants hold -- certificate issued")
+    _postprocess(spec, results)
     return results
 
 
@@ -572,7 +617,7 @@ def mir_frontend():
     from pegrex.cfg import CFG
     from pegrex.sym import V, const, Eq
 
-    gram = (pathlib.Path(__file__).parent / "examples" / "mir.gram").read_text()
+    gram = _grammar_file("mir.gram").read_text(encoding="utf-8")
     start_r, rules = compile_grammar(gram)
 
     def parse(mir_text):

@@ -1,9 +1,10 @@
 """taint.py -- intra-procedural taint analysis engine.
 
-Approximates Semgrep taint-mode rules with a one-pass def-taint
-propagation (the same model as bandit/pyt): sources seed taint,
-assignments propagate it through variables, sanitizer calls suppress it,
-sink calls whose argument subtrees touch tainted data are reported.
+Approximates Semgrep taint-mode rules with source-order def-taint
+propagation: sources seed taint, assignments propagate it through variables,
+sanitizer calls suppress it, and sink calls touching tainted data are reported.
+This is intentionally not CFG/SSA or field-sensitive analysis. Strict rules
+retain unresolved flows as UNKNOWN; callers must not present them as clean.
 
 Rules are data (pegrex/secrules_taint.json): extracted sink/source/
 sanitizer signatures from semgrep-rules YAML taint rules.
@@ -27,6 +28,46 @@ def _contains(node, rx, src):
                 return True
             stack.extend(c for c in n.children if isinstance(c, Node))
     return False
+
+
+def _matching_evidence(node, rxs, src):
+    """Concrete source matches for SARIF relatedLocations/codeFlows."""
+    found, seen = [], set()
+    stack = [node]
+    while stack:
+        current = stack.pop()
+        if not isinstance(current, Node):
+            continue
+        span = src[current.pos:current.endpos]
+        for rx in rxs:
+            for match in rx.finditer(span):
+                start = current.pos + match.start()
+                evidence = match.group(0).strip()[:160]
+                key = (start, evidence)
+                if key in seen:
+                    continue
+                seen.add(key)
+                found.append({
+                    "line": src[:start].count("\n") + 1,
+                    "column": start - src.rfind("\n", 0, start),
+                    "evidence": evidence,
+                })
+                if len(found) >= 16:
+                    return found
+        stack.extend(c for c in current.children if isinstance(c, Node))
+    return sorted(found, key=lambda item: (item["line"], item["column"],
+                                           item["evidence"]))
+
+
+def _merge_origins(*groups):
+    out, seen = [], set()
+    for group in groups:
+        for origin in group:
+            key = (origin["line"], origin["column"], origin["evidence"])
+            if key not in seen:
+                seen.add(key)
+                out.append(origin)
+    return out[:16]
 
 
 def _func_bodies(tree):
@@ -78,7 +119,12 @@ def analyze_taint(tree, src, rule, rounds: int = 2):
 
     for rnd in range(rounds):
       for fname, body in _func_bodies(tree):
-        tainted_vars = set(tainted_params.get(fname, set()))
+        inherited_params = tainted_params.get(fname, [])
+        tainted_vars = set()
+        origins = {}
+        if inherited_params:
+            tainted_vars.add("arg")
+            origins["arg"] = list(inherited_params)
         # walk all statements in source order (approximation: AST DFS order)
         def visit(n):
             """visit(n): see module docstring."""
@@ -89,30 +135,42 @@ def analyze_taint(tree, src, rule, rounds: int = 2):
                 m = ASSIGN_RE.match(txt)
                 if m:
                     var, rhs = m.group(1), n
-                    is_tainted = subtree_has(rhs, sources) or any(
-                        re.search(rf"\b{re.escape(v)}\b", _span(rhs, src))
-                        for v in tainted_vars)
+                    rhs_text = _span(rhs, src)
+                    direct = _matching_evidence(rhs, sources, src)
+                    inherited = _merge_origins(*(
+                        origins.get(v, []) for v in tainted_vars
+                        if re.search(rf"\b{re.escape(v)}\b", rhs_text)))
+                    is_tainted = bool(direct or inherited)
                     if is_tainted and not subtree_has(rhs, sanitizers):
                         tainted_vars.add(var)
+                        origins[var] = _merge_origins(direct, inherited)
                     elif var in tainted_vars and not is_tainted:
                         tainted_vars.discard(var)
-            if n.tag == "call":
+                        origins.pop(var, None)
+            if n.tag in ("call", "call_expression"):
                 import re as _re2
-                mcall = _re2.search(r"([A-Za-z_]\w*)\(", _span(n, src))
-                if mcall and (subtree_has(n, sources) or any(
-                        _re2.search(rf"\b{re.escape(v)}\b", _span(n, src))
-                        for v in tainted_vars)):
-                    tainted_params.setdefault(mcall.group(1), set()).add("arg")
+                call_text = _span(n, src)
+                mcall = _re2.search(r"([A-Za-z_]\w*)\(", call_text)
+                direct = _matching_evidence(n, sources, src)
+                inherited = _merge_origins(*(
+                    origins.get(v, []) for v in tainted_vars
+                    if _re2.search(rf"\b{re.escape(v)}\b", call_text)))
+                flow_origins = _merge_origins(direct, inherited)
+                if mcall and flow_origins:
+                    tainted_params[mcall.group(1)] = _merge_origins(
+                        tainted_params.get(mcall.group(1), []), flow_origins)
                 if any(_contains(n, r, src) for r in sinks):
                     # argument subtree = the call node itself; check taint
-                    tainted = subtree_has(n, sources) or any(
-                        re.search(rf"\b{re.escape(v)}\b", _span(n, src))
-                        for v in tainted_vars)
+                    tainted = bool(flow_origins)
                     clean = subtree_has(n, sanitizers)
                     if tainted and not clean:
                         findings.append({
                             "line": src[:n.pos].count("\n") + 1,
+                            "column": n.pos - src.rfind("\n", 0, n.pos),
                             "evidence": txt[:90],
+                            "sink": txt[:160],
+                            "source": flow_origins[0]["evidence"],
+                            "sources": flow_origins,
                             "function": fname,
                         })
                     elif (rule.get("strict_missing") and not clean
@@ -132,7 +190,11 @@ def analyze_taint(tree, src, rule, rounds: int = 2):
                                         for u in unknowns)):
                             unknowns.append({
                                 "line": src[:n.pos].count("\n") + 1,
+                                "column": n.pos - src.rfind("\n", 0, n.pos),
                                 "evidence": txt[:90],
+                                "sink": txt[:160],
+                                "source": "unresolved input origin",
+                                "sources": [],
                                 "function": fname,
                             })
             for c in n.children:

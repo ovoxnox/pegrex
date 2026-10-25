@@ -28,14 +28,14 @@ def transpile(source_path: str, target_lang: str,
     verify_patch result when the target is python, or an honestly-labeled
     stub note otherwise -- never the old placeholder string that claimed
     a bisimulation method without ever running one."""
-    import pipeline
     from pegrex.cfg import CFGBuilder
     from pegrex.paths import PathEnumerator
-    src = pathlib.Path(source_path).read_text()
-    lang = pathlib.Path(source_path).suffix.lstrip(".")
-    parse, tags, mk = pipeline.FRONTENDS.get(
-        {"py": "python", "js": "javascript", "ts": "typescript"}.get(lang, lang),
-        pipeline.python_frontend)()
+    from pegrex.languages import detect_language, get_contract_frontend
+    src = pathlib.Path(source_path).read_text(encoding="utf-8")
+    lang = detect_language(source_path)
+    if lang is None:
+        raise ValueError(f"transpiler: unknown source language for {source_path!r}")
+    parse, tags, mk = get_contract_frontend(lang)()
     body = parse(src)
     cfg = CFGBuilder(tags).build(body)
     cfg_paths = PathEnumerator(cfg, unroll=2).enumerate()

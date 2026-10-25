@@ -164,24 +164,34 @@ def _fragment_exceeded(atoms) -> bool:
     return False
 
 
-def auto_feasible(atoms) -> bool:
-    """Bounds-engine by default; z3 when the fragment is exceeded AND z3
-    is importable (lazy import -- no top-level z3 dependency, no dangling
-    references).  Zero cost when z3 is absent."""
+def auto_feasible(atoms) -> bool | None:
+    """Return True/False, or None when no installed backend can decide.
+
+    The bounds engine handles its exact single-variable fragment. Larger
+    linear atoms go to Z3; a missing solver or an incomplete translation is
+    UNKNOWN, never a best-effort answer with unsupported atoms discarded.
+    """
+    atoms = list(atoms)
     if not _fragment_exceeded(atoms):
+        if any(_parse_atom(str(a)) is None for a in atoms):
+            return None
         return learn(atoms).feasible()
     try:
         import z3
     except ImportError:
-        return learn(atoms).feasible()   # best effort in-fragment
-    class _Z:
-        def feasible(self, model):
-            """feasible(model): see module docstring."""
-            solver = z3.Solver()
-            for atom in model:
-                solver.add(_to_z3(z3, str(atom)))
-            return solver.check() == z3.sat
-    return _Z().feasible(list(atoms))
+        return None
+    try:
+        solver = z3.Solver()
+        for atom in atoms:
+            solver.add(_to_z3(z3, str(atom)))
+        verdict = solver.check()
+    except (ValueError, TypeError, z3.Z3Exception):
+        return None
+    if verdict == z3.sat:
+        return True
+    if verdict == z3.unsat:
+        return False
+    return None
 
 
 def _to_z3(z3, s):
@@ -196,7 +206,30 @@ def _to_z3(z3, s):
     if (m := _NEG.match(s)):
         inner = f"({m.group('var')} {m.group('op')} {m.group('k')})"
         return z3.Not(_to_z3(z3, inner))
-    raise ValueError(f"cannot translate: {s!r}")
+    simple = re.match(r"^\(\s*([A-Za-z_]\w*|-?\d+)\s*(<=|>=|<|>|=|!=)\s*"
+                      r"([A-Za-z_]\w*|-?\d+)\s*\)$", s)
+    if simple:
+        def operand(text):
+            return z3.IntVal(int(text)) if text.lstrip("-").isdigit() else z3.Int(text)
+        left, right = operand(simple.group(1)), operand(simple.group(3))
+        ops = {"=": lambda a, b: a == b, "!=": lambda a, b: a != b,
+               "<": lambda a, b: a < b, "<=": lambda a, b: a <= b,
+               ">": lambda a, b: a > b, ">=": lambda a, b: a >= b}
+        return ops[simple.group(2)](left, right)
+    # Multi-variable linear atoms use the same parser as the FM backend.
+    # Variables remain integers; rational coefficients/bounds are exact.
+    from .linsolve import LinearError, parse_atom
+    try:
+        atom = parse_atom(s)
+    except LinearError as exc:
+        raise ValueError(f"cannot translate: {s!r}") from exc
+    expr = sum((z3.Int(var) * z3.RationalVal(str(coeff))
+                for var, coeff in atom.coeffs), z3.IntVal(0))
+    bound = z3.RationalVal(str(atom.k))
+    ops = {"=": lambda a, b: a == b, "!=": lambda a, b: a != b,
+           "<": lambda a, b: a < b, "<=": lambda a, b: a <= b,
+           ">": lambda a, b: a > b, ">=": lambda a, b: a >= b}
+    return ops[atom.op](expr, bound)
 
 
 # ── cross-check: bounds backend vs z3 on the same queries

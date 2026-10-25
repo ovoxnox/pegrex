@@ -1,0 +1,6 @@
+Csv      <-- SKIP Record (NL Record)* NL~?
+Record   <-- Field (`,` @Field)*
+Field    <== {~ SQField / !`,` !NL . ~}
+SQField  <-- `'` {~ (!`'` . / `'`^2 -> squote) ~} @`'`
+NL       <-- %cn %cr? / %cr
+SKIP     <-- %s*

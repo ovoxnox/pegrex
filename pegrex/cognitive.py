@@ -250,8 +250,9 @@ def _cognitive_python(src, budget=7, with_plans=True):
 # multi-language cognitive complexity (tree-sitter CST walker)
 # ---------------------------------------------------------------------------
 
-_TS_LANGS = {"go", "rust", "javascript", "typescript", "tsx", "julia",
-             "kotlin", "zig", "solidity"}
+from .languages import LANGUAGES as _LANGUAGES
+_TS_LANGS = {name for name, spec in _LANGUAGES.items()
+             if spec.parser.startswith("tree-sitter") and "contracts" in spec.capabilities}
 _IF = {"if_statement", "if_expression"}
 _LOOP = {"for_statement", "for_expression", "while_statement",
           "while_expression", "do_statement", "loop_expression"}
@@ -270,28 +271,29 @@ _BOOL_TOKENS = {"go": ("&&", "||"), "rust": ("&&", "||"),
 
 
 def _line_of(pos, starts):
-    """byte offset -> 1-based line number."""
+    """character offset -> 1-based line number."""
     import bisect
     return bisect.bisect_right(starts, pos)
 
 
-def _cognitive_ts(src, lang, budget, with_plans):
+def _cognitive_ts(src, lang, budget, with_plans, tree=None):
     """Generic cognitive complexity over a tree-sitter CST (pegrex Nodes).
     Bool operators are counted from source slices (anonymous tokens are
     not in the CST); nested control bodies are subtracted so each
     operator counts once, at its outermost control node."""
     from . import tree_sitter_bridge as tb
     try:
-        tree = tb.parse(lang, src)
+        tree = tb.parse(lang, src) if tree is None else tree
     except Exception as e:
         return {"verdict": "unknown",
                 "reason": type(e).__name__ + ": " + str(e)[:100]}
     toks = _BOOL_TOKENS.get(lang, ("&&", "||"))
-    raw = src.encode()
+    # The bridge guarantees that Node.pos/endpos are Python character offsets.
+    # Keep line starts and source slicing in that same coordinate system.
     starts = [0]
     off = 0
     for ln in src.splitlines(keepends=True):
-        off += len(ln.encode())
+        off += len(ln)
         starts.append(off)
 
     import re as _re
@@ -299,7 +301,7 @@ def _cognitive_ts(src, lang, budget, with_plans):
                 "zig": _re.compile(r"\band\b|\bor\b")}
 
     def toks_in(a, b):
-        seg = raw[a:b].decode(errors="replace")
+        seg = src[a:b]
         rx = _BOOL_RX.get(lang)
         if rx is not None:
             return len(rx.findall(seg))
@@ -321,7 +323,7 @@ def _cognitive_ts(src, lang, budget, with_plans):
             if isinstance(ch, str):
                 return ch
             if not ch.children:
-                seg = raw[ch.pos:ch.endpos].decode(errors="replace")
+                seg = src[ch.pos:ch.endpos]
                 if seg.strip():
                     return seg.strip()
             t = leaf_text(ch)
@@ -409,10 +411,12 @@ def _cognitive_ts(src, lang, budget, with_plans):
             "total": sum(fg["complexity"] for fg in functions)}
 
 
-def cognitive_complexity(src, lang=None, budget=7, with_plans=True):
+def cognitive_complexity(src, lang=None, budget=7, with_plans=True, *, tree=None):
     if lang is None or lang == "python":
+        if tree is not None:
+            return _cognitive_ts(src, "python", budget, with_plans, tree=tree)
         return _cognitive_python(src, budget=budget, with_plans=with_plans)
     if lang in _TS_LANGS:
-        return _cognitive_ts(src, lang, budget, with_plans)
+        return _cognitive_ts(src, lang, budget, with_plans, tree=tree)
     return {"verdict": "unknown",
             "reason": "cognitive analysis not certified for " + repr(lang)}

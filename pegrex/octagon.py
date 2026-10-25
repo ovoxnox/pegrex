@@ -142,7 +142,7 @@ def widen(a: Octagon, b: Octagon) -> Octagon:
     Anything that moved (tightened or loosened) is dropped to top --
     unsound tightening is impossible, and the result over-approximates both."""
     out = Octagon()
-    for e, w in a.edges.items():
+    for e, w in sorted(a.edges.items()):
         if b.edges.get(e) == w:
             out.edges[e] = w
     return out.close()

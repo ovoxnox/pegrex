@@ -21,6 +21,7 @@ import pathlib
 
 from .cfg import CFGBuilder
 from .summaries import expand_calls, path_summaries, render_c, render_lua
+from .languages import get_language
 
 
 class RosettaError(ValueError):
@@ -40,15 +41,13 @@ def _load_spec(spec):
 
 
 def _renderer(lang: str, src: str):
-    if lang == "lua":
-        return lambda st: render_lua(st)
-    if lang == "c":
+    spec = get_language(lang)
+    if spec.outcome_renderer == "c":
         return lambda st: render_c(st, src)
-
-    def _render(st, _s=src):
+    def _render(st, _s=src, _mode=spec.outcome_renderer):
         t = st.children[0] if st.children and \
             isinstance(st.children[0], str) else _s[st.pos:st.endpos]
-        return t.replace("return", "").strip()
+        return t.replace("return", "", 1).strip() if _mode == "strip-return" else t.strip()
     return _render
 
 
@@ -57,14 +56,22 @@ def _build_variant(variant, base_dir, unroll):
     {"language", "constraints", "contracts", "whole": None|list, "source"}
     or raises _VariantRefused with a loud reason."""
     import pipeline
-    lang = variant.get("language")
-    if lang not in pipeline.FRONTENDS:
-        raise _VariantRefused(f"unknown language {lang!r} — no frontend")
+    from .languages import normalize_language, get_language
+    requested = variant.get("language")
+    lang = normalize_language(requested)
+    if lang is None:
+        raise _VariantRefused(f"unknown language {requested!r} — no frontend")
+    language_spec = get_language(lang)
+    if "contracts" not in language_spec.capabilities:
+        raise _VariantRefused(f"contracts unsupported for {lang!r}")
+    if not language_spec.frontend_factory:
+        raise _VariantRefused(
+            f"{lang!r} supports native contract extraction but has no CFG frontend for Rosetta path comparison")
     src_path = pathlib.Path(variant["source"])
     if not src_path.is_absolute():
         src_path = base_dir / src_path
     src = src_path.read_text()
-    parse, tagspec, make_cond = pipeline.FRONTENDS[lang]()
+    parse, tagspec, make_cond = pipeline.frontend_for(lang)
     try:
         body = parse(src)   # PREPROCESS
     except Exception as e:

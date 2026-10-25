@@ -38,6 +38,12 @@ def wrap(result) -> dict:
     except Exception as e:
         return {"verdict": UNKNOWN, "reason": f"unreadable result: {e}"}
     verdict = tri(v)
+    if (v is False and not result.get("counterexample")
+            and ("counterexample" in result or "distinguishing" in result)):
+        # Legacy verify_patch uses verified=False both for a confirmed
+        # counterexample and for an undecided difference. Match CoreEngine:
+        # only the former is REFUTED.
+        verdict = UNKNOWN
     if verdict == UNKNOWN and isinstance(v, str):
         # conservative string mapping: refusal-family statuses are REFUTED;
         # NOTHING string-shaped is ever upgraded to PROVED

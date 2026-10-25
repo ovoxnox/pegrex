@@ -65,10 +65,10 @@ def test_regression_check_on_empty_corpus_is_clean():
 def test_regression_check_flags_a_real_regression():
     with tempfile.TemporaryDirectory() as td:
         path = str(pathlib.Path(td) / "c.json")
-        gt = {"tool": "shell", "args": "rm -rf /"}
+        gt = {"tool": "shell", "argv": ["git", "push"]}
         save_corpus(path, [{"plan": [gt], "ground_truth": gt}])
-        # a policy that forgot the rm -rf deny rule must be flagged
-        weak_policy = [{"effect": "allow", "tool": "shell", "args": "*"}]
+        # a policy that forgot the git-push deny rule must be flagged
+        weak_policy = [{"effect": "allow", "tool": "shell", "executable": "git"}]
         rc = regression_check(weak_policy, corpus_path=path)
         assert rc["all_still_refused"] is False
         assert len(rc["regressions"]) == 1

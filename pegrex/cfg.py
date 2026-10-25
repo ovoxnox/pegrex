@@ -75,7 +75,7 @@ class CFG:
         self._adj[self.blocks[-1].id] = []
         return self.blocks[-1].id
 
-    def add_edge(self, src: int, dst: int, cond=None, kind: str = "flow") -> None:"
+    def add_edge(self, src: int, dst: int, cond=None, kind: str = "flow") -> None:
         e = Edge(src, dst, cond, kind)
         self.edges.append(e)
         self._adj.setdefault(src, []).append(e)
@@ -94,7 +94,7 @@ class CFG:
         return nl.join([head, *nodes, *edges, "}"])
 
 
-class CFGBuilder:"
+class CFGBuilder:
     _TRANSPARENT = ("statement_list", "expression_statement", "statement",
                     "function_body", "statements", "infix_expression",
                     "block_expression")

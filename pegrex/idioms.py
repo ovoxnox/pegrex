@@ -62,6 +62,15 @@ def _render(x) -> str:
         return " ".join(_render(i) for i in x)
     if not isinstance(x, Node):
         return str(x)
+    # Tree-sitter nodes carry exact Python character spans. Prefer the source
+    # expression over reconstructing operators and argument punctuation.
+    if _SRC and 0 <= x.pos <= x.endpos <= len(_SRC):
+        text = _SRC[x.pos:x.endpos].strip()
+        if x.tag in ("Return", "return_statement", "jump-statement"):
+            return re.sub(r"^return\b", "", text).strip().rstrip(";")
+        if x.tag not in ("Block", "block", "compound-statement", "else_clause",
+                         "consequence", "alternative") and text:
+            return text
     if x.tag in ("Id", "identifier") and x.children:
         return str(x.children[0])
     if x.tag == "Number":

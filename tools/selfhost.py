@@ -21,12 +21,17 @@ sys.path.insert(0, str(ROOT))
 
 
 def engine_digest():
+    """Hash every analyzed engine input, including nested compiler modules."""
     h = hashlib.sha256()
-    for p in sorted((ROOT / "pegrex").glob("*.py")):
+    engine = ROOT / "pegrex"
+    for p in sorted(engine.rglob("*.py")):
         if p.name.startswith("__"):
             continue
-        h.update(p.name.encode())
-        h.update(p.read_bytes())
+        relative = p.relative_to(engine).as_posix()
+        payload = p.read_bytes()
+        h.update(relative.encode("utf-8"))
+        h.update(len(payload).to_bytes(8, "big"))
+        h.update(payload)
     return h.hexdigest()[:16]
 
 
@@ -105,7 +110,7 @@ def collect():
         "rows": rows,
         "contract_ok": contract_ok,
         "contract_unknown": contract_unknown,
-        "certs": len(list((ROOT / "certs").glob("m*.py"))),
+        "certs": len(list((ROOT / "certs").glob("m*_*.py"))) + 1,  # demo.py is m3
     }
 
 
@@ -172,13 +177,9 @@ def main():
             print("SELF.md missing -- run: python tools/selfhost.py")
             return 1
         current = out.read_text()
-        marker = f"engine digest: `{d['digest']}`"
-        if marker not in current:
-            print("SELF.md stale (engine digest changed) -- run: "
+        if current != body:
+            print("SELF.md stale (generated content differs) -- run: "
                   "python tools/selfhost.py")
-            return 1
-        if f"modules: **{d['modules']}**" not in current:
-            print("SELF.md stale (module count changed) -- regenerate")
             return 1
         print("SELF.md is fresh")
         return 0

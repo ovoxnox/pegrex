@@ -14,17 +14,12 @@ def collect_facts(source: str, lang: str = "python") -> dict:
 
     g = build_call_graph(source, lang)
     facts = {"calls": sorted(g.edges), "assigns": [], "sinks": []}
-    parse, tags, mk = pipeline.FRONTENDS.get(lang, pipeline.python_frontend)()
+    from pegrex.languages import parse_source
     tree = None
-    import tree_sitter_python
-    from tree_sitter import Language, Parser
     try:
-        root = Parser(Language(tree_sitter_python.language())).parse(
-            source.encode()).root_node
-        from pegrex.tree_sitter_bridge import ts_to_pegrex
-        tree = ts_to_pegrex(root, source)
-    except Exception:
-        pass
+        tree = parse_source(lang, source)
+    except (ImportError, NotImplementedError, ValueError):
+        tree = None
     if tree is not None:
         stack = [tree]
         while stack:

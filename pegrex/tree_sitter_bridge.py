@@ -1,63 +1,91 @@
+"""Registry-backed parser bridge and source-coordinate normalization.
+
+Tree-sitter spans are UTF-8 byte offsets. PegRex Node spans are Python
+character offsets so every consumer can safely slice the original ``str``.
+The conversion map is built once per source, not once per node.
 """
-tree_sitter_bridge
-
-║  Tree-sitter CST -> pegrex Node normalization. Dependency: 
-║  pip install tree-sitter tree-sitter-language-pack
-║  TAGSPECS maps Python/Go/Rust control tags."""
-
 from __future__ import annotations
 
 from .cfg import TagSpec
 from .peg import Node as PNode
 
 
-def ts_to_pegrex(ts_node, src: str = "") -> PNode:
-    """Recursively convert a tree-sitter node (duck-typed; no hard import).
+def _byte_to_char_offsets(source: str) -> list[int]:
+    """Map any UTF-8 byte offset to its containing Python character offset."""
+    raw_size = len(source.encode("utf-8"))
+    offsets = [0] * (raw_size + 1)
+    byte_offset = 0
+    char_offset = 0
+    for char in source:
+        width = len(char.encode("utf-8"))
+        for index in range(width):
+            offsets[byte_offset + index] = char_offset
+        byte_offset += width
+        char_offset += 1
+        offsets[byte_offset] = char_offset
+    return offsets
 
-    Named children only (anonymous punctuation filtered); leaf nodes keep
-    their source text so text-based renderers work."""
-    children = [ts_to_pegrex(ch, src) for ch in ts_node.children if ch.is_named]
-    if not children and src:
-        children = [src[ts_node.start_byte:ts_node.end_byte]]
-    return PNode(ts_node.type, ts_node.start_byte, ts_node.end_byte, children)
+
+def _normalize_node(ts_node, source: str, offsets: list[int] | None) -> PNode:
+    if offsets is None:
+        start, end = ts_node.start_byte, ts_node.end_byte
+    else:
+        start = offsets[min(ts_node.start_byte, len(offsets) - 1)]
+        end = offsets[min(ts_node.end_byte, len(offsets) - 1)]
+    children = [_normalize_node(child, source, offsets)
+                for child in ts_node.children if child.is_named]
+    if not children and source:
+        children = [source[start:end]]
+    return PNode(ts_node.type, start, end, children)
+
+
+def normalize_tree(ts_node, source: str = "") -> PNode:
+    """Normalize a parser tree into PegRex's character-offset coordinate system.
+
+    For synthetic test nodes without source text, preserve their given offsets;
+    real parser callers always provide the source text.
+    """
+    offsets = _byte_to_char_offsets(source) if source else None
+    return _normalize_node(ts_node, source, offsets)
+
+
+def ts_to_pegrex(ts_node, src: str = "") -> PNode:
+    """Backwards-compatible name for :func:`normalize_tree`."""
+    return normalize_tree(ts_node, src)
+
+
+def parse_tree_sitter(language: str, source: str) -> PNode:
+    """Low-level registered Tree-sitter parse; use ``languages.parse_source`` publicly."""
+    from .languages import get_language, load_tree_sitter_parser
+    spec = get_language(language)
+    if "parse" not in spec.capabilities:
+        raise NotImplementedError(f"parsing is not registered for {spec.name}")
+    if spec.parse_adapter != "tree-sitter":
+        raise NotImplementedError(
+            f"{spec.name} uses parse adapter {spec.parse_adapter!r}, not Tree-sitter")
+    try:
+        parser = load_tree_sitter_parser(spec.name)
+    except ImportError:
+        if spec.parser == "tree-sitter-or-stdlib":
+            from .python_ast import parse_module
+            return parse_module(source)
+        raise
+    tree = parser.parse(source.encode("utf-8"))
+    # Native mocks already expose byte spans and follow the same bridge contract.
+    return normalize_tree(tree.root_node, source)
 
 
 def parse(language: str, source: str) -> PNode:
-    """CST -> pegrex Node. cobol/fortran resolve through the offline mock
-    registry when no real grammar is vendored (tsmock.is_mock marks it)."""
-    if language in ("cobol", "fortran"):
-        from . import tsmock
-        tree = tsmock.get_parser(language).parse(source.encode())
-        return ts_to_pegrex(tree.root_node, source)
-    vendored = {"python": ("tree_sitter_python", "language"),
-                "go": ("tree_sitter_go", "language"),
-                "rust": ("tree_sitter_rust", "language"),
-                "javascript": ("tree_sitter_javascript", "language"),
-                "typescript": ("tree_sitter_typescript", "language_typescript"),
-                "tsx": ("tree_sitter_typescript", "language_tsx"),
-                "julia": ("tree_sitter_julia", "language"),
-                "kotlin": ("tree_sitter_kotlin", "language"),
-                "zig": ("tree_sitter_zig", "language"),
-                "solidity": ("tree_sitter_solidity", "language")}
-    hit = vendored.get(language)
-    if hit is not None:
-        modname, attr = hit
-        mod = __import__(modname)
-        from tree_sitter import Language, Parser
-        tree = Parser(Language(getattr(mod, attr)())).parse(source.encode())
-        return ts_to_pegrex(tree.root_node, source)
-    try:
-        from tree_sitter_language_pack import get_parser
-    except ImportError as e:
-        raise ImportError(
-            "tree-sitter bridge requires: pip install tree-sitter "
-            "tree-sitter-language-pack (or use the vendored bindings)") from e
-    tree = get_parser(language).parse(source.encode())
-    return ts_to_pegrex(tree.root_node, source)
+    """Compatibility adapter routed through the central language registry."""
+    from .languages import parse_source
+    return parse_source(language, source)
 
 
-LANGUAGE_MAP = {"python": "python", "go": "go", "rust": "rust",
-                "lua": "lua", "c": "c"}
+# Historical public view derived from the central registry. Values are canonical
+# language names; this is metadata, not an independent parser dispatch table.
+from .languages import LANGUAGES as _LANGUAGES
+LANGUAGE_MAP = {name: name for name, spec in _LANGUAGES.items()
+                if "parse" in spec.capabilities}
 
 
 # ── pipeline bindings

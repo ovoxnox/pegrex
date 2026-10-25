@@ -1,0 +1,9 @@
+{
+  "name": "fact cross-language",
+  "unroll": 1,
+  "variants": [
+    {"language": "python", "source": "specs/fact.py"},
+    {"language": "c", "source": "specs/fact.c"}
+  ],
+  "postprocess": {"invariants": []}
+}

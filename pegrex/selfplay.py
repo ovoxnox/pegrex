@@ -35,7 +35,7 @@ GROUND_TRUTH_DANGEROUS = [
 
 _NOISE = [
     {"tool": "read", "path": "README.md"},
-    {"tool": "shell", "args": "git status"},
+    {"tool": "shell", "argv": ["git", "status"]},
     {"tool": "read", "path": "src/app.py"},
 ]
 

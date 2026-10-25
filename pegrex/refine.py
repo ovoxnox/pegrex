@@ -75,7 +75,7 @@ def discharge(path_constraints, result, contracts, lb=None) -> dict:
 
 
 def _neg(sym_cond):
-    from .sym import Op
+    from .sym import Not, Op
     if isinstance(sym_cond, Op) and sym_cond.op == "not" and len(sym_cond.args) == 1:
         return sym_cond.args[0]  # negation of a negation
     if isinstance(sym_cond, Op) and sym_cond.op in ("<", "<=", ">", ">=", "="):

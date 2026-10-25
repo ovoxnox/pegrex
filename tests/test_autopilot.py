@@ -97,8 +97,9 @@ def test_tampered_report_refused(fixture_tree, tmp_path):
 def test_details_manifest_round_trip(fixture_tree, tmp_path):
     build_report(fixture_tree, tmp_path / "r.html", KEY)
     text = (tmp_path / "r.html").read_text()
-    pre = text.split("<pre>", 1)[1].split("</pre>", 1)[0]
-    env = json.loads(html.unescape(pre))
+    start = text.find("id='pegrex-manifest'>")
+    start = text.find(">", start) + 1
+    env = json.loads(text[start:text.find("</script>", start)])
     assert hmac_verify(env["manifest"], KEY, env["signature"])
     assert hashlib.sha256(
         canonical_json(env["manifest"]).encode()).hexdigest() \

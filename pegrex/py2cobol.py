@@ -48,27 +48,20 @@ def round_trip(src_path):
         cobol_contracts = api.contracts(cob_path)
     finally:
         os.unlink(cob_path)
-    from .semantics import _canon_result
-    def canon(rows):
-        """canon(rows): see module docstring."""
-        return sorted((tuple(sorted(map(str, cs)), _canon_result(res))
-                       for cs, res in rows))
-    # v1 identity: same path count, same path-0 constraint text, same
-    # canonical results. The COBOL ELSE is the complement of path 0.
     import re as _re
-    from .refine import _norm_constraint as _nc
-    def up(s):   # legacy-front convention: identifiers compare uppercase
-        """up(s): see module docstring."""
-        return _re.sub(r"[A-Za-z_]\w*",
-                       lambda mm: mm.group(0).upper(), s)
-    py0 = sorted(up(_nc(str(c))) for c in contracts[0][0])
-    cob0 = sorted(up(_nc(str(c))) for c in cobol_contracts[0][0])
-    def canon_res(r):
-        """canon res(r): see module docstring."""
-        return up(_canon_result(r))
-    py_res = sorted(canon_res(r) for _, r in contracts)
-    cob_res = sorted(canon_res(r) for _, r in cobol_contracts)
-    identity = (len(contracts) == len(cobol_contracts)
-                and py0 == cob0 and py_res == cob_res)
+    from .refine import _norm_constraint
+    from .semantics import _canon_result, _int_canon
+
+    def up(text):
+        """COBOL's case-insensitive identifiers share one canonical case."""
+        return _re.sub(r"[A-Za-z_]\w*", lambda m: m.group(0).upper(), text)
+
+    def canon(rows):
+        # Compare complete (constraints, outcome) paths in the same integer
+        # and linear-expression normal forms used by semantic verification.
+        return { (frozenset(up(_int_canon(_norm_constraint(str(c)))) for c in cs),
+                  up(_canon_result(res))) for cs, res in rows }
+
+    identity = canon(contracts) == canon(cobol_contracts)
     return {"cobol": cobol_src, "identity": identity,
             "n_paths": len(contracts)}

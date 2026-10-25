@@ -1,0 +1,12 @@
+Json          <-- SKIP (Object / Array) (!.)^UnexpectedSyntax
+Object        <== `{` (Member (`,` @Member)*)? @`}`
+Array         <== `[` (Value (`,` @Value)*)? @`]`
+Member        <== String `:` @Value
+Value         <-- String / Number / Object / Array / Boolean / Null
+String        <-- '"' {~ ('\' -> '' @ESCAPE / !'"' .)* ~} @'"' SKIP
+Number        <-- {[+-]? (%d+ '.'? %d+? / '.' %d+) ([eE] [+-]? %d+)?} -> tonumber SKIP
+Boolean       <-- `false` -> tofalse / `true` -> totrue
+Null          <-- `null` -> tonil
+ESCAPE        <-- [\/"] / ('b' $8 / 't' $9 / 'n' $10 / 'f' $12 / 'r' $13 / 'u' {%x^4} $16) -> tochar
+SKIP          <-- %s*
+NAME_SUFFIX   <-- [_%w]+

@@ -7,11 +7,14 @@ stdout.  Methods:
   {"method": "ping"}
       -> {"ok": true, "pong": true}
 
-  {"method": "parse", "params": {"language": "lua|c", "source": "..."}}
+  {"method": "parse", "params": {"language": "REGISTERED_ID", "source": "..."}}
       -> {"ok": true, "ast": {tag, pos, endpos, children: [...]}}
 
-  {"method": "contracts", "params": {"language": "lua|c", "source": "..."}}
+  {"method": "contracts", "params": {"language": "REGISTERED_ID", "source": "..."}}
       -> {"ok": true, "contract": [[[constraints...], result], ...]}
+
+  {"method": "soundness", "params": {"language": "OPTIONAL_REGISTERED_ID"}}
+      -> {"ok": true, "soundness": {schema, policy, plugins}}
 
   {"method": "verify", "params": {"spec": "specs/fact.json"}}
       -> {"ok": true, "certificate": true, "name": ...}
@@ -27,8 +30,6 @@ sys.path.insert(0, str(ROOT))
 
 import pipeline
 from pegrex.peg import Node
-from pegrex.cfg import CFGBuilder
-from pegrex.summaries import render_lua, render_c, path_summaries
 
 
 def node_to_dict(node):
@@ -40,89 +41,47 @@ def node_to_dict(node):
     return node
 
 
-_TS_LANGS = ("python", "go", "rust")
-
-
-def _frontend(lang):
-    if lang == "c":
-        return pipeline.c_frontend()
-    if lang in ("python", "go", "rust", "javascript", "solidity", "julia",
-                "kotlin"):
-        return {"python": pipeline.python_frontend,
-                "go": pipeline.go_frontend,
-                "rust": pipeline.rust_frontend,
-                "javascript": pipeline.javascript_frontend,
-                "solidity": pipeline.solidity_frontend,
-                "julia": pipeline.julia_frontend,
-                "kotlin": pipeline.kotlin_frontend}[lang]()
-    return _ts_frontend(lang)
-
-
-def _ts_frontend(lang):
-    """Real tree-sitter frontend for Python/Go/Rust."""
-    import tree_sitter_python, tree_sitter_go, tree_sitter_rust
-    from tree_sitter import Language, Parser
-    from pegrex.tree_sitter_bridge import ts_to_pegrex, TAGSPECS
-
-    langs = {"python": Language(tree_sitter_python.language()),
-             "go": Language(tree_sitter_go.language()),
-             "rust": Language(tree_sitter_rust.language())}
-
-    def parse(src):
-        root = Parser(langs[lang]).parse(src.encode()).root_node
-        return ts_to_pegrex(root, src)
-
-    return parse, TAGSPECS[lang], None
-
+from pegrex.core import get_engine
 
 def handle(req):
     method = req.get("method")
     params = req.get("params", {})
     if method == "ping":
         return {"ok": True, "pong": True}
+    if method == "soundness":
+        result = get_engine().soundness(params.get("language"))
+        return {"ok": True, "soundness": result.data}
     if method == "parse":
-        parse, _, _ = _frontend(params["language"])
-        return {"ok": True, "ast": node_to_dict(parse(params["source"]))}
+        result = get_engine().parse(params["source"], params["language"],
+                                    function_body=True,
+                                    entrypoint=params.get("entrypoint"))
+        return {"ok": True, "ast": result.data["tree"],
+                "language": result.data["language"], "node_count": result.data["node_count"]}
     if method == "contracts":
-        lang = params["language"]
-        src = params["source"]
-        parse, tagspec, make_cond = _frontend(lang)
-        body = parse(src)
-        if make_cond is None:
-            return {"ok": False,
-                    "error": "contracts not supported for this frontend"}
-        if lang == "lua":
-            render = lambda st: render_lua(st)
-        elif lang == "c":
-            render = lambda st: render_c(st, src)
-        else:
-            def render(st, _s=src):
-                t = st.children[0] if st.children and \
-                    isinstance(st.children[0], str) else _s[st.pos:st.endpos]
-                return t.replace("return", "").strip()
-        contract = path_summaries(CFGBuilder(tagspec).build(body),
-                                  make_cond(src), render)
-        return {"ok": True,
-                "contract": [[sorted(c), r] for c, r in contract]}
+        result = get_engine().extract_contracts(params["source"], params["language"])
+        return {"ok": True, "status": result.status.value,
+                "contract": [[row["constraints"], row["outcome"]]
+                             for row in (result.data or [])],
+                "unknowns": result.unknowns, "metadata": result.metadata}
     if method == "callgraph":
-        from pegrex.callgraph import build_call_graph
-        src = pathlib.Path(ROOT / params["source"]).read_text() \
-            if not pathlib.Path(params["source"]).exists() else \
-            pathlib.Path(params["source"]).read_text()
-        g = build_call_graph(src, params.get("language", "python"))
-        return {"ok": True,
-                "ascii": g.to_ascii(),
-                "edges": sorted(list(g.edges))}
+        source_path = pathlib.Path(params["source"])
+        if not source_path.is_absolute():
+            source_path = ROOT / source_path
+        src = source_path.read_text(encoding="utf-8")
+        result = get_engine().call_graph(src, params.get("language", "python"))
+        return {"ok": True, **result.to_dict(),
+                "ascii": result.data["ascii"], "edges": result.data["edges"]}
 
     if method == "gaps":
         src = params["source"]
         lcov = params.get("lcov", "")
-        import pipeline as _pl
+        language = params.get("language", "python")
+        from pegrex.languages import get_contract_frontend
         from pegrex.cfg import CFGBuilder as _CB
         from pegrex.coverage import (parse_lcov, covered_lines, coverage_gaps)
         cov = list(parse_lcov(lcov).values())
         cov_lines = covered_lines(cov[0]) if cov else set()
-        parse, tags, mk = _pl.python_frontend()
+        parse, tags, mk = get_contract_frontend(language)()
         cfg = _CB(tags).build(parse(src))
         gaps = coverage_gaps(cfg, mk(src), cov_lines)
         return {"ok": True, "gaps": [
@@ -156,7 +115,10 @@ def handle(req):
         buf = io.StringIO()
         with contextlib.redirect_stdout(buf):       # keep protocol channel clean
             pipeline.run_spec(params["spec"])
-        return {"ok": True, "certificate": True, "log": buf.getvalue(),
+        return {"ok": True, "status": "completed", "verified": False,
+                "certificate": None,
+                "certificate_note": "Pipeline completed; no independently checkable proof object was emitted.",
+                "log": buf.getvalue(),
                 "name": json.loads((ROOT / params["spec"]).read_text())["name"]}
     return {"ok": False, "error": f"unknown method {method!r}"}
 

@@ -1,0 +1,146 @@
+translation-unit        <-- SHEBANG? SKIP block-item* (!.)^UnexpectedSyntax
+
+statement             <-- preprocessor / labeled-statement /
+
+                          compound-statement / selection-statement /
+                          iteration-statement / jump-statement /
+                          expression-statement
+
+compound-statement    <== `{` extension-specifiers~? block-item-list~? @`}`
+expression-statement  <== expression @`;`
+labeled-statement     <== (`default` / `case` expression / identifier) `:` statement
+selection-statement   <== `if` @`(` expression @`)` statement (`else` statement)~?
+iteration-statement   <== `do` statement @`while` @`(` expression @`)` @`;` /
+                          `while` @`(` expression @`)` statement /
+                          `for` @`(` expression~? @`;` expression~? @`;` expression~? @`)` statement
+jump-statement        <== (`goto` identifier / `continue` / `break` / `return` expression~?) @`;`
+block-item-list       <-- block-item+
+block-item            <-- function-definition / declaration / statement
+function-definition   <-- declaration-specifiers declarator compound-statement
+declaration           <-- typedef-declaration / declaration-specifiers init-declarator-list~? @`;`
+init-declarator-list  <-- init-declarator (`,` @init-declarator)*
+init-declarator       <-- declarator (`=` initializer)?
+declarator            <-- (pointer* direct-declarator) -> foldright extension-specifiers~?
+direct-declarator     <== (identifier / `(` @declarator @`)`)
+                        (array-declarator / function-declarator)*
+pointer               <== (`*` type-qualifier-list~?)
+array-declarator      <== `[` type-qualifier-list~? expression~? @`]`
+function-declarator   <== `(` parameter-type-list~? @`)`
+parameter-type-list   <-- parameter-list (`,` @`...` @`)`)?
+parameter-list        <-- parameter-declaration (`,` @parameter-declaration)*
+parameter-declaration <-- declaration-specifiers (declarator / abstract-declarator)?
+declaration-specifiers<== (storage-class-specifier /
+                          type-specifier-qualifier /
+                          function-specifier /
+                          alignment-specifier)+
+storage-class-specifier <== (`typedef` / `extern` / `static` / `_Thread_local` / `auto` / `register`)
+type-specifier-qualifier <== (`void` / `char` / `short` / `int` / `long` / `float` / `double` / `signed` / `unsigned` /
+                           `_Bool` / `_Complex` / atomic-type-specifier / typedef-name / type-qualifier)
+type-qualifier        <== (`const` / `restrict` / `volatile` / `_Atomic`)
+function-specifier    <== (`inline` / `_Noreturn`)
+alignment-specifier   <== `_Alignas` @`(` (type-name / expression) @`)`
+typedef-name          <== &(identifier => is_typedef) identifier
+atomic-type-specifier <== `_Atomic` @`(` type-name @`)`
+type-name             <-- specifier-qualifier-list abstract-declarator~?
+specifier-qualifier-list <-- (type-specifier-qualifier)+
+abstract-declarator   <-- pointer / (pointer~? direct-abstract-declarator)
+direct-abstract-declarator <-- (abstract-parenthesizer / array-abstract-declarator /
+                               function-abstract-declarator)*
+abstract-parenthesizer<== `(` abstract-declarator~? @`)`
+array-abstract-declarator <== `[` type-qualifier-list~? expression~? @`]`
+function-abstract-declarator <== `(` parameter-type-list~? @`)`
+type-qualifier-list   <-- type-qualifier+
+initializer           <-- assignment-expression / `{` initializer-list @`}`
+initializer-list      <-- initializer (`,` @initializer)* `,`~?
+expression            <-- assignment-expression (`,` @assignment-expression)*
+assignment-expression <-- assignment / conditional-expression
+assignment            <== (unary-expression assignment-operator @assignment-expression)
+assignment-operator   <== `=` / `*=` / `/=` / `%=` / `+=` / `-=` / `<<=` / `>>=` / `&=` / `^=` / `|=`
+conditional-expression<== binary-expression (`?` @expression @`:` @conditional-expression)~?
+binary-expression     <-- unary-expression (binary-operator @unary-expression)*
+binary-operator       <== `>>` / `<<` / `>` / `<` / `<=` / `>=` / `==` / `!=` / `^` / `|` / `&&` / `||` /
+                        `/` / `%` / `*` / `+` / `-` / `&`
+unary-expression      <-- unary-operator / `sizeof` expression /
+                          `sizeof` @`(` type-name @`)` / postfix-expression
+unary-operator        <== (`&` / `+` / `-` / `~` / `!` / `++` / `--`) unary-expression
+postfix-expression    <-- (postfix-expression-prefix postfix-expression-suffix*) ~> rfoldright
+postfix-expression-prefix <-- primary-expression
+postfix-expression-suffix <== array-index-expression /
+                              argument-expression-list /
+                              struct-member-expression /
+                              struct-pointer-member-expression /
+                              post-increment-expression /
+                              post-decrement-expression
+array-index-expression <== `[` expression @`]`
+argument-expression-list <== `(` (assignment-expression (`,` @assignment-expression)*)~? @`)`
+struct-member-expression <== `.` identifier
+struct-pointer-member-expression <== `->` identifier
+post-increment-expression <== `++`
+post-decrement-expression <== `--`
+primary-expression    <-- constant / string-literal /
+                          `(` @expression @`)` / generic-selection / identifier
+generic-selection     <== `_Generic` @`(` assignment-expression @`,` generic-assoc-list @`)`
+generic-assoc-list    <-- generic-association (`,` @generic-association)*
+generic-association   <-- (type-name / `default`) @`:` assignment-expression
+constant              <-- enumeration-constant / number-constant / character-constant
+enumeration-constant  <-- identifier
+number-constant       <-- {float-constant / integer-constant}
+integer-constant      <-- {hexadecimal-constant / decimal-constant / octal-constant} integer-suffix~?
+character-constant    <-- {`'` c-char-sequence `'` / `L'` c-char-sequence `'` /
+                          `u'` c-char-sequence `'` / `U'` c-char-sequence `'`}
+c-char-sequence       <-- c-char+
+c-char                <-- escape-sequence / [^'\\\n]
+simple-escape-sequence-suffix <== [\'"?abfnrtv]
+escape-sequence       <-- (`\'` ->'' simple-escape-sequence-suffix /
+                          `\"` ->'' simple-escape-sequence-suffix /
+                          `\`->'' simple-escape-sequence-suffix /
+                          'a' $7 / 'b' $8 / 'f' $12 / 'n' $10 / 'r' $13 / 't' $9 / 'v' $11) -> tochar /
+                          ('\' {octal-digit octal-digit^-2} $8)->tochar /
+                          ('\x' {hexadecimal-digit+} $16)->tochar /
+                          ('\u' hex-quad / '\U' hex-quad^2)
+float-constant        <-- {fractional-constant exponent-part~? floating-suffix~? /
+                          digit-sequence exponent-part floating-suffix~?}
+fractional-constant   <-- {digit-sequence~? `.` digit-sequence /
+                          digit-sequence `.`}
+exponent-part         <-- [eE] [+-]? digit-sequence
+digit-sequence        <-- [0-9]+
+hexadecimal-constant  <-- {'0' [xX] hexadecimal-digit+}
+octal-constant        <-- {'0' octal-digit*}
+decimal-constant      <-- {[1-9] digit-sequence~?}
+hexadecimal-digit     <-- [0-9a-fA-F]
+octal-digit           <-- [0-7]
+integer-suffix        <-- [uU] [lL]~? / [uU] `ll` / [uU] `LL` / [lL] [uU]? / `ll` [uU]? / `LL` [uU]?
+floating-suffix       <-- [fFlL]
+hex-quad              <-- hexadecimal-digit^4
+string-literal        <-- {~string-prefix~? `"` s-char-sequence? `"`~} /
+                          {~string-prefix~? `'` s-char-sequence? `'`~}
+string-prefix         <-- [uUL] / `u8`
+s-char-sequence       <-- s-char+
+s-char                <-- escape-sequence / [^"'\\\n]
+
+identifier            <== !KEYWORD {identifier-nondigit identifier-any*} SKIP
+NAME_SUFFIX           <-- [_a-zA-Z0-9]+
+identifier-word       <== identifier
+identifier-nondigit   <-- [_a-zA-Z] / universal-character-name
+identifier-any        <-- identifier-nondigit / [0-9]
+universal-character-name <== ('\u' hex-quad / '\U' hex-quad^2)
+extension-specifiers  <== `__extension__`
+preprocessor          <== preprocessor-conditional / define-arguments / preprocessor-line
+preprocessor-line     <== `#` (!LINEBREAK .)* LINEBREAK~?
+preprocessor-conditional <== `#` `if` (!LINEBREAK .)* LINEBREAK /
+                              `#` `ifdef` (!LINEBREAK .)* LINEBREAK /
+                              `#` `ifndef` (!LINEBREAK .)* LINEBREAK
+define-arguments      <== `#` `define` @identifier @`(` (!LINEBREAK .)* LINEBREAK~?
+typedef-declaration   <== `typedef` declaration-specifiers
+                        (typedef-declarator / typedef-initializer) @`;`
+typedef-declarator    <== declarator => set_typedef
+typedef-initializer   <== init-declarator => set_typedef
+DIRECTIVE             <-- '#' ('\' LINEBREAK / !LINEBREAK .)*
+LINEBREAK             <-- %cn %cr / %cr %cn / %cn / %cr
+SKIP                  <-- (%sp / COMMENT / DIRECTIVE)*
+SHEBANG               <-- `#!` (!LINEBREAK .)* LINEBREAK~?
+COMMENT               <-- `//` (!LINEBREAK .)* / `/*` (!`*/` .)* `*/`
+
+`signed`    <- `signed` / `__signed__`
+`__thread`  <- `__thread`
+`_Thread_local` <- `_Thread_local`

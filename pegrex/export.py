@@ -137,10 +137,11 @@ RAW JSON</summary><pre>{raw}</pre></details>
 </div></body></html>"""
 
 def export(findings: list, fmt: str, out: str | None = None,
-           title: str = "pegrex report") -> str:
+           title: str = "pegrex report", *, provenance: dict | None = None) -> str:
     """export(findings, fmt, out, title): see module docstring."""
     text = (json.dumps(findings, indent=1) if fmt == "json"
             else to_csv(findings) if fmt == "csv"
+            else to_sarif(findings, provenance=provenance) if fmt == "sarif"
             else to_html(findings, title))
     if out:
         import pathlib
@@ -148,26 +149,147 @@ def export(findings: list, fmt: str, out: str | None = None,
     return text
 
 
-def to_sarif(findings: list, tool: str = "pegrex") -> str:
-    """SARIF 2.1.0 for GitHub code scanning integration."""
+def to_sarif(findings: list, tool: str = "pegrex", *,
+             provenance: dict | None = None) -> str:
+    """SARIF 2.1.0 with stable IDs and GitHub Code Scanning metadata."""
+    import hashlib
+    import pathlib
+    import urllib.parse
+    from importlib import metadata
+
+    def version():
+        try:
+            return metadata.version("pegrex")
+        except metadata.PackageNotFoundError:
+            return "unknown"
+
+    def uri(path):
+        if not path:
+            return "source"
+        portable = pathlib.PurePath(path).as_posix()
+        return urllib.parse.quote(portable, safe="/._-~:")
+
+    def physical(file, line, column=1, end_line=None, end_column=None):
+        region = {"startLine": max(1, int(line or 1)),
+                  "startColumn": max(1, int(column or 1))}
+        if end_line is not None:
+            region["endLine"] = max(region["startLine"], int(end_line))
+        if end_column is not None:
+            region["endColumn"] = max(1, int(end_column))
+        return {"artifactLocation": {"uri": uri(file)}, "region": region}
+
     rules, results = {}, []
-    for i, f in enumerate(findings):
-        rid = f.get("id", f"rule-{i}")
-        rules.setdefault(rid, {"id": rid, "name": rid,
-                               "shortDescription": {"text": f.get("message", rid)[:120]}})
-        results.append({"ruleId": rid,
-                        "level": {"CRITICAL": "error", "HIGH": "error",
-                                  "MEDIUM": "warning"}.get(f.get("severity"), "note"),
-                        "message": {"text": f.get("evidence", f.get("message", ""))[:200]},
-                        "locations": [{"physicalLocation": {
-                            "artifactLocation": {"uri": f.get("file", "")},
-                            "region": {"startLine": max(1, f.get("line", 1))}}}]})
+    levels = {"CRITICAL": "error", "HIGH": "error", "MEDIUM": "warning"}
+    scores = {"CRITICAL": "9.5", "HIGH": "8.0", "MEDIUM": "5.0",
+              "LOW": "2.0", "INFO": "0.0"}
+    for i, finding in enumerate(findings):
+        public_id = str(finding.get("id") or "PEGREX-UNNAMED-RULE")
+        rule_id = str(finding.get("rule_key") or public_id)
+        severity = str(finding.get("severity", "INFO")).upper()
+        level = levels.get(severity, "note")
+        cwe = list(finding.get("cwe") or ())
+        owasp = list(finding.get("owasp") or ())
+        references = list(finding.get("references") or ())
+        message = finding.get("message") or public_id
+        properties = {
+            "confidence": finding.get("confidence", "medium"),
+            "security-severity": scores.get(severity, "0.0"),
+            "cwe": cwe, "owasp": owasp,
+            "kind": finding.get("kind", "pattern"),
+        }
+        if finding.get("rule_provenance"):
+            properties["provenance"] = finding["rule_provenance"]
+        rule = {
+            "id": rule_id, "name": public_id,
+            "shortDescription": {"text": str(message)[:120]},
+            "fullDescription": {"text": str(message)[:1000]},
+            "defaultConfiguration": {"level": level},
+            "properties": properties,
+        }
+        help_uri = next((ref for ref in references
+                         if str(ref).startswith(("https://", "http://"))), None)
+        if help_uri:
+            rule["helpUri"] = help_uri
+        rules.setdefault(rule_id, rule)
+
+        evidence = finding.get("evidence", "")
+        result = {
+            "ruleId": rule_id,
+            "level": level,
+            "message": {"text": (f"{message} Evidence: {evidence}" if evidence
+                                  else str(message))[:2000]},
+            "locations": [{"physicalLocation": physical(
+                finding.get("file"), finding.get("line"), finding.get("column"),
+                finding.get("end_line"), finding.get("end_column"))}],
+            "partialFingerprints": {
+                "pegrexFindingFingerprint/v1": hashlib.sha256(json.dumps([
+                    rule_id, finding.get("file"), finding.get("function"),
+                    finding.get("source"), finding.get("sink") or evidence,
+                ], sort_keys=True, default=str).encode()).hexdigest(),
+            },
+            "properties": {
+                "confidence": finding.get("confidence", "medium"),
+                "cwe": cwe, "owasp": owasp,
+                "sourceEvidence": finding.get("source"),
+                "sinkEvidence": finding.get("sink") or evidence,
+                "kind": finding.get("kind", "pattern"),
+            },
+        }
+        related, flow = [], []
+        for source in finding.get("sources") or []:
+            location_id = len(related) + 1
+            related.append({
+                "id": location_id,
+                "physicalLocation": physical(
+                    finding.get("file"), source.get("line"), source.get("column")),
+                "message": {"text": "Taint source: " + source.get("evidence", "")[:500]},
+            })
+            flow.append({
+                "location": {
+                    "physicalLocation": physical(
+                        finding.get("file"), source.get("line"), source.get("column")),
+                    "message": {"text": "Source: " + source.get("evidence", "")[:500]},
+                },
+                "kinds": ["source"],
+            })
+        if related:
+            result["relatedLocations"] = related
+        if flow:
+            flow.append({
+                "location": {
+                    "physicalLocation": result["locations"][0]["physicalLocation"],
+                    "message": {"text": "Sink: " + str(finding.get("sink") or evidence)[:500]},
+                },
+                "kinds": ["sink"],
+            })
+            result["codeFlows"] = [{"threadFlows": [{"locations": flow}]}]
+        if finding.get("suppressed") and finding.get("suppression"):
+            suppression = finding["suppression"]
+            result["suppressions"] = [{
+                "kind": "inSource", "status": "accepted",
+                "justification": suppression["justification"],
+            }]
+        if finding.get("suppression_error"):
+            result["properties"]["suppressionError"] = finding["suppression_error"]
+        results.append(result)
+
+    run = {
+        "tool": {"driver": {
+            "name": tool, "version": version(),
+            "informationUri": "https://github.com/ovoxnox/pegrex",
+            "rules": list(rules.values()),
+        }},
+        "columnKind": "unicodeCodePoints",
+        "results": results,
+    }
+    if provenance:
+        run["properties"] = {"provenance": provenance}
+        identity = json.dumps(provenance, sort_keys=True, default=str)
+        run["automationDetails"] = {
+            "id": "pegrex/" + hashlib.sha256(identity.encode()).hexdigest()[:20]}
     doc = {"$schema": "https://json.schemastore.org/sarif-2.1.0.json",
-           "version": "2.1.0",
-           "runs": [{"tool": {"driver": {"name": tool,
-                                         "rules": list(rules.values())}},
-                     "results": results}]}
-    return json.dumps(doc, indent=1)
+           "version": "2.1.0", "runs": [run]}
+    return json.dumps(doc, indent=1, ensure_ascii=False)
 
 
 export.__globals__["to_sarif"] = to_sarif

@@ -5,41 +5,28 @@
 
 
 **A self-contained symbolic-execution and syntactic-analysis engine** that
-turns source code in 15 languages into mathematical specifications for AI
+turns source code in 22 languages into mathematical specifications for AI
 agents — and *refuses loudly* rather than guessing. Every claim is either
 proven by an executable certificate or reported with its counterexample.
 
 `parse -> solve/prove -> abstract -> execute -> emit/verify -> repair -> serve`
 
-Full contract extraction (paths → results) is certified for Python, COBOL, and Fortran; the other tree-sitter languages parse to CSTs through the bridge. Solidity gets both contract extraction and audit/insurance treatment.
+The canonical frontend registry owns every language ID, extension, parser and version, coordinate conversion, normalizer, error policy, CFG adapter, lowering level, contract feature set, security pack, maturity level, and known unsupported case. Parsing never implies contract or proof support.
 
-**PegRex** is a self-contained symbolic-execution and syntactic-analysis engine that turns source code into mathematical specifications for AI agents — **parse, solve, prove, abstract, execute, emit, verify, repair, serve** — where every claim is either proven; refuted with a concrete counterexample; or honestly reported as unknown. It speaks fifteen-plus languages, exposes sixty-five commands, 331 unit tests, 17 agent skills — and audits itself in public via a regenerated SELF.md that CI refuses to let go stale.
+**PegRex** is a self-contained symbolic-execution and syntactic-analysis engine that turns source code into mathematical specifications for AI agents — **parse, solve, prove, abstract, execute, emit, verify, repair, serve** — where every claim is either proven; refuted with a concrete counterexample; or honestly reported as unknown. It exposes 22 language mappings, 68 CLI commands, 560 unit tests, and 16 agent skills — and audits itself in public via a regenerated SELF.md that CI refuses to let go stale.
 
-**Tree-sitter frontends (full CST → contracts)**
- - Nine bindings: Python, Go, Rust, Julia, Kotlin, Zig, Solidity, Vyper, JavaScript, TypeScript, AssemblyScript. 
- - The bridge's language map also routes lua and c (those resolve via the tree_sitter_language_pack when installed 
-
-**Native legacy frontends (certified, no grammar needed)** hand-built parsers producing the same contract tuples as every other language, with machine-checked cross-language equivalence (a COBOL absval and a Fortran absval verify as identical). An offline tree-sitter mock layer makes these parse through the standard bridge too.
-
- - COBOL (.cob/.cbl/.cobol)
- - Fortran (.f90/.f95/.f03/.f08)
-
-**Domain-specific languages**
- - SQL (SELECT subset with OR groups — SQL↔ORM equivalence checking)
- - Circom (ZK circuits — under-constrained signal auditing)
-
-**Grammar-text formats (the LPegRex .gram compiler)**
- - JSON, C11, CSV, URL, INI, S-expressions, Go-subset, MIR, MLIR, Vyper-subset, agent grammars — compiled by the split pegrex/lpegc/ compiler into executable pattern trees.
+Run `python pegrex.py soundness` for the complete machine-readable plugin manifest and trust policy, or add `--language ID` for one frontend. The same report is available through `CoreEngine.soundness()` and the stdio service's `soundness` method. Native legacy and domain-specific analyzers are registered through the same manifest; the split `pegrex/lpegc/` compiler handles the bundled grammar-text formats.
 
 
 ## The Security Engine
 
 **Defense in depth, each layer certified with negative controls that must refuse:**
 
-    · SAST core — 691 pattern rules + 87 taint rules over adjacency-indexed CFGs; parallel audits; budget-aware triage; 760 converted semgrep rules; offline OSV scanning;
-    · Taint, three-valued — every flow is safe, vulnerable, or UNKNOWN; never "no path found" as "verified.";
+    · SAST core — 682 unique pattern rules + 86 unique taint rules over adjacency-indexed CFGs; exact-duplicate removal with upstream provenance; sequential directory audits; budget-aware triage; 768 active converted semgrep rules; SARIF 2.1.0/Code Scanning evidence with CWE/OWASP mappings and justified suppressions;
+    · Taint, three-valued — every flow is safe, vulnerable, or UNKNOWN, with concrete source/sink evidence; never "no path found" as "verified.";
+    · Reproducible scans — exact rule-catalog and source SHA-256 identities, installed parser versions, and explicit OSV snapshots; missing offline vulnerability data is UNKNOWN, never clean;
     · ZK auditing — under-constrained Circom detection; '<\--' without '===' and unconstrained outputs are named;
-    · Autonomous bug bounty — discover the guard, solve a concrete payload by Fourier-Motzkin, delta-debug the minimal witness, repair under a payload-killed verifier (an unguarded sink post-fix is worse, never "fixed") — and the whole loop is policy-gated before execution by the agent safety harness (default-deny, deny precedence, first refusal stops the plan);
+    · Autonomous bug bounty — discover the guard, solve a concrete payload by Fourier-Motzkin, delta-debug the minimal witness, repair under a payload-killed verifier (an unguarded sink post-fix is worse, never "fixed") — and the whole loop is policy-gated before execution by the agent safety harness (argv-only execution, canonical executable/path identities, default-deny, deny precedence, first refusal stops the plan);
     · Compliance as code — GDPR findings that name the flow; SOC2 control presence; legal deadlines without a base date are "not evaluable," never fake-future;
     · Infrastructure verification — Zelkova-style can (principal, action, resource) with explicit-deny precedence; wildcard-admin and public-bucket findings;
     · Insurance oracle — premiums ordered by verified overflow risk, HMAC-signed, labelled a toy heuristic: honesty in the price tag;
@@ -67,13 +54,26 @@ Full contract extraction (paths → results) is certified for Python, COBOL, and
 ```
 from pegrex import facade          # the whole surface in one import
 out = facade.verify_patch("a.py", "b.py")   # proof or counterexample
+
+from pegrex import AnalysisSession
+session = AnalysisSession(source, "python", max_paths=10_000)
+session.tree                       # one normalized parse, shared lazily
+session.call_graph                 # call graph over that tree
+session.contracts()                # bounded contracts over the same tree
+session.complexity                 # cognitive complexity over the same tree
+session.security                   # SAST + taint over the same tree
+report = session.analyze()         # per-analyzer ok / resource UNKNOWN
 ```
+
+Caches use content + parser/analyzer versions + normalized configuration. Immutable IR nodes are hash-consed; canonicalization, linearization, and implication probes are memoized. Path explosion and solver/per-file budget exhaustion are explicit UNKNOWNs, never partial proofs.
 
 ## CLI
 
 ```
 python pegrex.py index --out <out> <dir>   # repo arch index
-python pegrex.py audit FILE                # 782-rule (694 pattern + 88 taint) + taint audit
+python pegrex.py audit FILE                # 768-rule audit; report-only by default
+python pegrex.py audit FILE --fail-on high --fail-on-unknown  # opt-in CI gates
+python pegrex.py audit FILE --sarif --out results.sarif       # GitHub Code Scanning
 python pegrex.py spec --dir <PATH>         # AI spec schema (multi-opus)
 python pegrex.py contracts FILE            # path contracts
 python pegrex.py cognitive <file>          # cognitive complexity + refactor plans
@@ -81,8 +81,9 @@ python pegrex.py rosetta <spec>  N-        # N-way cross-language equivalence (s
 python pegrex.py modernize <file>          # legacy (COBOL/Fortran) -> target with equivalence certificate
 python pegrex.py roundtrip --print-cobol   # Python -> COBOL round-trip with contract identity
 python pegrex.py insure --verify <file>    # quote/verify a Solidity overflow-risk premium
-python pegrex.py rules --json              # rule catalog summary
-python pegrex.py osvscan                   # dependency vulnerability scan (OSV)
+python pegrex.py rules --json              # registry-selected rule catalog summary
+python pegrex.py soundness [--language ID] # frontend plugins, limits, and trust policy
+python pegrex.py osvscan LOCKFILE --offline --osv-snapshot osv.json  # reproducible OSV scan
 python pegrex.py cisec <file>              # CI/CD pipeline security analysis
 python pegrex.py verify-patch              # proof or counterexample for two sources
 python pegrex.py bundle <PATH> <source>    # portable verification bundle
@@ -90,10 +91,11 @@ python pegrex.py compile-nl <text> <file>  # anti-hallucination compiler: NL -> 
 python pegrex.py autopwn                   # policy-gated discover/solve/repair loop
 python pegrex.py bounty  <file>            # discover/solve/minimize a PoC for a sink
 python pegrex.py verify-patch BEFORE AFTER # proof or counterexample
-python pegrex.py export --format <format>  # export findings (json/csv/html)
+python pegrex.py export FILE --format sarif --out results.sarif  # json/csv/html/sarif
 python pegrex.py compress                  # LLM context compression
 python pegrex.py explain <file>            # explain a function as math
 python pegrex.py callgraph --dir <PATH>    # function-call graph (DOT/ASCII)
+python pegrex.py callgraph --dir <PATH> --jobs 4 --benchmark  # optional spawn workers + overhead report
 python pegrex.py coverage --dir <PATH>     # path coverage overlay + gaps
 python pegrex.py caps <file>               # infer capabilities + sandbox policy
 python pegrex.py diff A B                  # semantic diff
@@ -114,6 +116,16 @@ python pegrex.py tests --lcov <lcov> <src> # synthesize tests from coverage gaps
 python pegrex.py serve|acp|mcp|a2a|lsp     # protocol endpoints
 ```
 
+### Reproducible security reports
+
+`audit --json` returns `pegrex.security-scan.v1`; `audit --sarif` returns SARIF 2.1.0 with stable rule IDs, confidence, CWE/OWASP properties, source/sink code flows, fingerprints, and scan provenance. Upload `.sarif` output with GitHub's `codeql-action/upload-sarif` action. Suppressions stay visible in both formats and require a justification on the finding line or the preceding line:
+
+```
+# pegrex:ignore RULE-ID -- reviewer rationale and tracking ticket
+```
+
+Unjustified directives do not suppress findings or CI gates. Shell actions in harness plans must use `{"tool":"shell","argv":["pytest","-q"]}`; raw command strings, shell operators, expansion, absolute/traversal/symlink paths, launchers, and Unicode lookalikes are refused. `osvscan --offline` uses only the supplied snapshot/cache, and missing entries produce `status: "unknown"`. Use `--snapshot-out FILE` to capture a complete online query set for later offline reproduction.
+
 ## The one rule
 
 Every engine surface follows the same discipline: **prove it, or refuse loudly**. 
@@ -124,10 +136,10 @@ that must refuse; `verify_patch` returns a counterexample, not a shrug.
 ## Repository layout
 
 ```
-pegrex/        engine (pegrex/pegc/ holds the PegRex
-                   compiler split: parser.py / compiler.py / diagnostics.py) 
-                   (125 modules, stdlib+pydantic)
-tests/         70 unit-test modules (326 tests)
+pegrex/        engine (pegrex/lpegc/ holds the LPegRex
+                   compiler split: parser.py / compiler.py / diagnostics.py)
+                   (156 analyzed modules, stdlib+pydantic)
+tests/         99 unit-test modules (560 tests)
 examples/      .gram formats + walkthroughs
 tools/         repo-facing scripts (secaudit, mkspec, ...)
 skills/        agent SKILL packs
@@ -136,7 +148,7 @@ docs/          README.md, HEALTH.md, SELF.md (the self-audit)
 
 ## The self-hosting proof
 
-`python tools/selfhost.py` regenerates `docs/SELF.md` -- the twin, cognitive-complexity, and contract reports of pegrex/ *by pegrex itself* (436 functions, published refusals included).
+`python tools/selfhost.py` regenerates `docs/SELF.md` -- the twin, cognitive-complexity, and contract reports of pegrex/ *by pegrex itself* (regenerated function totals and published refusals). `python tools/build_skills.py` reproducibly rebuilds `pegrex-skills.tar.gz`; both generators support `--check`. See `docs/PUBLIC_CONTRACTS.md` for stable API, CLI, service, and result contracts.
 
 
 ## What it does

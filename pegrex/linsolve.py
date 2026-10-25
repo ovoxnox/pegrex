@@ -12,8 +12,10 @@ from __future__ import annotations
 
 import math
 import re
+import time
 from dataclasses import dataclass, field
 from fractions import Fraction
+from functools import lru_cache
 
 from .ir import cond_to_atom
 from .smt import Backend
@@ -80,7 +82,14 @@ def atoms_of(formula) -> list:
 # ---------------------------------------------------------------------------
 
 def _normalize(a: LinAtom) -> list:
-    """Returns normalized non-strict atoms (op in {<=, !=}); '=' -> pair."""
+    """Normalize QF_LIA atoms; reject rationals outside the integer model.
+
+    FM arithmetic is rational internally, but strict-inequality slack and
+    model reconstruction are integer-specific. Accepting fractional input
+    here would silently change its meaning, so callers get a loud refusal.
+    """
+    if a.k.denominator != 1 or any(c.denominator != 1 for _, c in a.coeffs):
+        raise LinearError("linsolve: fractional atom outside the QF_LIA integer fragment")
     if a.op == "<":
         return [LinAtom(a.coeffs, "<=", a.k - 1)]
     if a.op == ">":
@@ -255,6 +264,12 @@ def _eliminate(model: LinearModel) -> None:
             return
 
 
+@lru_cache(maxsize=4096)
+def _implication_probe_feasible(src_atoms: tuple, negated: LinAtom) -> bool:
+    """Memoize one immutable constraints + negated-guard feasibility probe."""
+    return _learn_atoms(list(src_atoms) + [negated]).feasible_flag
+
+
 def _learn_atoms(src_atoms) -> "LinearModel":
     """Build a model directly from already-normalized LinAtom objects --
     skips text parsing entirely. entails()'s per-guard-piece probes always
@@ -271,9 +286,26 @@ def _learn_atoms(src_atoms) -> "LinearModel":
 
 
 class LinearBackend(Backend):
-    """Backend-protocol multi-variable linear engine."""
+    """Backend-protocol multi-variable linear engine with optional query budgets."""
 
     name = "fourier-motzkin"
+
+    def __init__(self, *, max_queries: int | None = None,
+                 timeout_ms: int | None = None) -> None:
+        self.max_queries = max_queries
+        self.timeout_ms = timeout_ms
+        self.queries = 0
+        self._deadline = (time.monotonic() + timeout_ms / 1000
+                          if timeout_ms is not None else None)
+        self.last_result = {"status": "unknown", "reason": "no query executed"}
+
+    def _consume_query(self) -> str | None:
+        self.queries += 1
+        if self.max_queries is not None and self.queries > self.max_queries:
+            return f"solver query budget {self.max_queries} exceeded"
+        if self._deadline is not None and time.monotonic() > self._deadline:
+            return f"solver deadline {self.timeout_ms}ms exceeded"
+        return None
 
     def learn(self, atoms):
         model = LinearModel()
@@ -297,31 +329,42 @@ class LinearBackend(Backend):
             _eliminate(model)
         return model
 
-    def entails(self, model, guard) -> bool:
-        """constraints |= guard  <=>  constraints + ~guard infeasible.
-        Opaque guard atoms: refused (False) -- never entailed."""
+    def entails_with_status(self, model, guard) -> dict:
+        """Return entailed/not_entailed/unknown with resource diagnostics."""
         if not model.feasible_flag:
-            return True  # ex falso
+            self.last_result = {"status": "entailed", "queries": self.queries}
+            return self.last_result
         for atom in atoms_of(guard):
             txt = str(atom).strip()
             if txt in ("(true)", "true"):
                 continue
             if txt in ("(false)", "false"):
-                return False
+                self.last_result = {"status": "not_entailed", "queries": self.queries}
+                return self.last_result
             try:
                 la = parse_atom(txt)
             except LinearError:
-                return False    # opaque -> loud refusal
-            # guard conjuncts must each be entailed: for every normalized
-            # piece n_i, constraints + neg(n_i) must be infeasible. (Negating
-            # pieces and conjoining them would be unsound for '=' guards:
-            # ~(A & B) is a disjunction, not a conjunction of negations.)
+                self.last_result = {"status": "not_entailed", "reason": "opaque guard",
+                                    "queries": self.queries}
+                return self.last_result
+            # Each normalized guard conjunct needs its own negated probe.
             for n in _normalize(la):
                 for neg in _negate_norm(n):
-                    probe = _learn_atoms(model.src + [neg])
-                    if probe.feasible_flag:
-                        return False
-        return True
+                    exhausted = self._consume_query()
+                    if exhausted is not None:
+                        self.last_result = {"status": "unknown", "reason": exhausted,
+                                            "queries": self.queries}
+                        return self.last_result
+                    if _implication_probe_feasible(tuple(model.src), neg):
+                        self.last_result = {"status": "not_entailed",
+                                            "queries": self.queries}
+                        return self.last_result
+        self.last_result = {"status": "entailed", "queries": self.queries}
+        return self.last_result
+
+    def entails(self, model, guard) -> bool:
+        """Legacy boolean API fails closed; use entails_with_status for UNKNOWN."""
+        return self.entails_with_status(model, guard)["status"] == "entailed"
 
     def feasible(self, model) -> bool:
         """feasible(model): see module docstring."""

@@ -1,0 +1,9 @@
+{
+  "name": "absval cross-paradigm",
+  "unroll": 1,
+  "variants": [
+    {"language": "python", "source": "specs/absval.py"},
+    {"language": "c", "source": "specs/absval.c"}
+  ],
+  "postprocess": {"invariants": []}
+}

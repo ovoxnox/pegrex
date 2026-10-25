@@ -9,22 +9,20 @@ from __future__ import annotations
 
 import re
 
-COMMENT_PREFIX = {
-    "python": "#",
-    "julia": "#",
-    "go": "//", "rust": "//", "javascript": "//", "typescript": "//",
-    "tsx": "//", "kotlin": "//", "zig": "//", "solidity": "//", "c": "//",
-    "cobol": "*>", "fortran": "!",
-}
+from .languages import LANGUAGES, detect_language
 
-_TS_LANGS = {"go", "rust", "javascript", "typescript", "tsx", "julia",
-             "kotlin", "zig", "solidity"}
+COMMENT_PREFIX = {name: spec.comment_prefix for name, spec in LANGUAGES.items()
+                  if spec.comment_prefix is not None}
+_TS_LANGS = {name for name, spec in LANGUAGES.items()
+             if spec.parser.startswith("tree-sitter") and "contracts" in spec.capabilities}
 
 
 def comment_prefix(lang: str) -> str:
-    if lang not in COMMENT_PREFIX:
+    from .languages import normalize_language
+    resolved = normalize_language(lang)
+    if resolved is None or resolved not in COMMENT_PREFIX:
         raise ValueError(f"annotations: no comment syntax for {lang!r}")
-    return COMMENT_PREFIX[lang]
+    return COMMENT_PREFIX[resolved]
 
 
 def annotated(src: str, lang: str, tag: str, needs: str | None = None):
@@ -46,20 +44,7 @@ def annotations(src: str, lang: str):
 
 
 def language_of(path: str) -> str:
-    from .api import _EXT_LANG
-    import os
-    ext = os.path.splitext(path)[1].lower()
-    if ext in _EXT_LANG:
-        return _EXT_LANG[ext]
-    if ext == ".py":
-        return "python"
-    if ext in (".js", ".jsx"):
-        return "javascript"
-    if ext == ".ts":
-        return "typescript"
-    if ext == ".tsx":
-        return "tsx"
-    if ext in (".rs", ".go", ".jl", ".kt", ".zig", ".sol", ".c", ".h"):
-        return {".rs": "rust", ".go": "go", ".jl": "julia", ".kt": "kotlin",
-                ".zig": "zig", ".sol": "solidity", ".c": "c", ".h": "c"}[ext]
-    raise ValueError(f"annotations: unknown language for {path!r}")
+    lang = detect_language(path)
+    if lang is None:
+        raise ValueError(f"annotations: unknown language for {path!r}")
+    return lang

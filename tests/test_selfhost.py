@@ -39,6 +39,42 @@ def test_selfhost_check_fresh():
     assert r.returncode == 0, r.stdout + r.stderr
 
 
+def test_engine_digest_includes_nested_inputs(tmp_path, monkeypatch):
+    import importlib.util
+    spec = importlib.util.spec_from_file_location(
+        "selfhost_digest", ROOT / "tools" / "selfhost.py")
+    mod = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(mod)
+    engine = tmp_path / "pegrex"
+    nested = engine / "nested"
+    nested.mkdir(parents=True)
+    (engine / "root.py").write_text("VALUE = 1\n")
+    (nested / "child.py").write_text("VALUE = 2\n")
+    (nested / "__init__.py").write_text("ignored\n")
+    monkeypatch.setattr(mod, "ROOT", tmp_path)
+    before = mod.engine_digest()
+    (nested / "child.py").write_text("VALUE = 3\n")
+    assert mod.engine_digest() != before
+    (nested / "child.py").write_text("VALUE = 2\n")
+    assert mod.engine_digest() == before
+
+
+def test_selfhost_check_rejects_generated_content_drift(tmp_path, monkeypatch):
+    import importlib.util
+    spec = importlib.util.spec_from_file_location(
+        "selfhost_drift", ROOT / "tools" / "selfhost.py")
+    mod = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(mod)
+    out = tmp_path / "docs" / "SELF.md"
+    out.parent.mkdir()
+    out.write_text("# SELF.md\n\nengine digest: `same`\nmodules: **1**\n")
+    monkeypatch.setattr(mod, "ROOT", tmp_path)
+    monkeypatch.setattr(mod, "collect", lambda: {"digest": "same", "modules": 1})
+    monkeypatch.setattr(mod, "render", lambda d: out.read_text() + "new row\n")
+    monkeypatch.setattr(sys, "argv", ["selfhost.py", "--check"])
+    assert mod.main() == 1
+
+
 def test_selfhost_deterministic_render():
     import importlib.util
     spec = importlib.util.spec_from_file_location(

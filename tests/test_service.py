@@ -38,6 +38,8 @@ def test_service_verify_certificate():
     try:
         v = _rpc(proc, {"method": "verify",
                         "params": {"spec": "specs/fact.json"}})
-        assert v["ok"] and v["certificate"] and v["name"] == "fact cross-language"
+        assert v["ok"] and v["verified"] is False
+        assert v["certificate"] is None
+        assert v["certificate_note"] and v["name"] == "fact cross-language"
     finally:
         proc.terminate()

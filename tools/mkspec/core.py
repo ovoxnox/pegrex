@@ -66,38 +66,28 @@ def opus(name: str):
 
 
 # ═══ Analysis pipeline
-_TSMODS = {".py": ("python", "tree_sitter_python", "language"),
-           ".go": ("go", "tree_sitter_go", "language"),
-           ".rs": ("rust", "tree_sitter_rust", "language"),
-           ".js": ("javascript", "tree_sitter_javascript", "language"),
-           ".jsx": ("jsx", "tree_sitter_javascript", "language"),
-           ".ts": ("typescript", "tree_sitter_typescript", "language_typescript"),
-           ".tsx": ("tsx", "tree_sitter_typescript", "language_tsx"),
-           ".jl": ("julia", "tree_sitter_julia", "language"),
-           ".kt": ("kotlin", "tree_sitter_kotlin", "language"),
-           ".zig": ("zig", "tree_sitter_zig", "language"),
-           ".sol": ("solidity", "tree_sitter_solidity", "language")}
-_SRC_ONLY = {".cob": "cobol", ".cbl": "cobol", ".cobol": "cobol",
-             ".f90": "fortran", ".f95": "fortran", ".f03": "fortran",
-             ".f08": "fortran"}
+from pegrex.languages import (LANGUAGES, EXTENSION_MAP, detect_language,
+                              parse_source as _registry_parse_source)
+
+# Compatibility views are derived from the central registry; do not add a
+# language here. The language registry is the sole source of extensions and
+# parser bindings.
 _SKIP_DIRS = {"__pycache__", ".git", "node_modules", "target", "build",
               "dist", ".vendor", ".semgrep-final", "site-packages"}
 
 
 def _load_tree(path: pathlib.Path):
-    low = path.suffix.lower()
-    if low in _SRC_ONLY:  # legacy: text-level analysis only
-        return _SRC_ONLY[low], path.read_text(), None
-    hit = _TSMODS.get(low)
-    if hit is None:
+    lang = detect_language(path)
+    if lang is None:
         return None, None, None
-    lang, modname, attr = hit
-    mod = __import__(modname)
-    from tree_sitter import Language, Parser
-    from pegrex.tree_sitter_bridge import ts_to_pegrex
-    src = path.read_text()
-    root = Parser(Language(getattr(mod, attr)())).parse(src.encode())
-    return lang, src, ts_to_pegrex(root.root_node, src)
+    src = path.read_text(encoding="utf-8")
+    try:
+        tree = _registry_parse_source(lang, src)
+    except (ImportError, NotImplementedError, ValueError) as exc:
+        # Parser refusal is retained in a source-level context rather than
+        # silently relabeling the file as another language.
+        return lang, src, None
+    return lang, src, tree
 
 
 def _plugins(paths: list[str] | None) -> dict:
@@ -148,7 +138,8 @@ def run_analyzers(path, names=None, extra=None) -> tuple[AnalysisContext, list[F
         if not f.is_file():
             return False
         low = f.suffix.lower()
-        if low not in _TSMODS and low not in _SRC_ONLY:
+        lang = EXTENSION_MAP.get(low)
+        if lang is None or not (LANGUAGES[lang].capabilities & {"parse", "audit", "contracts"}):
             return False
         return not any(part in _SKIP_DIRS or part.startswith(".")
                        for part in f.relative_to(p).parts)

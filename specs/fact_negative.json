@@ -1,0 +1,9 @@
+{
+  "name": "fact negative control",
+  "unroll": 1,
+  "variants": [
+    {"language": "python", "source": "specs/fact.py"},
+    {"language": "c", "source": "specs/fact_negative.c"}
+  ],
+  "postprocess": {"invariants": []}
+}

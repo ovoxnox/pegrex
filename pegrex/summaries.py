@@ -97,10 +97,9 @@ def render_c(ch, src) -> str:
     return str(ch)
 
 
-def path_summaries(cfg: CFG, cond, render, unroll: int = 1) -> list:
-    """[(frozenset(constraints), result)] — the function's contract."""
+def _summaries_for_paths(cfg: CFG, cond, render, paths) -> list:
     out = []
-    for path in PathEnumerator(cfg, unroll=unroll).enumerate():
+    for path in paths:
         cons, result = [], None
         for i in range(len(path) - 1):
             for dst, e in cfg.successors(path[i]):
@@ -117,6 +116,24 @@ def path_summaries(cfg: CFG, cond, render, unroll: int = 1) -> list:
                 result = render(blk.stmts[0])
         out.append((frozenset(cons), result))
     return sorted(out, key=lambda t: (sorted(t[0]), str(t[1])))
+
+
+def path_summaries(cfg: CFG, cond, render, unroll: int = 1) -> list:
+    """[(frozenset(constraints), result)] — the function's contract."""
+    paths = PathEnumerator(cfg, unroll=unroll).enumerate()
+    return _summaries_for_paths(cfg, cond, render, paths)
+
+
+def path_summaries_bounded(cfg: CFG, cond, render, unroll: int = 1, *,
+                           max_paths: int = 10_000,
+                           timeout_ms: int | None = None) -> dict:
+    """Contract extraction with explicit incomplete-enumeration semantics."""
+    enumeration = PathEnumerator(cfg, unroll=unroll).enumerate_bounded(
+        max_paths=max_paths, timeout_ms=timeout_ms)
+    return {"contracts": (_summaries_for_paths(cfg, cond, render, enumeration.paths)
+                          if enumeration.complete else []),
+            "complete": enumeration.complete, "unknowns": enumeration.unknowns,
+            "visited": enumeration.visited}
 
 
 def _prune(paths):

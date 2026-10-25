@@ -26,12 +26,12 @@ ROOT = pathlib.Path(__file__).resolve().parent.parent
 
 
 def audit(path: str, lang: str | None = None) -> list[dict]:
-    """Security audit: pattern rules + taint + SCA -> findings."""
-    sys_path = __import__("sys").path
-    if str(ROOT) not in sys_path:
-        sys_path.insert(0, str(ROOT))
-    from tools.secaudit import audit as _audit
-    return _audit(path, lang)
+    """Compatibility adapter: stable-core audit result -> historical findings list."""
+    result = get_engine().audit(path, lang)
+    keys = ("id", "severity", "confidence", "line", "evidence",
+            "message", "kind", "function")
+    return [{key: finding.get(key) for key in keys}
+            for finding in (result.data or [])]
 
 
 def spec(source: str, name: str, out_dir: str = "specs",
@@ -51,36 +51,23 @@ def spec(source: str, name: str, out_dir: str = "specs",
     return rendered
 
 
-_EXT_LANG = {".cob": "cobol", ".cbl": "cobol", ".cobol": "cobol",
-             ".f90": "fortran", ".f95": "fortran", ".f03": "fortran",
-             ".f08": "fortran"}
+from .languages import detect_language, get_language, normalize_language
+from .core import get_engine
 
 
-def contracts(path: str, lang: str = None) -> list:
-    """Function contract: [(constraints, result)] per path.
+def contracts(path: str, lang: str | None = None) -> list:
+    """Compatibility API for path contracts.
 
-    Native frontends (no tree-sitter grammar needed): .cob/.cbl -> COBOL,
-    .f90/.f95/.f03/.f08 -> Fortran -- same tuple shape as Python contracts."""
-    if lang is None:
-        ext = pathlib.Path(path).suffix.lower()
-        lang = _EXT_LANG.get(ext, "python")
-    if lang == "cobol":
-        from . import cobolfront
-        return cobolfront.contracts(pathlib.Path(path).read_text())
-    if lang == "fortran":
-        from . import fortranfront
-        return fortranfront.contracts(pathlib.Path(path).read_text())
-    from . import tscontracts
-    if lang in tscontracts._LANGS:
-        return tscontracts.contracts(pathlib.Path(path).read_text(), lang)
-    import pipeline  # frontends live in the ops layer
-    src = pathlib.Path(path).read_text()
-    parse, tags, mk = pipeline.FRONTENDS[lang]()
-    body = parse(src)
-    cfg = CFGBuilder(tags).build(body)
-    render = lambda st: (src[st.pos:st.endpos]).replace("return", "").strip() \
-        if lang == "python" else None
-    return path_summaries(cfg, mk(src), render)
+    The stable core owns language selection, capability checks, result models,
+    and canonical contract identity. This public function preserves the legacy
+    ``[(frozenset(guards), outcome)]`` return shape for existing clients.
+    """
+    resolved = detect_language(path, lang, default="python")
+    result = get_engine().contracts_file(path, resolved)
+    if result.status.value == "error":
+        raise RuntimeError("contract extraction failed: " + "; ".join(result.unknowns))
+    return [(frozenset(row["constraints"]), row["outcome"])
+            for row in (result.data or [])]
 
 
 def coverage(path: str, lcov_path: str, lang: str = "python") -> dict:
@@ -91,7 +78,7 @@ def coverage(path: str, lcov_path: str, lang: str = "python") -> dict:
     src = pathlib.Path(path).read_text()
     cov = list(parse_lcov(pathlib.Path(lcov_path).read_text()).values())
     cov_lines = covered_lines(cov[0]) if cov else set()
-    parse, tags, mk = pipeline.FRONTENDS[lang]()
+    parse, tags, mk = pipeline.frontend_for(lang)
     cfg = CFGBuilder(tags).build(parse(src))
     paths = PathEnumerator(cfg, unroll=2).enumerate()
     return {"paths": path_coverage(cfg, paths, cov_lines),
@@ -105,7 +92,7 @@ def gaps(source: str, lcov: str, lang: str = "python") -> list[dict]:
     cov = list(parse_lcov(pathlib.Path(lcov).read_text()).values())
     cov_lines = __import__("pegrex.coverage", fromlist=["covered_lines"]
                            ).covered_lines(cov[0]) if cov else set()
-    parse, tags, mk = pipeline.FRONTENDS[lang]()
+    parse, tags, mk = pipeline.frontend_for(lang)
     cfg = CFGBuilder(tags).build(parse(src))
     return coverage_gaps(cfg, mk(src), cov_lines)
 
@@ -117,16 +104,22 @@ def synthesize(source: str, lcov: str, fn_name: str | None = None) -> list:
     src = pathlib.Path(source).read_text()
     cov = list(parse_lcov(pathlib.Path(lcov).read_text()).values())
     cov_lines = covered_lines(cov[0]) if cov else set()
-    parse, tags, mk = pipeline.python_frontend()
+    parse, tags, mk = pipeline.frontend_for("python")
     cfg = CFGBuilder(tags).build(parse(src))
     return synthesize_tests(cfg, mk(src), cov_lines,
                             fn_name or pathlib.Path(source).stem[:-3])
 
 
 def call_graph(source: str, lang: str = "python") -> "CallGraph":
-    """Function-call graph: nodes are functions, edges caller -> callee,
-    with DOT + ASCII visualizations."""
-    return _build_call_graph(source, lang)
+    """Legacy CallGraph view backed by the stable-core operation result."""
+    result = get_engine().call_graph(source, lang)
+    graph = CallGraph()
+    graph.functions = {name: {"line": 0, "calls": set()} for name in result.data["functions"]}
+    graph.edges = {tuple(edge) for edge in result.data["edges"]}
+    for caller, callee in graph.edges:
+        graph.functions.setdefault(caller, {"line": 0, "calls": set()})["calls"].add(callee)
+        graph.functions.setdefault(callee, {"line": 0, "calls": set()})
+    return graph
 
 
 def rag_index(paths) -> "object":

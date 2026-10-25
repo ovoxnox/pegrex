@@ -12,6 +12,10 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from fractions import Fraction
+from functools import lru_cache
+from threading import RLock
+from typing import ClassVar
+from weakref import WeakValueDictionary
 
 from .sym import (And, Eq, Ge, Gt, Le, Lt, Not, Op, Or, V, const)
 
@@ -31,6 +35,22 @@ class Expr:
     ty: str
     value: object = None  # const literal, var name, op, ...
     args: tuple = ()
+    _nodes: ClassVar[WeakValueDictionary] = WeakValueDictionary()
+    _lock: ClassVar[RLock] = RLock()
+
+    def __new__(cls, kind: str, ty: str, value: object = None, args: tuple = ()):
+        args = tuple(args)
+        key = (cls, kind, ty, value, args)
+        try:
+            hash(key)
+        except TypeError:
+            return super().__new__(cls)
+        with cls._lock:
+            node = cls._nodes.get(key)
+            if node is None:
+                node = super().__new__(cls)
+                cls._nodes[key] = node
+            return node
 
     def __str__(self) -> str:
         """  str  (): see module docstring."""
@@ -225,36 +245,52 @@ def to_sym(e: Expr):
     raise CondError(f"ir: no lowering for kind {e.kind}")
 
 
-def linearize(e) -> tuple[dict, Fraction] | None:
-    """Returns (coeffs, const) if `e` is linear in vars, else None."""
+@lru_cache(maxsize=8192)
+def _linearize_cached(e) -> tuple[tuple, Fraction] | None:
+    """Cached immutable linear form: sorted coefficient items plus constant."""
     from .sym import Op, Sym
     if isinstance(e, Sym):
         name = e.name
         if name in ("true", "false") or "(" in name or "." in name:
-            return None   # opaque atom: call/field -- not linear
-        return ({name: Fraction(1)}, Fraction(0))
+            return None
+        return (((name, Fraction(1)),), Fraction(0))
     if isinstance(e, (int, Fraction)) and not isinstance(e, bool):
-        return ({}, Fraction(e))
+        return ((), Fraction(e))
     if isinstance(e, Op):
         if e.op in ("+", "-"):
-            l = linearize(e.args[0]); r = linearize(e.args[1])
-            if l is None or r is None:
+            left = _linearize_cached(e.args[0])
+            right = _linearize_cached(e.args[1])
+            if left is None or right is None:
                 return None
-            c = dict(l[0])
-            for k, v in r[0].items():
-                c[k] = c.get(k, Fraction(0)) + (v if e.op == "+" else -v)
-            k0 = l[1] + (r[1] if e.op == "+" else -r[1])
-            return (c, k0)
+            coeffs = dict(left[0])
+            for key, value in right[0]:
+                coeffs[key] = coeffs.get(key, Fraction(0)) + (
+                    value if e.op == "+" else -value)
+            constant = left[1] + (right[1] if e.op == "+" else -right[1])
+            return (tuple(sorted(coeffs.items())), constant)
         if e.op == "*":
-            l = linearize(e.args[0]); r = linearize(e.args[1])
-            if l is None or r is None:
+            left = _linearize_cached(e.args[0])
+            right = _linearize_cached(e.args[1])
+            if left is None or right is None:
                 return None
-            if not l[0]:         # const * r
-                return ({k: l[1] * v for k, v in r[0].items()}, l[1] * r[1])
-            if not r[0]:                       # l * const
-                return ({k: v * r[1] for k, v in l[0].items()}, l[1] * r[1])
-            return None          # var * var: nonlinear
+            if not left[0]:
+                return (tuple(sorted((key, left[1] * value)
+                                     for key, value in right[0])), left[1] * right[1])
+            if not right[0]:
+                return (tuple(sorted((key, value * right[1])
+                                     for key, value in left[0])), left[1] * right[1])
+            return None
     return None
+
+
+def linearize(e) -> tuple[dict, Fraction] | None:
+    """Return a fresh legacy ``(dict, constant)`` over a memoized linear form."""
+    result = _linearize_cached(e)
+    return None if result is None else (dict(result[0]), result[1])
+
+
+linearize.cache_info = _linearize_cached.cache_info
+linearize.cache_clear = _linearize_cached.cache_clear
 
 
 _ATOM_TXT = {"<": "<", "<=": "<=", ">": ">", ">=": ">=", "=": "=", "!=": "!="}

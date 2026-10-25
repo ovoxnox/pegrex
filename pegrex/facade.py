@@ -32,3 +32,9 @@ from .strategies import strategy, sample_models
 from .probpath import fit as probpath_fit, prioritize
 from .twin import build as twin_build, ask as twin_ask
 from .compress import compress_context, validate_compression
+
+
+# Stable core entry points. Existing specialized functions above remain available
+# as compatibility adapters while consumers migrate to a consistent result model.
+from .core import get_engine as engine, OperationResult, OperationStatus, Verdict
+from .languages import capability_matrix as language_capabilities

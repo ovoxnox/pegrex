@@ -22,7 +22,7 @@ def extract(lua_path):
     text = pathlib.Path(lua_path).read_text()
     m = re.search(r"\[(=*)\[(.*?)\]\1\]", text, re.S)
     if not m:
-        raise SystemExit(f"no long-bracket block in {_path}")
+        raise SystemExit(f"no long-bracket block in {lua_path}")
     return m.group(2).strip() + "\n"
 
 

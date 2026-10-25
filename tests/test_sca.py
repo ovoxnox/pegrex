@@ -1,3 +1,4 @@
+import json
 import pathlib
 import sys
 import tempfile
@@ -38,3 +39,51 @@ def test_cargo_lock_inventory():
     })
     deps = [f.evidence for f in facts if f.check_id == "crate-dependency"]
     assert any("serde v1.0.0" in d for d in deps), deps
+
+
+def test_offline_osv_missing_evidence_is_unknown_not_clean(tmp_path):
+    from pegrex.sca import scan
+    lockfile = tmp_path / "go.mod"
+    lockfile.write_text("module example.com/app\n\nrequire github.com/foo/bar v1.2.3\n")
+    report = scan(str(lockfile), offline=True, cache_path=tmp_path / "missing.json")
+    assert report["offline"] is True
+    assert report["status"] == "unknown"
+    assert report["vulnerabilities"] == []
+    assert len(report["unknowns"]) == 1
+    assert report["provenance"]["osv"]["id"] == "unavailable"
+    assert report["provenance"]["source"]["sha256"]
+
+
+def test_osv_snapshot_is_exact_reproducible_and_offline(tmp_path):
+    from pegrex.sca import scan
+    lockfile = tmp_path / "go.mod"
+    lockfile.write_text("module example.com/app\n\nrequire github.com/foo/bar v1.2.3\n")
+    dependency = {"name": "github.com/foo/bar", "version": "1.2.3",
+                  "ecosystem": "Go"}
+    snapshot = tmp_path / "osv-snapshot.json"
+    snapshot.write_text(json.dumps({
+        "schema": "pegrex.osv-snapshot.v1", "snapshot": "osv-test-2026-10-25",
+        "queries": {"Go:github.com/foo/bar:1.2.3": {
+            "dependency": dependency,
+            "vulnerabilities": [{"id": "GO-TEST-001", "summary": "test vulnerability"}],
+        }},
+    }, indent=1))
+    first = scan(str(lockfile), offline=True, snapshot=snapshot)
+    second = scan(str(lockfile), offline=True, snapshot=snapshot)
+    assert first == second
+    assert first["status"] == "complete"
+    assert [v["id"] for v in first["vulnerabilities"]] == ["GO-TEST-001"]
+    assert first["provenance"]["osv"]["id"] == "osv-test-2026-10-25"
+    assert first["provenance"]["osv"]["reproducible"] is True
+    assert len(first["provenance"]["osv"]["sha256"]) == 64
+
+
+def test_osv_snapshot_missing_dependency_is_unknown(tmp_path):
+    from pegrex.sca import scan
+    lockfile = tmp_path / "go.mod"
+    lockfile.write_text("module example.com/app\n\nrequire github.com/foo/bar v1.2.3\n")
+    snapshot = tmp_path / "osv-snapshot.json"
+    snapshot.write_text('{"schema":"pegrex.osv-snapshot.v1","snapshot":"empty","queries":{}}')
+    report = scan(str(lockfile), snapshot=snapshot)
+    assert report["offline"] is True and report["status"] == "unknown"
+    assert report["vulnerabilities"] == [] and report["unknowns"]

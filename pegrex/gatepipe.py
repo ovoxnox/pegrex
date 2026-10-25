@@ -35,8 +35,9 @@ def _stage(code: str, lang: str):
     """Write `code` to a private temp file and extract path contracts.
     The code is never executed -- it is only READ by the parser."""
     tmp = tempfile.mkdtemp(prefix="gatepipe-")
-    suffix = {"python": ".py", "solidity": ".sol", "go": ".go", "rust": ".rs",
-              "c": ".c", "javascript": ".js"}.get(lang, ".txt")
+    from .languages import get_language
+    spec = get_language(lang)
+    suffix = spec.extensions[0] if spec.extensions else ".txt"
     path = pathlib.Path(tmp) / ("snippet" + suffix)
     path.write_text(code)
     from . import api
@@ -155,10 +156,9 @@ def gate(code: str, lang="python", claim=None, fn_name=None) -> dict:
                     **payload}
         if res["verdict"] == "refuted":
             cx, failing = _counterexample(contracts, claim)
+            reason = res.get("reason", "no candidate discharged on any path")
             return {"verdict": "refused",
-                    "refusal": f"gatepipe: claim refused: "
-                               f"{res.get('reason', 'no candidate discharged '
-                               'on any path')}",
+                    "refusal": f"gatepipe: claim refused: {reason}",
                     "counterexample": cx,
                     "failing_contract": failing,
                     "next_turn_prompt": _next_turn_prompt(claim, failing, cx),

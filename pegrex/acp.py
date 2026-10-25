@@ -85,7 +85,7 @@ class AcpServer:
             import pipeline
             lang = args.get("language") or "python"
             src = self._read(args["path"])
-            parse, tags, mk = pipeline.FRONTENDS[lang]()
+            parse, tags, mk = pipeline.frontend_for(lang)
             body = parse(src)
             from pegrex.cfg import CFGBuilder
             from pegrex.summaries import path_summaries

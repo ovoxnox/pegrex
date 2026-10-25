@@ -1,0 +1,19 @@
+Mir       <== SKIP Header Block+
+Header    <-- 'fn' SKIP Name Signature '{' Preamble*
+Preamble  <-- SKIP 'let' (!LINEBREAK .)* LINEBREAK?
+Signature <-- SKIP (!'{' .)*
+
+Block     <== SKIP 'bb' %d+ ':' SKIP '{' @Body SKIP '}'
+Stmt      <== SKIP Place SKIP '=' SKIP Expr ';'
+Body      <-- Stmt* SKIP ('goto' SKIP '->' SKIP Target
+             / 'switchInt' '(' SwitchExpr ')' SKIP '->' SKIP SwitchArms
+             / 'return' / 'resume' / 'unwind' '(' ')') ';'~?
+SwitchArms <-- {| Arm+ |}
+Arm       <-- SKIP ('[' {%d+} ':' SKIP Target ','? / 'otherwise' ':' SKIP Target ','?)
+Target    <-- SKIP 'bb' {%d+}
+Place     <-- {[_%d]+}
+SwitchExpr <-- {(!')' .)*}
+Expr      <-- {(!';' .)*}
+Name      <-- {[_%a][_%w]*}
+SKIP      <-- (%s / LINEBREAK)*
+LINEBREAK <-- %cn %cr? / %cr

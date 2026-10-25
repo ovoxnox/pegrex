@@ -214,7 +214,7 @@ def _contracts_for(src: str) -> list:
     import pipeline
     from .cfg import CFGBuilder
     from .summaries import path_summaries, render_c
-    parse, tagspec, make_cond = pipeline.FRONTENDS["c"]()
+    parse, tagspec, make_cond = pipeline.frontend_for("c")
     body = parse(src)                       # PREPROCESS
     cfg = CFGBuilder(tagspec).build(body)   # CFG
     cond = make_cond(src)

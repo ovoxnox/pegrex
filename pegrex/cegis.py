@@ -10,6 +10,7 @@ certificate; every refusal carries a counterexample."""
 
 from __future__ import annotations
 
+import ast
 import os
 import tempfile
 
@@ -39,6 +40,17 @@ def repair(before_src, propose_fn, claim="equivalent", max_rounds=4,
         if proposal is None:
             trail.append({"round": rnd, "status": "gave-up"})
             break
+        try:
+            if not isinstance(proposal, str):
+                raise TypeError("proposal must be Python source text")
+            ast.parse(proposal)
+        except (SyntaxError, ValueError, TypeError, MemoryError, RecursionError) as e:
+            # Candidate validity is a Python property, not a property of whichever
+            # optional parser backend happens to be installed.
+            trail.append({"round": rnd, "status": "error",
+                          "error": f"{type(e).__name__}: {e}"[:200],
+                          "feedback": feedback})
+            continue
         patch_path = os.path.join(tmp, f"patch{rnd}.py")
         open(patch_path, "w").write(proposal)
         try:

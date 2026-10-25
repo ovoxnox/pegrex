@@ -15,8 +15,9 @@ from .ir import lower_condition
 from .linsolve import atoms_of, parse_atom
 from .refine import _neg
 
-_LANGS = {"go", "rust", "javascript", "typescript", "tsx", "julia",
-           "kotlin", "zig", "solidity"}
+from .languages import LANGUAGES as _LANGUAGES
+_LANGS = {name for name, spec in _LANGUAGES.items()
+          if spec.contract_mode == "tree-sitter"}
 
 _IF = {"if_statement", "if_expression"}
 _BLOCK = {"block", "compound_statement", "statement_block",
@@ -26,16 +27,18 @@ _BLOCK = {"block", "compound_statement", "statement_block",
 _RETURN = {"return_statement", "return_expression"}
 
 
-def contracts(src: str, lang: str):
+def contracts(src: str, lang: str, *, tree=None):
     if lang not in _LANGS:
         raise ValueError(f"tscontracts: unsupported language {lang!r}")
     from . import tree_sitter_bridge as tb
-    tree = tb.parse(lang, src)
-    raw = src.encode()
+    tree = tb.parse(lang, src) if tree is None else tree
     out: list = []
 
     def slice_txt(a, b):
-        return raw[a:b].decode(errors="replace")
+        # PegRex Node spans are character offsets after the central bridge.
+        if a < 0 or b < a or b > len(src):
+            raise ValueError(f"invalid source span [{a}, {b}) for {len(src)} characters")
+        return src[a:b]
 
     def cond_text(node):
         kids = [c for c in node.children if not isinstance(c, str)]

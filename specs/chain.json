@@ -1,0 +1,30 @@
+{
+  "name": "chain call composition",
+  "unroll": 1,
+  "variants": [
+    {
+      "language": "python",
+      "source": "specs/chain.py",
+      "entry": "normalize_then_scale",
+      "params": {
+        "clamp_nonnegative": "value",
+        "normalize_then_scale": "value"
+      }
+    },
+    {
+      "language": "c",
+      "source": "specs/chain.c",
+      "entry": "normalize_then_scale",
+      "params": {
+        "clamp_nonnegative": "value",
+        "normalize_then_scale": "value"
+      }
+    }
+  ],
+  "postprocess": {
+    "invariants": [
+      "len(results[\"python:whole\"]) == 2",
+      "len(results[\"c:whole\"]) == 2"
+    ]
+  }
+}

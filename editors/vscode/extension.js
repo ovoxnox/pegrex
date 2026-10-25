@@ -224,7 +224,7 @@ async function activate(context) {
 
 function deactivate() {
   if (server && !server.killed) {
-    try { server.stdin.write(JSON.stringify({ jsonrpc: "2.0", id: nextId++, method: "shutdown" })); } catch (_) {}
+    try { send({ jsonrpc: "2.0", id: nextId++, method: "shutdown", params: null }); } catch (_) {}
     server.kill();
   }
   server = null;
