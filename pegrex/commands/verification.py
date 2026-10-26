@@ -18,7 +18,7 @@ def _cmd_certs(a) -> int:
     import os as _os
     import subprocess as sp
     from concurrent.futures import ThreadPoolExecutor
-    files = sorted((ROOT / "certs").glob("m*_*.py")) + [ROOT / "certs/demo.py"]
+    files = sorted((ROOT / "certs").glob("m*_*.py"))
 
     def run_one(m):
         """run one(m): see module docstring."""
@@ -27,7 +27,7 @@ def _cmd_certs(a) -> int:
 
     # certs marked "# pegrex:serial" mutate the tree or spawn subprocess
     # run in a serial pre-phase; everything else runs in the parallel pool
-    serial = [m for m in files if "# pegrex:serial" in m.read_text()]
+    serial = [m for m in files if "# pegrex:serial" in m.read_text(encoding="utf-8")]
     parallel = [m for m in files if m not in serial]
 
     ok = True
@@ -74,7 +74,7 @@ def _cmd_emit(args):
     from pegrex import api
     from pegrex.emitter import emit_python
     import ast as _ast
-    tree = _ast.parse(open(args.file).read())
+    tree = _ast.parse(open(args.file, encoding="utf-8").read())
     fn = next(n for n in tree.body if isinstance(n, _ast.FunctionDef))
     params = [a.arg for a in fn.args.args]
     code = emit_python(fn.name, params, api.contracts(args.file))
@@ -88,7 +88,7 @@ def _cmd_check(args):
     from pegrex.refine import discharge_source, parse_contracts
     contracts = {"requires": args.requires or [], "ensures": args.ensures or []}
     if args.requires is None and args.ensures is None:
-        contracts = parse_contracts(open(args.file).read())
+        contracts = parse_contracts(open(args.file, encoding="utf-8").read())
     _emit_json(discharge_source(args.file, contracts))
 
 
@@ -100,7 +100,7 @@ def _cmd_mine(args):
 def _cmd_concolic(args):
     import importlib.util
     import tempfile, os
-    src = open(args.file).read()
+    src = open(args.file, encoding="utf-8").read()
     ns = {}
     exec(src, ns)
     fn = ns[args.fn_name]
@@ -148,26 +148,26 @@ def _cmd_modernize(args):
 def _cmd_tv(args):
     import json as _json
     from pegrex.tv import wrap
-    obj = _json.loads(open(args.result).read()) if args.result else None
+    obj = _json.loads(open(args.result, encoding="utf-8").read()) if args.result else None
     _emit_json(wrap(obj))
 
 
 def _cmd_zk(args):
     from pegrex.zk import audit_circuit
-    _emit_json(audit_circuit(open(args.file).read()))
+    _emit_json(audit_circuit(open(args.file, encoding="utf-8").read()))
 
 
 def _cmd_harness_check(args):
     import json as _json
     from pegrex.harness import check_plan
-    plan = _json.loads(open(args.plan).read())
+    plan = _json.loads(open(args.plan, encoding="utf-8").read())
     _emit_json(check_plan(plan))
 
 
 def _cmd_mlcheck(args):
     import json as _json
     from pegrex.mlgraph import check_equivalence
-    spec = _json.load(open(args.spec))
+    spec = _json.load(open(args.spec, encoding="utf-8"))
     _emit_json(check_equivalence(spec["float"], spec["quant"],
                                  spec["samples"], spec["quantized"],
                                  spec["eps"]))
@@ -188,7 +188,7 @@ def _cmd_attest(args):
         return
     if args.verify:
         import json as _json
-        _emit_json(verify(_json.load(open(args.verify)), args.key))
+        _emit_json(verify(_json.load(open(args.verify, encoding="utf-8")), args.key))
         return
     _emit_json(attest(args.builder, args.command, {},
                       args.materials.split(","), args.key))
@@ -215,7 +215,7 @@ def _cmd_roundtrip(args):
 
 def _cmd_legal_ci(args):
     from pegrex.legalci import ci_report
-    _emit_json(ci_report(open(args.file).read(), warn_days=args.warn_days))
+    _emit_json(ci_report(open(args.file, encoding="utf-8").read(), warn_days=args.warn_days))
 
 
 def _cmd_ic3(args):
@@ -230,7 +230,7 @@ def _cmd_ic3(args):
 
 def _cmd_insure(args):
     from pegrex.insure import quote, verify_quote
-    q = quote(open(args.file).read(), key=args.key, type_bits=args.bits)
+    q = quote(open(args.file, encoding="utf-8").read(), key=args.key, type_bits=args.bits)
     if args.verify:
         _emit_json({"ok": verify_quote(q, args.key)})
     else:

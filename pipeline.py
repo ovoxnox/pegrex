@@ -515,7 +515,7 @@ def _postprocess(spec: dict, results: dict) -> None:
         if text is not None and "artifacts/" not in artifact:
             out = ROOT / artifact
             if not out.exists():
-                out.write_text(text + "\n")
+                out.write_text(text + "\n", encoding="utf-8")
             if not out.exists():
                 raise ValueError(f"missing artifact {artifact}")
             print(f"  artifact: {artifact}")
@@ -526,7 +526,7 @@ def _postprocess(spec: dict, results: dict) -> None:
 
 
 def run_spec(spec_path):
-    spec = json.loads((ROOT / spec_path).read_text())
+    spec = json.loads((ROOT / spec_path).read_text(encoding="utf-8"))
     print(f"== pipeline: {spec['name']} ==")
     results = {}
     from pegrex.languages import normalize_language, get_language
@@ -683,41 +683,45 @@ def mir_frontend():
 
 
 def mlir_frontend():
-    """MLIR text -> CFG, regex-native (mirrors the MIR frontend pattern)."""
+    """MLIR text -> CFG through the versioned, fail-closed terminator parser."""
     from pegrex.cfg import CFG
-    import re as _re
+    from pegrex.compilerir import parse_compiler_ir
     from pegrex.sym import V, const, Eq
 
     def parse(text):
         return text
 
     def cfg_from_mlir(text):
-        # split into top-level blocks between braces; operations are lines
+        report = parse_compiler_ir(text, format="mlir", version="1")
+        if report["verdict"] != "proved":
+            raise ValueError("MLIR CFG extraction incomplete: "
+                             + "; ".join(report["unknowns"]))
+        if len(report["functions"]) != 1:
+            raise ValueError("MLIR CFG extraction requires exactly one function")
+        function = report["functions"][0]
         cfg = CFG()
-        blocks, edges = {}, []
-        # candidate blocks: lines with ops ending in cf.br / cf.cond_br
-        lines = text.splitlines()
-        cur = cfg.add_block()
-        blocks[cur] = cur
-        for ln in lines:
-            mname = _re.match(r"\s*([%a-zA-Z_][\w.]*)\s*(.*)", ln)
-            if not mname:
+        handles = {block["id"]: cfg.add_block() for block in function["blocks"]}
+        outgoing = {label: [] for label in handles}
+        for edge in function["edges"]:
+            outgoing[edge["source"]].append(edge)
+        for block in function["blocks"]:
+            edges = outgoing[block["id"]]
+            handle = handles[block["id"]]
+            if not edges:
+                cfg.blocks[handle].term = "ret"
                 continue
-            op = mname.group(1)
-            if op in ("cf.br", "cf.cond_br", "return", "func.return"):
-                cfg.blocks[cur].term = "branch" if op == "cf.cond_br" else "ret"
-            if op == "cf.cond_br":
-                m = _re.search(r"\(([^)]*)\)", mname.group(2))
-                tgt = _re.findall(r"\^(\w+)", mname.group(2))
-                guard_src = m.group(1).strip() if m else "_"
-                guard = Eq(V(guard_src), const(0))
-                for i, t in enumerate(tgt):
-                    nb = cfg.add_block()
-                    blocks[nb] = nb
-                    cfg.add_edge(cur, nb, guard if i == 0 else (guard, "else"),
-                                 "then" if i == 0 else "else")
-                    cur = nb
-                    break  # first target only; linear chain demo
+            if len(edges) == 1:
+                cfg.add_edge(handle, handles[edges[0]["target"]], kind="flow")
+                continue
+            if len(edges) != 2 or not edges[0]["evidence"].startswith("cf.cond_br "):
+                raise ValueError("unsupported MLIR terminator fan-out")
+            cfg.blocks[handle].term = "branch"
+            condition = edges[0]["evidence"][len("cf.cond_br "):].split(",", 1)[0].strip()
+            guard = Eq(V(condition), const(0))
+            for index, edge in enumerate(edges):
+                cfg.add_edge(handle, handles[edge["target"]],
+                             guard if index == 0 else (guard, "else"),
+                             "then" if index == 0 else "else")
         return cfg
 
     return parse, cfg_from_mlir, None

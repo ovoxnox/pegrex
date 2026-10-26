@@ -23,6 +23,7 @@ _OPS = (" + ", " - ", " * ", " / ")
 
 
 def render_lua(x) -> str:
+    """Implement render lua with the module's explicit API and failure semantics."""
     if isinstance(x, list):
         return " ".join(render_lua(i) for i in x)
     if not isinstance(x, Node):
@@ -113,7 +114,10 @@ def _summaries_for_paths(cfg: CFG, cond, render, paths) -> list:
         for b in path:
             blk = cfg.blocks[b]
             if blk.term == "ret" and blk.stmts:
-                result = render(blk.stmts[0])
+                # A return block may also contain preceding expression
+                # statements (calls, logging, cleanup). The observable return
+                # relation comes from its terminal statement, not the first.
+                result = render(blk.stmts[-1])
         out.append((frozenset(cons), result))
     return sorted(out, key=lambda t: (sorted(t[0]), str(t[1])))
 

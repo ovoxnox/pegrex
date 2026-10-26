@@ -45,6 +45,7 @@ def audit_gdpr(src, lang="python"):
     consent_seen = set()
 
     def walk(stmts, tainted, seen):
+        """Implement walk with the module's explicit API and failure semantics."""
         i = 0
         while i < len(stmts):
             s = stmts[i].strip()
@@ -135,6 +136,7 @@ def audit_gdpr(src, lang="python"):
                if not l.lstrip().startswith(("def ", "return", "elif", "else"))]
     base = min(indents) if indents else 0
     def strip(l):
+        """Implement strip with the module's explicit API and failure semantics."""
         return l[base:] if l[:base].strip() == "" else l   # only ws prefix
     normalized = [strip(l) for l in raw]
     walk(normalized, set(), set())

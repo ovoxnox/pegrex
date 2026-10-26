@@ -35,6 +35,7 @@ _EXECUTABLE_ALIASES = {"py.test": "pytest"}
 
 
 def default_policy():
+    """Implement default policy with the module's explicit API and failure semantics."""
     return [
         {"effect": "deny", "tool": "shell", "args": "*rm -rf*"},
         {"effect": "deny", "tool": "shell", "args": "*curl* *|*sh*"},
@@ -154,8 +155,10 @@ def _rule_matches(rule, tool, args, path, argv):
             return False
         if not argv or argv[0] != expected:
             return False
-    if "argv_prefix" in rule and (not argv or argv[:len(rule["argv_prefix"])] != rule["argv_prefix"]):
-        return False
+    if "argv_prefix" in rule:
+        prefix = rule["argv_prefix"]
+        if not argv or argv[1:1 + len(prefix)] != prefix:
+            return False
     if "argv" in rule:
         expected = rule["argv"]
         if not argv or len(argv) != len(expected) or any(

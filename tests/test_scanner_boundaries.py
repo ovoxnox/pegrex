@@ -70,9 +70,10 @@ def test_cli_audit_default_report_and_opt_in_failure(tmp_path):
     gated = subprocess.run(base + ["--fail-on", "medium"],
                            capture_output=True, text=True)
     assert gated.returncode == 1, gated.stderr
-    unknown = subprocess.run(base + ["--fail-on-unknown"],
-                             capture_output=True, text=True)
-    assert unknown.returncode == 2, unknown.stderr
+    complete = subprocess.run(base + ["--fail-on-unknown"],
+                              capture_output=True, text=True)
+    assert complete.returncode == 0, complete.stderr
+    assert json.loads(complete.stdout)["coverage"]["status"] == "complete"
 
 
 def _evidence_auditor():

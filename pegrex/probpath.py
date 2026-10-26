@@ -10,6 +10,7 @@ from .refine import _norm_constraint
 
 
 def path_key(contracts_path_entry):
+    """Implement path key with the module's explicit API and failure semantics."""
     cs, res = contracts_path_entry[:2]
     return (frozenset(_norm_constraint(str(c)) for c in cs), str(res))
 
@@ -53,6 +54,7 @@ def fit(contracts, traces):
 def prioritize(fitted, sinks=(), top=None):
     """Rank by frequency, boosted when the path touches a sink."""
     def risk(row):
+        """Implement risk with the module's explicit API and failure semantics."""
         text = " ".join(row["constraints"]) + " " + row["result"]
         return any(s in text for s in sinks)
     ranked = sorted(fitted["paths"],

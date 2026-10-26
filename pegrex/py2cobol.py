@@ -38,11 +38,11 @@ def round_trip(src_path):
     """Python -> COBOL -> verify the contract identity."""
     contracts = api.contracts(src_path)
     import ast
-    tree = ast.parse(open(src_path).read())
+    tree = ast.parse(open(src_path, encoding="utf-8").read())
     fn = next(n for n in tree.body if isinstance(n, ast.FunctionDef))
     cobol_src = emit_cobol(fn.name, [a.arg for a in fn.args.args], contracts)
     fd, cob_path = tempfile.mkstemp(suffix=".cob")
-    with os.fdopen(fd, "w") as f:
+    with os.fdopen(fd, "w", encoding="utf-8") as f:
         f.write(cobol_src)
     try:
         cobol_contracts = api.contracts(cob_path)
@@ -59,6 +59,7 @@ def round_trip(src_path):
     def canon(rows):
         # Compare complete (constraints, outcome) paths in the same integer
         # and linear-expression normal forms used by semantic verification.
+        """Implement canon with the module's explicit API and failure semantics."""
         return { (frozenset(up(_int_canon(_norm_constraint(str(c)))) for c in cs),
                   up(_canon_result(res))) for cs, res in rows }
 

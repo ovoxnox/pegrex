@@ -23,17 +23,20 @@ class EGraph:
         self.parent: list = []
 
     def add(self, op: str, args=(), value=None) -> int:
+        """Implement add with the module's explicit API and failure semantics."""
         self.nodes.append(ENode(op, tuple(args), value))
         self.parent.append(len(self.parent))
         return len(self.parent) - 1
 
     def find(self, i: int) -> int:
+        """Implement find with the module's explicit API and failure semantics."""
         while self.parent[i] != i:
             self.parent[i] = self.parent[self.parent[i]]
             i = self.parent[i]
         return i
 
     def union(self, a: int, b: int) -> None:
+        """Implement union with the module's explicit API and failure semantics."""
         ra, rb = self.find(a), self.find(b)
         if ra != rb:
             self.parent[rb] = ra

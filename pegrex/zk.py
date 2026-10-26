@@ -77,4 +77,5 @@ def audit_circuit(src):
 
 
 def is_mock_check(findings):
+    """Implement is mock check with the module's explicit API and failure semantics."""
     return findings

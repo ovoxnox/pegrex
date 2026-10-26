@@ -1,0 +1,12 @@
+{
+ "schema": "pegrex.semantic-diff-corpus.v1",
+ "cases": [
+  "add_zero",
+  "commutative",
+  "effect_change",
+  "formatting",
+  "guard_change",
+  "return_change",
+  "strict_integer"
+ ]
+}

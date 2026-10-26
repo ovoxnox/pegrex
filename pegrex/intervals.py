@@ -82,6 +82,7 @@ class Interval:
 
     @property
     def contains_zero(self) -> bool:
+        """Implement contains zero with the module's explicit API and failure semantics."""
         return (self.lo is None or self.lo <= 0) and \
                (self.hi is None or self.hi >= 0)
 
@@ -147,6 +148,7 @@ class Interval:
 
     # -- lattice
     def intersection(self, o):
+        """Implement intersection with the module's explicit API and failure semantics."""
         o = _coerce(o)
         lo = max(x for x in (self.lo, o.lo) if x is not None) \
             if self.lo is not None and o.lo is not None else None
@@ -156,6 +158,7 @@ class Interval:
         return Interval(lo, hi)
 
     def hull(self, o):
+        """Implement hull with the module's explicit API and failure semantics."""
         o = _coerce(o)
         los = [x for x in (self.lo, o.lo) if x is not None]
         his = [x for x in (self.hi, o.hi) if x is not None]
@@ -348,6 +351,7 @@ def _aligned_error_interval(gf, gq, input_ranges) -> Interval:
             else Interval(0, 0)
 
     def dmax(d):
+        """Implement dmax with the module's explicit API and failure semantics."""
         if isinstance(d, list):
             ms = [x.max_abs for x in d]
             return None if any(m is None for m in ms) else max(ms)

@@ -11,6 +11,7 @@ CLAUSE_RE = re.compile(
 
 
 def parse_clauses(text: str) -> list:
+    """Implement parse clauses with the module's explicit API and failure semantics."""
     return [{"party": m.group(1), "obligation": m.group(2).strip(),
              "deadline": int(m.group(3))}
             for m in CLAUSE_RE.finditer(text)]

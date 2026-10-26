@@ -13,7 +13,7 @@ import sys
 
 from .commands.common import ROOT, _emit_json, _expand
 
-__version__ = "1.0.0"
+__version__ = "1.1.0"
 sys.path.insert(0, str(ROOT))
 from .commands.analysis import (
     _cmd_audit,
@@ -57,6 +57,7 @@ from .commands.verification import (
     _cmd_ic3,
     _cmd_insure,
 )
+from .commands.production import register_commands as _register_production_commands
 from .commands.tooling import (
     _cmd_lint,
     _cmd_extract,
@@ -90,6 +91,7 @@ from .commands.tooling import (
 
 def _cmd_dispatch(mod, fn):
     def h(args):
+        """Implement h with the module's explicit API and failure semantics."""
         m = __import__("pegrex." + mod, fromlist=[fn])
         import inspect as _i
         f = getattr(m, fn)
@@ -97,7 +99,7 @@ def _cmd_dispatch(mod, fn):
         kwargs = {}
         for p in sig.parameters.values():
             if p.name == "src" and hasattr(args, "file"):
-                kwargs["src"] = open(args.file).read()
+                kwargs["src"] = open(args.file, encoding="utf-8").read()
             elif hasattr(args, p.name):
                 kwargs[p.name] = getattr(args, p.name)
         _emit_json(f(**kwargs))
@@ -122,6 +124,8 @@ def build_parser() -> argparse.ArgumentParser:
     audit_output.add_argument("--json", action="store_true")
     audit_output.add_argument("--sarif", action="store_true",
                               help="emit SARIF 2.1.0 for GitHub Code Scanning")
+    sp.add_argument("--schema-envelope", action="store_true",
+                    help="wrap JSON in pegrex.cli-envelope.v1 (default JSON remains unchanged)")
     sp.add_argument("--out", help="also write the selected audit report")
     sp.add_argument("--fail-on", choices=["critical", "high", "medium", "low", "info"],
                     help="exit 1 when a non-unknown finding meets this severity")
@@ -346,7 +350,8 @@ def build_parser() -> argparse.ArgumentParser:
     sp.add_argument("--builder", default="local")
     sp.add_argument("--command", default="")
     sp.add_argument("--materials", default="")
-    sp.add_argument("--key", default="local-key")
+    sp.add_argument("--key", required=True,
+                    help="explicit HMAC key; no insecure default is supplied")
     sp.add_argument("--verify")
     sp.add_argument("--publish", action="store_true")
     sp.add_argument("--token")
@@ -423,10 +428,12 @@ def build_parser() -> argparse.ArgumentParser:
     sp.set_defaults(fn=_cmd_golf)
     sp = sub.add_parser("insure", help="quote/verify a Solidity overflow-risk premium")
     sp.add_argument("file")
-    sp.add_argument("--key", default="local-key")
+    sp.add_argument("--key", required=True,
+                    help="explicit HMAC key; no insecure default is supplied")
     sp.add_argument("--bits", type=int, default=256)
     sp.add_argument("--verify", action="store_true")
     sp.set_defaults(fn=_cmd_insure)
+    _register_production_commands(sub)
     return p
 # --help catalog: one compact usage line per command
 
@@ -605,6 +612,7 @@ def format_command_catalog(parser) -> str:
 
     def render(name: str) -> str:
 
+        """Implement render with the module's explicit API and failure semantics."""
         sub = subs.choices[name]
 
         flags, pos = [], []
@@ -697,6 +705,7 @@ def _emit_json(obj):
 
 def main(argv=None) -> int:
 
+    """Implement main with the module's explicit API and failure semantics."""
     if argv is None:
 
         argv = sys.argv[1:]
@@ -732,6 +741,15 @@ def main(argv=None) -> int:
     except SystemExit as e:
 
         return e.code or 0
+
+    except Exception as error:
+
+        envelope = {"schema": "pegrex.cli-error.v1", "status": "error",
+                    "verdict": "unknown", "command": getattr(args, "command", None),
+                    "error": {"type": type(error).__name__, "message": str(error)}}
+        print(json.dumps(envelope, sort_keys=True), file=sys.stderr)
+
+        return 1
 
 if __name__ == "__main__":
 

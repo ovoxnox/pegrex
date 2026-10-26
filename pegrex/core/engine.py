@@ -20,15 +20,76 @@ class CapabilityError(NotImplementedError):
 
 class CoreEngine:
     schema = "pegrex.core-engine.v1"
+    api_version = "2.0"
+
+    def operations(self) -> dict:
+        """Describe the stable operation-dispatch contract without exposing callables."""
+        return {
+            "schema": "pegrex.core-operations.v2",
+            "api_version": self.api_version,
+            "operations": {
+                "parse": ["source", "language", "function_body?", "entrypoint?"],
+                "contracts": ["source", "language", "path?", "entrypoint?"],
+                "contracts_file": ["path", "language?"],
+                "audit": ["path", "language?"],
+                "call_graph": ["source", "language?"],
+                "verify_patch": ["before_path", "after_path", "claim?"],
+                "capabilities": ["language?"],
+                "soundness": ["language?"],
+            },
+            "error_policy": "exceptions become status=error and verdict=unknown",
+        }
+
+    def execute(self, operation: str, arguments: dict | None = None) -> OperationResult:
+        """Invoke a named operation through the non-throwing production boundary.
+
+        Direct methods retain their historical exceptions. This adapter is intended
+        for CLI, RPC, and agent callers that require structured failures.
+        """
+        arguments = {} if arguments is None else arguments
+        if not isinstance(arguments, dict):
+            return OperationResult(
+                str(operation), OperationStatus.ERROR, verdict=Verdict.UNKNOWN,
+                unknowns=["operation arguments must be a JSON object"],
+                metadata={"api_version": self.api_version})
+        methods = {
+            "parse": self.parse,
+            "contracts": self.extract_contracts,
+            "contracts_file": self.contracts_file,
+            "audit": self.audit,
+            "call_graph": self.call_graph,
+            "verify_patch": self.verify_patch,
+            "soundness": self.soundness,
+        }
+        try:
+            if operation == "capabilities":
+                return OperationResult(
+                    "capabilities", OperationStatus.OK,
+                    data=self.capabilities(arguments.get("language")),
+                    metadata={"api_version": self.api_version})
+            method = methods.get(operation)
+            if method is None:
+                raise ValueError(f"unknown core operation {operation!r}")
+            result = method(**arguments)
+            result.metadata.setdefault("api_version", self.api_version)
+            return result
+        except Exception as error:
+            return OperationResult(
+                str(operation), OperationStatus.ERROR, verdict=Verdict.UNKNOWN,
+                unknowns=[f"{type(error).__name__}: {error}"],
+                metadata={"api_version": self.api_version,
+                          "error_type": type(error).__name__})
 
     def language(self, path: str | Path | None = None, explicit: str | None = None,
                  default: str | None = None) -> str:
+        """Implement language with the module's explicit API and failure semantics."""
         resolved = languages.detect_language(path or "", explicit, default=default)
         if resolved is None:
             raise ValueError(f"cannot resolve language from path={path!r}, explicit={explicit!r}")
         return resolved
 
     def capabilities(self, language: str | None = None) -> dict:
+        """Implement capabilities with the module's explicit API and failure semantics."""
         if language:
             return languages.language_capabilities(language)
         return {"schema": "pegrex.language-capabilities.v1",
@@ -43,6 +104,7 @@ class CoreEngine:
 
     def parse(self, source: str, language: str, *, function_body: bool = False,
               entrypoint: str | None = None) -> OperationResult:
+        """Implement parse with the module's explicit API and failure semantics."""
         spec = languages.get_language(language)
         if "parse" not in spec.capabilities:
             raise CapabilityError(f"parse unsupported for {spec.name}: {spec.notes}")
@@ -70,6 +132,7 @@ class CoreEngine:
 
     def extract_contracts(self, source: str, language: str, *, path: str | None = None,
                           entrypoint: str | None = None) -> OperationResult:
+        """Implement extract contracts with the module's explicit API and failure semantics."""
         spec = languages.get_language(language)
         if "contracts" not in spec.capabilities:
             raise CapabilityError(f"contracts unsupported for {spec.name}: {spec.notes}")
@@ -94,10 +157,12 @@ class CoreEngine:
                                          "entrypoint": entrypoint})
 
     def contracts_file(self, path: str | Path, language: str | None = None) -> OperationResult:
+        """Implement contracts file with the module's explicit API and failure semantics."""
         document = SourceDocument.from_path(path, language)
         return self.extract_contracts(document.text, document.language, path=document.path)
 
     def audit(self, path: str | Path, language: str | None = None) -> OperationResult:
+        """Implement audit with the module's explicit API and failure semantics."""
         resolved = self.language(path, language)
         if not languages.supports(resolved, "audit"):
             raise CapabilityError(f"audit unsupported for {resolved}")
@@ -111,6 +176,7 @@ class CoreEngine:
                                metadata={"language": resolved, "finding_count": len(findings)})
 
     def call_graph(self, source: str, language: str = "python") -> OperationResult:
+        """Implement call graph with the module's explicit API and failure semantics."""
         spec = languages.get_language(language)
         if "callgraph" not in spec.capabilities:
             raise CapabilityError(f"call graph unsupported for {spec.name}: {spec.notes}")
@@ -135,7 +201,8 @@ class CoreEngine:
         raw = verify_patch(str(before_path), str(after_path), claim)
         if raw.get("verified") is True:
             verdict = Verdict.PROVED
-        elif raw.get("counterexample"):
+        elif (isinstance(raw.get("counterexample"), dict)
+              and raw["counterexample"].get("confirmed") is True):
             verdict = Verdict.REFUTED
         else:
             verdict = Verdict.UNKNOWN

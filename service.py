@@ -119,7 +119,7 @@ def handle(req):
                 "certificate": None,
                 "certificate_note": "Pipeline completed; no independently checkable proof object was emitted.",
                 "log": buf.getvalue(),
-                "name": json.loads((ROOT / params["spec"]).read_text())["name"]}
+                "name": json.loads((ROOT / params["spec"]).read_text(encoding="utf-8"))["name"]}
     return {"ok": False, "error": f"unknown method {method!r}"}
 
 

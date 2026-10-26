@@ -1,0 +1,6 @@
+{
+  "endpoint": "https://api.osv.dev/v1/query",
+  "id": "live-api",
+  "mode": "online",
+  "reproducible": false
+}

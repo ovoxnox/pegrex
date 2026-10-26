@@ -39,7 +39,7 @@ def _stage(code: str, lang: str):
     spec = get_language(lang)
     suffix = spec.extensions[0] if spec.extensions else ".txt"
     path = pathlib.Path(tmp) / ("snippet" + suffix)
-    path.write_text(code)
+    path.write_text(code, encoding="utf-8")
     from . import api
     contracts = api.contracts(str(path), lang)
     return tmp, path, contracts

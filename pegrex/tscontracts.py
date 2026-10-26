@@ -28,6 +28,7 @@ _RETURN = {"return_statement", "return_expression"}
 
 
 def contracts(src: str, lang: str, *, tree=None):
+    """Implement contracts with the module's explicit API and failure semantics."""
     if lang not in _LANGS:
         raise ValueError(f"tscontracts: unsupported language {lang!r}")
     from . import tree_sitter_bridge as tb
@@ -36,11 +37,13 @@ def contracts(src: str, lang: str, *, tree=None):
 
     def slice_txt(a, b):
         # PegRex Node spans are character offsets after the central bridge.
+        """Implement slice txt with the module's explicit API and failure semantics."""
         if a < 0 or b < a or b > len(src):
             raise ValueError(f"invalid source span [{a}, {b}) for {len(src)} characters")
         return src[a:b]
 
     def cond_text(node):
+        """Implement cond text with the module's explicit API and failure semantics."""
         kids = [c for c in node.children if not isinstance(c, str)]
         end = None
         for c in kids:
@@ -59,12 +62,14 @@ def contracts(src: str, lang: str, *, tree=None):
         return txt
 
     def guard_atoms(txt):
+        """Implement guard atoms with the module's explicit API and failure semantics."""
         try:
             return atoms_of(lower_condition(txt))
         except Exception:
             return None
 
     def walk(node, guards, env):
+        """Implement walk with the module's explicit API and failure semantics."""
         tag = node.tag
         if tag in _IF:
             cond = cond_text(node)
@@ -112,6 +117,7 @@ def contracts(src: str, lang: str, *, tree=None):
                 walk(c, guards, env)
 
     def funcs(node):
+        """Implement funcs with the module's explicit API and failure semantics."""
         for c in node.children:
             if isinstance(c, str):
                 continue
@@ -134,8 +140,9 @@ def contracts(src: str, lang: str, *, tree=None):
 
 
 def contracts_for_path(path: str):
+    """Implement contracts for path with the module's explicit API and failure semantics."""
     from .annotations import language_of
     lang = language_of(path)
     if lang not in _LANGS:
         raise ValueError(f"tscontracts: no CST contracts for {lang!r}")
-    return contracts(open(path).read(), lang)
+    return contracts(open(path, encoding="utf-8").read(), lang)

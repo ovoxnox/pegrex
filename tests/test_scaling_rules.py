@@ -45,7 +45,8 @@ def test_same_id_different_semantics_execute_independently(tmp_path):
 
 def test_builtin_packs_are_deduplicated_with_provenance():
     auditor = Auditor()
-    assert len(auditor.catalog._pack.records) == 682
+    assert len(auditor.catalog._pack.records) == 655
+    assert len(auditor.catalog._pack.disabled) == 27
     assert len(auditor.taint_rules) == 86
     assert len(auditor.catalog._pack.duplicates) == 12
     assert len(auditor.taint_pack.duplicates) == 2

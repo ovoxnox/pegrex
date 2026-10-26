@@ -75,7 +75,7 @@ def collect():
     for p in sorted(engine.rglob("*.py")):
         if p.name.startswith("__"):
             continue
-        src = p.read_text()
+        src = p.read_text(encoding="utf-8")
         loc = sum(1 for l in src.splitlines()
                   if l.strip() and not l.strip().startswith("#"))
         loc_total += loc
@@ -110,7 +110,7 @@ def collect():
         "rows": rows,
         "contract_ok": contract_ok,
         "contract_unknown": contract_unknown,
-        "certs": len(list((ROOT / "certs").glob("m*_*.py"))) + 1,  # demo.py is m3
+        "certs": len(list((ROOT / "certs").glob("m*_*.py"))),
     }
 
 
@@ -176,7 +176,7 @@ def main():
         if not out.exists():
             print("SELF.md missing -- run: python tools/selfhost.py")
             return 1
-        current = out.read_text()
+        current = out.read_text(encoding="utf-8")
         if current != body:
             print("SELF.md stale (generated content differs) -- run: "
                   "python tools/selfhost.py")
@@ -184,7 +184,7 @@ def main():
         print("SELF.md is fresh")
         return 0
     out.parent.mkdir(exist_ok=True)
-    out.write_text(body)
+    out.write_text(body, encoding="utf-8")
     print(f"wrote {out} ({len(body)} bytes, digest {d['digest']})")
     return 0
 

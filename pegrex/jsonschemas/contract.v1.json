@@ -1,0 +1,42 @@
+{
+  "$id": "pegrex:pegrex.contract.v1:schema",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": true,
+  "properties": {
+    "constraint_identity": {
+      "type": "string"
+    },
+    "constraints": {
+      "items": {
+        "type": "string"
+      },
+      "type": "array"
+    },
+    "effects": {
+      "type": "object"
+    },
+    "identity": {
+      "type": "string"
+    },
+    "outcome": {
+      "type": "string"
+    },
+    "schema": {
+      "const": "pegrex.contract.v1"
+    },
+    "schema_version": {
+      "const": 1
+    },
+    "unknowns": {
+      "type": "array"
+    }
+  },
+  "required": [
+    "schema",
+    "schema_version",
+    "constraints",
+    "outcome"
+  ],
+  "title": "PegRex observable path contract",
+  "type": "object"
+}

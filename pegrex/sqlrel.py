@@ -68,6 +68,7 @@ def parse_select(text):
             # OR separates groups; AND conjoins within a group. Only REAL
             # disjunctions shape the record -- a pure AND condition keeps
             # or_groups None (the m136 lesson).
+            """Implement cond with the module's explicit API and failure semantics."""
             nonlocal or_groups
             groups = [cmp_()]
             saw_or = False
@@ -82,6 +83,7 @@ def parse_select(text):
                 or_groups = groups
             return [a for g in groups for a in g]
         def cmp_():
+            """Implement cmp with the module's explicit API and failure semantics."""
             col = next_()
             if peek() not in ("=", "<", ">", "<=", ">="):
                 raise SQLParseError(f"sqlrel: expected comparison, got {peek()}")
@@ -105,6 +107,7 @@ class Table:
         self.conds = []
 
     def filter(self, **kw):
+        """Implement filter with the module's explicit API and failure semantics."""
         for key, val in kw.items():
             col, _, op = key.partition("__")
             m = {"gt": ">", "lt": "<", "gte": ">=", "lte": "<=", "eq": "="}
@@ -124,6 +127,7 @@ class Table:
         return self
 
     def values(self, *cols):
+        """Implement values with the module's explicit API and failure semantics."""
         return {"table": self.name, "projection": sorted(cols),
                 "where": list(self.conds),
                 "or_groups": getattr(self, "or_groups", None)}

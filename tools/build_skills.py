@@ -29,7 +29,7 @@ def skill_files() -> list[pathlib.Path]:
 def archive_bytes() -> bytes:
     """Return stable gzip/tar bytes independent of wall clock and host metadata."""
     raw = io.BytesIO()
-    with tarfile.open(fileobj=raw, mode="w", format=tarfile.USTAR_FORMAT) as tar:
+    with tarfile.open(fileobj=raw, mode="w", format=tarfile.USTAR_FORMAT, encoding="utf-8") as tar:
         for path in skill_files():
             name = path.relative_to(SOURCE).as_posix()
             payload = path.read_bytes()

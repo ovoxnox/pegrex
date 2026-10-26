@@ -54,6 +54,38 @@ def test_offline_osv_missing_evidence_is_unknown_not_clean(tmp_path):
     assert report["provenance"]["source"]["sha256"]
 
 
+def test_requirements_inventory_offline_missing_evidence_is_unknown(tmp_path):
+    from pegrex.sca import inventory_from, scan
+    requirements = tmp_path / "requirements-ci.txt"
+    requirements.write_text("# exact test environment\npydantic==2.11.4\nz3-solver==5.3.1.0\n")
+    assert inventory_from(str(requirements)) == [
+        {"name": "pydantic", "version": "2.11.4", "ecosystem": "PyPI"},
+        {"name": "z3-solver", "version": "5.3.1.0", "ecosystem": "PyPI"},
+    ]
+    report = scan(str(requirements), offline=True,
+                  cache_path=tmp_path / "missing.json")
+    assert report["dependencies"] == 2
+    assert report["status"] == "unknown"
+    assert len(report["unknowns"]) == 2
+    assert report["vulnerabilities"] == []
+
+
+def test_unpinned_and_unsupported_inventory_never_looks_complete(tmp_path):
+    from pegrex.sca import scan
+    requirements = tmp_path / "requirements.txt"
+    requirements.write_text("pydantic>=2,<3\n")
+    report = scan(str(requirements), offline=True,
+                  cache_path=tmp_path / "missing.json")
+    assert report["dependencies"] == 0 and report["status"] == "unknown"
+    assert "unpinned" in report["unknowns"][0]["reason"]
+    unsupported = tmp_path / "dependencies.txt"
+    unsupported.write_text("pydantic==2.11.4\n")
+    report = scan(str(unsupported), offline=True,
+                  cache_path=tmp_path / "missing.json")
+    assert report["status"] == "unknown"
+    assert "unsupported dependency inventory" in report["unknowns"][0]["reason"]
+
+
 def test_osv_snapshot_is_exact_reproducible_and_offline(tmp_path):
     from pegrex.sca import scan
     lockfile = tmp_path / "go.mod"

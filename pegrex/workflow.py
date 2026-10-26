@@ -28,10 +28,12 @@ class Workflow:
 
     @staticmethod
     def from_dict(d: dict) -> "Workflow":
+        """Implement from dict with the module's explicit API and failure semantics."""
         return Workflow(d["name"], [Step(s["name"], s["kind"], s.get("component", ""),
                                          s.get("params", {})) for s in d["steps"]])
 
     def to_dict(self) -> dict:
+        """Implement to dict with the module's explicit API and failure semantics."""
         return {"name": self.name,
                 "steps": [dict({"name": s.name, "kind": s.kind},
                                **({"component": s.component} if s.component else {}),
@@ -73,7 +75,7 @@ def run_workflow(source: str, wf: Workflow, out_dir: str = "specs") -> dict:
             out = pathlib.Path(out_dir)
             out.mkdir(parents=True, exist_ok=True)
             op = out / f"{step.params.get('file', pathlib.Path(source).stem + '.spec.json')}"
-            op.write_text(_json.dumps(spec, indent=1))
+            op.write_text(_json.dumps(spec, indent=1), encoding="utf-8")
             state["artifact"] = str(op)
     return state
 

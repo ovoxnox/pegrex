@@ -21,7 +21,10 @@ def sum_to(n):
 def test_proved_full_summary():
     r = summarize(SUM_TO)
     assert r["verdict"] == "proved"
-    assert "i <= n + 1" in r["invariant"]
+    assert "i >= 1" in r["invariant"]
+    # i <= n + 1 is not an entry invariant when n is negative and the loop
+    # is skipped; initiation must not assume the loop guard.
+    assert "i <= n + 1" not in r["invariant"]
     assert r["ranking"] == "n - i + 1"
     assert r["closed_form"]["result"] == "((n * (n + 1)) // 2)"
     assert r["evidence"][0]["violations"] == 0

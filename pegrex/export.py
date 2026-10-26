@@ -29,12 +29,15 @@ def to_html(findings: list, title: str = "pegrex report") -> str:
                  "LOW": "#00f0ff", "INFO": "#8b949e"}
 
     def sev(f):
+        """Implement sev with the module's explicit API and failure semantics."""
         return str(f.get("severity", "INFO")).upper()
 
     def ev(f):
+        """Implement ev with the module's explicit API and failure semantics."""
         return html.escape(str(f.get("evidence", f.get("message", ""))))
 
     def fid(f):
+        """Implement fid with the module's explicit API and failure semantics."""
         return html.escape(str(f.get("id", "")))
 
     groups = {s: [] for s in sev_order}
@@ -46,6 +49,7 @@ def to_html(findings: list, title: str = "pegrex report") -> str:
         for s in sev_order if groups.get(s))
 
     def row(f):
+        """Implement row with the module's explicit API and failure semantics."""
         c = sev_color.get(sev(f), "#39ff14")
         line = f.get("line", "")
         return ("<details class=finding><summary>"
@@ -56,6 +60,7 @@ def to_html(findings: list, title: str = "pegrex report") -> str:
                 "<div class=ev>" + ev(f) + "</div></details>")
 
     def section(s):
+        """Implement section with the module's explicit API and failure semantics."""
         fs = groups.get(s, [])
         if not fs:
             return ""
@@ -145,7 +150,7 @@ def export(findings: list, fmt: str, out: str | None = None,
             else to_html(findings, title))
     if out:
         import pathlib
-        pathlib.Path(out).write_text(text)
+        pathlib.Path(out).write_text(text, encoding="utf-8")
     return text
 
 
@@ -158,18 +163,21 @@ def to_sarif(findings: list, tool: str = "pegrex", *,
     from importlib import metadata
 
     def version():
+        """Implement version with the module's explicit API and failure semantics."""
         try:
             return metadata.version("pegrex")
         except metadata.PackageNotFoundError:
             return "unknown"
 
     def uri(path):
+        """Implement uri with the module's explicit API and failure semantics."""
         if not path:
             return "source"
         portable = pathlib.PurePath(path).as_posix()
         return urllib.parse.quote(portable, safe="/._-~:")
 
     def physical(file, line, column=1, end_line=None, end_column=None):
+        """Implement physical with the module's explicit API and failure semantics."""
         region = {"startLine": max(1, int(line or 1)),
                   "startColumn": max(1, int(column or 1))}
         if end_line is not None:
@@ -233,6 +241,9 @@ def to_sarif(findings: list, tool: str = "pegrex", *,
                 "sourceEvidence": finding.get("source"),
                 "sinkEvidence": finding.get("sink") or evidence,
                 "kind": finding.get("kind", "pattern"),
+                "category": finding.get("category"),
+                "sanitizers": finding.get("sanitized") or [],
+                "callContexts": finding.get("contexts") or [],
             },
         }
         related, flow = [], []
@@ -241,13 +252,13 @@ def to_sarif(findings: list, tool: str = "pegrex", *,
             related.append({
                 "id": location_id,
                 "physicalLocation": physical(
-                    finding.get("file"), source.get("line"), source.get("column")),
+                    source.get("file") or finding.get("file"), source.get("line"), source.get("column")),
                 "message": {"text": "Taint source: " + source.get("evidence", "")[:500]},
             })
             flow.append({
                 "location": {
                     "physicalLocation": physical(
-                        finding.get("file"), source.get("line"), source.get("column")),
+                        source.get("file") or finding.get("file"), source.get("line"), source.get("column")),
                     "message": {"text": "Source: " + source.get("evidence", "")[:500]},
                 },
                 "kinds": ["source"],

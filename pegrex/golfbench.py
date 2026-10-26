@@ -25,7 +25,7 @@ def _hash(path):
 
 def measure(cert_path, timeout=240):
     """Runtime (3-run min, ms), LOC, refusal count for one cert fixture."""
-    src = open(cert_path).read()
+    src = open(cert_path, encoding="utf-8").read()
     loc = sum(1 for l in src.splitlines() if l.strip())
     refusals = src.count("neg control") + src.count("REFUSAL")
     best = None
@@ -50,7 +50,7 @@ def golf(cert_path, baseline_path=None):
     base = None
     if baseline_path:
         try:
-            base = json.load(open(baseline_path))
+            base = json.load(open(baseline_path, encoding="utf-8"))
         except Exception:
             base = None              # stale/missing: re-measure, never guess
     if base is None or base.get("sha") and base.get("sha") != cur.get("sha") \
@@ -75,9 +75,10 @@ def golf(cert_path, baseline_path=None):
 
 
 def baseline_all(cert_dir, baseline_path):
+    """Implement baseline all with the module's explicit API and failure semantics."""
     rows = {}
     import pathlib
     for p in sorted(pathlib.Path(cert_dir).glob("m*.py")):
         rows[p.name] = measure(str(p))
-    json.dump(rows, open(baseline_path, "w"), indent=1)
+    json.dump(rows, open(baseline_path, "w", encoding="utf-8"), indent=1)
     return rows

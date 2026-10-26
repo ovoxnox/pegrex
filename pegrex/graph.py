@@ -14,6 +14,7 @@ from __future__ import annotations
 
 def build_graph(taint_edges=(), fact_edges=(), twin_edges=(),
                 owners=None):
+    """Implement build graph with the module's explicit API and failure semantics."""
     nodes, edges = set(), []
     for kind, src, dst in list(taint_edges) + list(fact_edges) + list(twin_edges):
         nodes |= {src, dst}

@@ -1,0 +1,37 @@
+{
+  "$id": "pegrex:pegrex.unknown.v1:schema",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": true,
+  "properties": {
+    "details": {
+      "type": "object"
+    },
+    "reason": {
+      "minLength": 1,
+      "type": "string"
+    },
+    "resource": {
+      "type": "string"
+    },
+    "schema": {
+      "const": "pegrex.unknown.v1"
+    },
+    "schema_version": {
+      "const": 1
+    },
+    "source": {
+      "type": "string"
+    },
+    "status": {
+      "const": "unknown"
+    }
+  },
+  "required": [
+    "schema",
+    "schema_version",
+    "status",
+    "reason"
+  ],
+  "title": "PegRex explicit unknown",
+  "type": "object"
+}

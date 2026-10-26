@@ -22,7 +22,7 @@ def _killed_verifier(sink, payload):
     """Verifier factory: verified == payload can no longer reach sink."""
     def check(a_path, b_path, claim="equivalent"):
         """check(a_path, b_path, claim): see module docstring."""
-        src = open(b_path).read()
+        src = open(b_path, encoding="utf-8").read()
         has_sink = re.search(rf"{re.escape(sink)}\s*\(", src) is not None
         if not has_sink:
             return {"verified": True, "counterexample": None}

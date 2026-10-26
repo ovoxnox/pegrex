@@ -33,6 +33,7 @@ def check_property(guard_text, deltas, init_atoms, prop_text, lb=None,
     guard_atoms = atoms_of(lower_condition(guard_text))
 
     def model_of(extra):
+        """Implement model of with the module's explicit API and failure semantics."""
         return lb.learn(inv_atoms + guard_atoms + extra)
 
     prop = lower_condition(prop_text)

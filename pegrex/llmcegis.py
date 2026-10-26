@@ -21,6 +21,7 @@ import os
 import re
 import tempfile
 import urllib.error
+import urllib.parse
 import urllib.request
 
 from .cegis import repair as _cegis_repair
@@ -54,7 +55,7 @@ def _exec_result(src: str, inputs: dict):
         return None
     fd, path = tempfile.mkstemp(suffix=".py")
     try:
-        with os.fdopen(fd, "w") as fh:
+        with os.fdopen(fd, "w", encoding="utf-8") as fh:
             fh.write(src)
         spec = importlib.util.spec_from_file_location("cand_mod", path)
         mod = importlib.util.module_from_spec(spec)
@@ -288,6 +289,11 @@ class HTTProposer:
             raise LLMProposerError(
                 "PEGREX_LLM_ENDPOINT not set — refusing to hallucinate "
                 "a proposer")
+        endpoint = urllib.parse.urlsplit(self.endpoint)
+        if (endpoint.scheme not in {"http", "https"} or not endpoint.hostname
+                or endpoint.username is not None or endpoint.password is not None):
+            raise LLMProposerError(
+                "LLM proposer endpoint must be an http(s) URL without embedded credentials")
         payload = {"before_src": self.before_src, "claim": self.claim,
                    "counterexample": (feedback or {}).get("counterexample"),
                    "round": self.round}

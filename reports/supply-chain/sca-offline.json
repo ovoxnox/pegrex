@@ -1,0 +1,175 @@
+{
+  "dependencies": 19,
+  "offline": true,
+  "provenance": {
+    "osv": {
+      "id": "unavailable",
+      "mode": "offline",
+      "reproducible": false,
+      "status": "unknown"
+    },
+    "schema": "pegrex.osv-provenance.v1",
+    "source": {
+      "bytes": 475,
+      "path": "/pegrex_audit/source/pegrex/requirements-ci.txt",
+      "sha256": "d540fbfabd884c99d1f629db96f39f94ba16356c43f7537c2fe3242db307b934"
+    }
+  },
+  "schema": "pegrex.osv-scan.v1",
+  "status": "unknown",
+  "unknowns": [
+    {
+      "dependency": {
+        "ecosystem": "PyPI",
+        "name": "annotated-types",
+        "version": "0.7.0"
+      },
+      "reason": "dependency absent from offline OSV cache: PyPI:annotated-types:0.7.0"
+    },
+    {
+      "dependency": {
+        "ecosystem": "PyPI",
+        "name": "iniconfig",
+        "version": "2.3.1"
+      },
+      "reason": "dependency absent from offline OSV cache: PyPI:iniconfig:2.3.1"
+    },
+    {
+      "dependency": {
+        "ecosystem": "PyPI",
+        "name": "hypothesis",
+        "version": "6.170.9"
+      },
+      "reason": "dependency absent from offline OSV cache: PyPI:hypothesis:6.170.9"
+    },
+    {
+      "dependency": {
+        "ecosystem": "PyPI",
+        "name": "packaging",
+        "version": "25.0"
+      },
+      "reason": "dependency absent from offline OSV cache: PyPI:packaging:25.0"
+    },
+    {
+      "dependency": {
+        "ecosystem": "PyPI",
+        "name": "pluggy",
+        "version": "1.7.0"
+      },
+      "reason": "dependency absent from offline OSV cache: PyPI:pluggy:1.7.0"
+    },
+    {
+      "dependency": {
+        "ecosystem": "PyPI",
+        "name": "pydantic",
+        "version": "2.11.4"
+      },
+      "reason": "dependency absent from offline OSV cache: PyPI:pydantic:2.11.4"
+    },
+    {
+      "dependency": {
+        "ecosystem": "PyPI",
+        "name": "pydantic-core",
+        "version": "2.33.2"
+      },
+      "reason": "dependency absent from offline OSV cache: PyPI:pydantic-core:2.33.2"
+    },
+    {
+      "dependency": {
+        "ecosystem": "PyPI",
+        "name": "pygments",
+        "version": "2.19.1"
+      },
+      "reason": "dependency absent from offline OSV cache: PyPI:pygments:2.19.1"
+    },
+    {
+      "dependency": {
+        "ecosystem": "PyPI",
+        "name": "pytest",
+        "version": "9.1.1"
+      },
+      "reason": "dependency absent from offline OSV cache: PyPI:pytest:9.1.1"
+    },
+    {
+      "dependency": {
+        "ecosystem": "PyPI",
+        "name": "sortedcontainers",
+        "version": "2.4.0"
+      },
+      "reason": "dependency absent from offline OSV cache: PyPI:sortedcontainers:2.4.0"
+    },
+    {
+      "dependency": {
+        "ecosystem": "PyPI",
+        "name": "tree-sitter",
+        "version": "0.26.0"
+      },
+      "reason": "dependency absent from offline OSV cache: PyPI:tree-sitter:0.26.0"
+    },
+    {
+      "dependency": {
+        "ecosystem": "PyPI",
+        "name": "tree-sitter-go",
+        "version": "0.25.0"
+      },
+      "reason": "dependency absent from offline OSV cache: PyPI:tree-sitter-go:0.25.0"
+    },
+    {
+      "dependency": {
+        "ecosystem": "PyPI",
+        "name": "tree-sitter-javascript",
+        "version": "0.25.0"
+      },
+      "reason": "dependency absent from offline OSV cache: PyPI:tree-sitter-javascript:0.25.0"
+    },
+    {
+      "dependency": {
+        "ecosystem": "PyPI",
+        "name": "tree-sitter-python",
+        "version": "0.25.0"
+      },
+      "reason": "dependency absent from offline OSV cache: PyPI:tree-sitter-python:0.25.0"
+    },
+    {
+      "dependency": {
+        "ecosystem": "PyPI",
+        "name": "tree-sitter-rust",
+        "version": "0.24.2"
+      },
+      "reason": "dependency absent from offline OSV cache: PyPI:tree-sitter-rust:0.24.2"
+    },
+    {
+      "dependency": {
+        "ecosystem": "PyPI",
+        "name": "typing-extensions",
+        "version": "4.13.2"
+      },
+      "reason": "dependency absent from offline OSV cache: PyPI:typing-extensions:4.13.2"
+    },
+    {
+      "dependency": {
+        "ecosystem": "PyPI",
+        "name": "typing-inspection",
+        "version": "0.4.0"
+      },
+      "reason": "dependency absent from offline OSV cache: PyPI:typing-inspection:0.4.0"
+    },
+    {
+      "dependency": {
+        "ecosystem": "PyPI",
+        "name": "xxhash",
+        "version": "4.0.2"
+      },
+      "reason": "dependency absent from offline OSV cache: PyPI:xxhash:4.0.2"
+    },
+    {
+      "dependency": {
+        "ecosystem": "PyPI",
+        "name": "z3-solver",
+        "version": "5.3.1.0"
+      },
+      "reason": "dependency absent from offline OSV cache: PyPI:z3-solver:5.3.1.0"
+    }
+  ],
+  "vulnerabilities": []
+}

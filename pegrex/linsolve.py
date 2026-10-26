@@ -164,6 +164,7 @@ class LinearModel:
     feasible_flag: bool = True
 
     def feasible(self) -> bool:
+        """Implement feasible with the module's explicit API and failure semantics."""
         return self.feasible_flag
 
     def model(self) -> dict:
@@ -188,8 +189,15 @@ class LinearModel:
             hi_i = math.floor(hi_b) if hi_b is not None else 10**9
 
             def neq_ok(v, asn):
+                """Implement neq ok with the module's explicit API and failure semantics."""
                 for coeffs, k in self.neqs:
                     if var in coeffs:
+                        # During reverse FM reconstruction some variables in
+                        # a coupled disequality are not assigned yet. Defer
+                        # those checks to ok_all(); assuming zero here would
+                        # reject valid values (and indexing asn would crash).
+                        if any(u != var and u not in asn for u in coeffs):
+                            continue
                         total = sum(c * (asn[u] if u != var else v)
                                     for u, c in coeffs.items())
                         if total == k:
@@ -212,6 +220,7 @@ class LinearModel:
             assign[var] = val
 
         def ok_all(asn):
+            """Implement ok all with the module's explicit API and failure semantics."""
             for a in self.src:
                 if a.op == "<=" and sum(c * asn.get(v, Fraction(0))
                                         for v, c in a.cd().items()) > a.k:
@@ -308,6 +317,7 @@ class LinearBackend(Backend):
         return None
 
     def learn(self, atoms):
+        """Implement learn with the module's explicit API and failure semantics."""
         model = LinearModel()
         for atom in atoms:
             txt = str(atom).strip()

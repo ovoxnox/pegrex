@@ -8,6 +8,7 @@ functions remain available independently and retain their public result shapes.
 from __future__ import annotations
 
 import hashlib
+import json
 import time
 from typing import Any
 
@@ -51,7 +52,8 @@ class AnalysisSession:
 
     def __init__(self, source: str, language: str = "python", *, path: str | None = None,
                  configuration: dict | None = None, cache: AnalysisCache | None = None,
-                 timeout_ms: int | None = None, max_paths: int = 10_000) -> None:
+                 timeout_ms: int | None = None, max_paths: int = 10_000,
+                 tree_cache: dict | None = None) -> None:
         normalized = normalize_language(language)
         if normalized is None:
             raise ValueError(f"unsupported analysis language {language!r}")
@@ -60,6 +62,7 @@ class AnalysisSession:
         self.path = path
         self.configuration = dict(configuration or {})
         self.cache = cache
+        self.tree_cache = tree_cache
         self.timeout_ms = timeout_ms
         self.max_paths = max_paths
         self.digest = hashlib.sha256(source.encode("utf-8")).hexdigest()
@@ -71,6 +74,7 @@ class AnalysisSession:
 
     @property
     def spec(self):
+        """Implement spec with the module's explicit API and failure semantics."""
         return get_language(self.language)
 
     def _check_deadline(self) -> None:
@@ -103,13 +107,27 @@ class AnalysisSession:
 
     @property
     def tree(self):
-        """The sole normalized parse for this source/configuration session."""
+        """The sole normalized parse for this source/configuration session.
+
+        An optional repository-owned tree cache shares the immutable-by-
+        convention normalized tree across sessions with identical content,
+        parser identity, and configuration. Paths never enter its identity.
+        """
         self._check_deadline()
         if "tree" not in self._values:
-            data = self._persistent(
-                ("parse", self.spec.parser, self.spec.parse_adapter),
-                lambda: _tree_data(parse_source(self.language, self.source)))
-            self._values["tree"] = _tree_value(data)
+            identity = json.dumps(self._config(), sort_keys=True, separators=(",", ":"),
+                                  default=str)
+            key = (self.digest, self.spec.parser, self.spec.parser_version,
+                   self.spec.parse_adapter, identity)
+            if self.tree_cache is not None and key in self.tree_cache:
+                self._values["tree"] = self.tree_cache[key]
+            else:
+                data = self._persistent(
+                    ("parse", self.spec.parser, self.spec.parse_adapter),
+                    lambda: _tree_data(parse_source(self.language, self.source)))
+                self._values["tree"] = _tree_value(data)
+                if self.tree_cache is not None:
+                    self.tree_cache[key] = self._values["tree"]
         return self._values["tree"]
 
     def cfg(self, entrypoint: str | None = None):
@@ -128,6 +146,7 @@ class AnalysisSession:
         return self._values[key]
 
     def contracts(self, entrypoint: str | None = None):
+        """Implement contracts with the module's explicit API and failure semantics."""
         key = ("contracts", entrypoint)
         self._check_deadline()
         if key not in self._values:
@@ -145,11 +164,13 @@ class AnalysisSession:
 
     @property
     def call_graph(self):
+        """Implement call graph with the module's explicit API and failure semantics."""
         self._check_deadline()
         if "call_graph" not in self._values:
             from .callgraph import CallGraph, build_call_graph
 
             def produce():
+                """Implement produce with the module's explicit API and failure semantics."""
                 graph = build_call_graph(self.source, self.language, tree=self.tree)
                 return {"functions": {name: {"line": row["line"],
                                              "calls": sorted(row["calls"])}
@@ -166,6 +187,7 @@ class AnalysisSession:
 
     @property
     def complexity(self):
+        """Implement complexity with the module's explicit API and failure semantics."""
         self._check_deadline()
         if "complexity" not in self._values:
             from .cognitive import cognitive_complexity

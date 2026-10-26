@@ -27,7 +27,7 @@ def repair(before_src, propose_fn, claim="equivalent", max_rounds=4,
     Returns the full trail -- every round with its verdict or error."""
     tmp = tempfile.mkdtemp()
     before_path = os.path.join(tmp, "before.py")
-    open(before_path, "w").write(before_src)
+    open(before_path, "w", encoding="utf-8").write(before_src)
     trail = []
     feedback = None
     for rnd in range(1, max_rounds + 1):
@@ -52,7 +52,7 @@ def repair(before_src, propose_fn, claim="equivalent", max_rounds=4,
                           "feedback": feedback})
             continue
         patch_path = os.path.join(tmp, f"patch{rnd}.py")
-        open(patch_path, "w").write(proposal)
+        open(patch_path, "w", encoding="utf-8").write(proposal)
         try:
             check = verifier or verify_patch
             out = check(before_path, patch_path, claim)

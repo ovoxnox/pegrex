@@ -42,6 +42,7 @@ class GrammarCompiler:
 
     # ── cursor
     def skip(self) -> None:
+        """Implement skip with the module's explicit API and failure semantics."""
         s, i, n = self.text, self.i, len(self.text)
         while i < n:
             if s[i] in " \t\n\r\f\v":
@@ -54,23 +55,28 @@ class GrammarCompiler:
         self.i = i
 
     def at(self, lit: str) -> bool:
+        """Implement at with the module's explicit API and failure semantics."""
         return self.text.startswith(lit, self.i)
 
     def eat(self, lit: str) -> bool:
+        """Implement eat with the module's explicit API and failure semantics."""
         if self.at(lit):
             self.i += len(lit)
             return True
         return False
 
     def need(self, lit: str, msg: str) -> None:
+        """Implement need with the module's explicit API and failure semantics."""
         if not self.eat(lit):
             raise _Expected(msg, self.text, self.i)
 
     def eof(self) -> bool:
+        """Implement eof with the module's explicit API and failure semantics."""
         self.skip()
         return self.i >= len(self.text)
 
     def name(self) -> str:
+        """Implement name with the module's explicit API and failure semantics."""
         self.skip()
         s = self.text
         if self.i >= len(s) or s[self.i] not in _NAME_START:
@@ -87,6 +93,7 @@ class GrammarCompiler:
         return nm
 
     def string(self) -> str:
+        """Implement string with the module's explicit API and failure semantics."""
         self.skip()
         s = self.text
         if self.i >= len(s) or s[self.i] not in "'\"":
@@ -100,6 +107,7 @@ class GrammarCompiler:
         return out
 
     def number(self) -> int:
+        """Implement number with the module's explicit API and failure semantics."""
         self.skip()
         s, i = self.text, self.i
         j = i + (s[i] in "+-")
@@ -111,6 +119,7 @@ class GrammarCompiler:
         return int(s[i:j])
 
     def userdef(self, nm: str):
+        """Implement userdef with the module's explicit API and failure semantics."""
         if nm in self.defs:
             return self.defs[nm]
         if nm in PRELUDE and PRELUDE[nm] is not None:
@@ -122,6 +131,7 @@ class GrammarCompiler:
 
     # ── entry
     def compile(self, text: str):
+        """Implement compile with the module's explicit API and failure semantics."""
         self.text, self.i = text, 0
         while not self.eof():
             self.definition()
@@ -131,6 +141,7 @@ class GrammarCompiler:
         return self.rules[self.first]
 
     def add_rule(self, nm: str, p: peg.Patt) -> None:
+        """Implement add rule with the module's explicit API and failure semantics."""
         if nm in self.rules:
             raise GrammarError(f"'{nm}' already defined as a rule")
         self.rules[nm] = p
@@ -139,6 +150,7 @@ class GrammarCompiler:
             self.first = nm
 
     def definition(self) -> None:
+        """Implement definition with the module's explicit API and failure semantics."""
         self.skip()
         start = self.i
         if self.at("`"): # token/keyword redefinition rule
@@ -180,6 +192,7 @@ class GrammarCompiler:
 
     # ── expressions
     def at_rule_start(self) -> bool:
+        """Implement at rule start with the module's explicit API and failure semantics."""
         save = self.i
         try:
             if self.at("`"):
@@ -205,6 +218,7 @@ class GrammarCompiler:
             self.i = save
 
     def expression(self):
+        """Implement expression with the module's explicit API and failure semantics."""
         p = self.sequence()
         self.skip()
         while self.eat("/"):
@@ -213,6 +227,7 @@ class GrammarCompiler:
         return p
 
     def sequence(self):
+        """Implement sequence with the module's explicit API and failure semantics."""
         ps = []
         self.skip()
         while (not self.eof() and not self.at("/") and not self.at(")")
@@ -227,6 +242,7 @@ class GrammarCompiler:
         return ps[0] if len(ps) == 1 else SeqP(*ps)
 
     def prefixed(self):
+        """Implement prefixed with the module's explicit API and failure semantics."""
         self.skip()
         if self.eat("&"):
             return AndP(self.prefixed())
@@ -235,6 +251,7 @@ class GrammarCompiler:
         return self.suffixed()
 
     def suffixed(self):
+        """Implement suffixed with the module's explicit API and failure semantics."""
         p = self.primary()
         while True:
             self.skip()
@@ -302,6 +319,7 @@ class GrammarCompiler:
 
     # ── primaries
     def primary(self):
+        """Implement primary with the module's explicit API and failure semantics."""
         self.skip()
         s = self.text
         if self.i >= len(s):
@@ -350,6 +368,7 @@ class GrammarCompiler:
         raise _NoPattern(f"unexpected character {c!r}", s, self.i)
 
     def expected(self):
+        """Implement expected with the module's explicit API and failure semantics."""
         self.skip()
         s = self.text
         if self.i < len(s) and s[self.i] in "'\"":
@@ -367,6 +386,7 @@ class GrammarCompiler:
     _last_tick = ""
 
     def backtick(self, capture: bool):
+        """Implement backtick with the module's explicit API and failure semantics."""
         s = self.text
         j = s.find("`", self.i + 1)
         if j < 0:
@@ -385,12 +405,14 @@ class GrammarCompiler:
         return SeqP(p, ValP(word)) if capture else p
 
     def make_keyword(self, kw: str):
+        """Implement make keyword with the module's explicit API and failure semantics."""
         if kw not in self.keywords:
             self.keywords.append(kw)
         return SeqP(Lit(kw), NotP(V(self.options["NAME_SUFFIX"])),
                     V(self.options["SKIP"]))
 
     def make_token(self, tok: str):
+        """Implement make token with the module's explicit API and failure semantics."""
         if tok not in self.tokens:
             self.tokens.append(tok)
         if tok in self.redefining: # freeze original literal inside a redefine
@@ -398,6 +420,7 @@ class GrammarCompiler:
         return SeqP(V("\0TOKEN:" + tok), V(self.options["SKIP"]))
 
     def clazz(self):
+        """Implement clazz with the module's explicit API and failure semantics."""
         self.need("[", "expected '['")
         complement = self.eat("^")
         items = []
@@ -425,6 +448,7 @@ class GrammarCompiler:
         return SetP(items, complement)
 
     def class_item(self):
+        """Implement class item with the module's explicit API and failure semantics."""
         s = self.text
         c = s[self.i]
         if c == "%":
@@ -440,6 +464,7 @@ class GrammarCompiler:
         return c
 
     def dollar(self):
+        """Implement dollar with the module's explicit API and failure semantics."""
         self.i += 1
         s = self.text
         for lit, val in (("nil", None), ("true", True), ("false", False)):
@@ -460,6 +485,7 @@ class GrammarCompiler:
         return ValP(self.userdef(self.name()))
 
     def brace(self):
+        """Implement brace with the module's explicit API and failure semantics."""
         self.i += 1
         self.skip()
         if self.at("`"): # `{`tok`}` capture — only when `}` follows
@@ -503,6 +529,7 @@ class GrammarCompiler:
 
     # ── finalize
     def finalize_tokens(self) -> None:
+        """Implement finalize tokens with the module's explicit API and failure semantics."""
         skip = V(self.options["SKIP"])
         bases: dict[str, peg.Patt] = {}
         for tok in self.tokens: # unique-token exclusion among prefixes

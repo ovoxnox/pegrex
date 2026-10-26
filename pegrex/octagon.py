@@ -52,8 +52,11 @@ class Octagon:
             self.add(a)
 
     def add(self, txt):
+        """Implement add with the module's explicit API and failure semantics."""
         x, ax, y, by, c = parse_oct_atom(txt)
-        def node(v, s): return f"{v}{'+' if s > 0 else '-'}"
+        def node(v, s):
+            """Implement node with explicit API and failure semantics."""
+            return f"{v}{('+' if s > 0 else '-')}"
         self._closed = False   # edges changed: cache is stale
         if y is None:
             # ax*x <= c  ==  ax*x - (-ax)*x <= 2c : exactly ONE DBM edge
@@ -122,6 +125,7 @@ class Octagon:
         return None if w == _INF else Fraction(w, 2)
 
     def lower(self, x):
+        """Implement lower with the module's explicit API and failure semantics."""
         w = self.edges.get((f"{x}+", f"{x}-"), _INF)
         return None if w == _INF else -Fraction(w, 2)
 
@@ -129,7 +133,9 @@ class Octagon:
         """Does the closed octagon entail the atom (binary or unary form)?"""
         x, ax, y, by, c = parse_oct_atom(atom_txt)
         self.close()
-        def node(v, s): return f"{v}{'+' if s > 0 else '-'}"
+        def node(v, s):
+            """Implement node with explicit API and failure semantics."""
+            return f"{v}{('+' if s > 0 else '-')}"
         if y is None:
             w = self.edges.get((node(x, -ax), node(x, ax)), _INF)
             return w != _INF and Fraction(w, 2) <= c

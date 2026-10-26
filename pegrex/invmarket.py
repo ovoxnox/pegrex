@@ -19,6 +19,7 @@ invmarket — the invariant stock exchange
 from __future__ import annotations
 
 import hashlib
+import math
 import os
 import pathlib
 import re
@@ -29,8 +30,14 @@ from .linsolve import LinearBackend, LinearError, parse_atom
 from .refine import _norm_constraint
 from .registry import load_registry, save_registry
 
-DEFAULT_KEY = "invmarket-demo-key"
+DEFAULT_KEY = None  # compatibility name; production never supplies an implicit HMAC key
 MARKET_SECTION = "market"          # top-level section inside the registry file
+
+
+def _require_key(key) -> None:
+    if not isinstance(key, (str, bytes)) or not key:
+        raise InvMarketError(
+            "invmarket: an explicit non-empty HMAC key is required; demo defaults are disabled")
 
 
 class InvMarketError(ValueError):
@@ -64,7 +71,7 @@ def _package_files(registry_path, package):
                 f"invmarket: package {package!r} has no source directory at "
                 f"{root} -- refusing to list an invariant against files "
                 f"that cannot be found")
-        files = {str(p.relative_to(root)): p.read_text()
+        files = {str(p.relative_to(root)): p.read_text(encoding="utf-8")
                  for p in sorted(root.rglob("*.py"))}
         if not files:
             raise InvMarketError(
@@ -109,7 +116,7 @@ def _atom_provable(files, atom, lb):
     for fname, src in sorted(files.items()):
         fd, path = tempfile.mkstemp(suffix=".py")
         try:
-            with os.fdopen(fd, "w") as f:
+            with os.fdopen(fd, "w", encoding="utf-8") as f:
                 f.write(src)
             contracts = api.contracts(path)
         finally:
@@ -152,6 +159,13 @@ def publish_invariant(registry_path, package, name, invariant_atoms, witness,
     atoms were proven against); only its sha256 is stored. `price`: the
     publisher's asking price, recorded as-is (see quote() for the honest pricing heuristic)."""
 
+    _require_key(key)
+    try:
+        numeric_price = float(price)
+    except (TypeError, ValueError) as error:
+        raise InvMarketError("invmarket: price must be a finite non-negative number") from error
+    if not math.isfinite(numeric_price) or numeric_price < 0:
+        raise InvMarketError("invmarket: price must be a finite non-negative number")
     lb = LinearBackend()
     pkg_name, files = _package_files(registry_path, package)
     atoms = [str(a) for a in (invariant_atoms or [])]
@@ -186,7 +200,7 @@ def publish_invariant(registry_path, package, name, invariant_atoms, witness,
                        and e.get("name") == name), default=0)
     witness_sha = hashlib.sha256(str(witness).encode()).hexdigest()
     body = {"package": pkg_name, "name": name, "atoms": stored_atoms,
-            "witness_sha": witness_sha, "price": float(price),
+            "witness_sha": witness_sha, "price": numeric_price,
             "version": version,
             "prev": (hashlib.sha256(canonical_json(prev).encode()).hexdigest()
                      if prev is not None else None)}
@@ -206,17 +220,21 @@ def import_invariants(registry_path, package=None, key=None) -> list:
     entry -- never silently dropped: trading on a tampered book is worse
     than refusing to trade.
 
-    `key=None` falls back to the module demo key (loudly documented);
-    pass the real key in any serious use."""
-    key = key or DEFAULT_KEY
+    An explicit non-empty key is mandatory. There is no implicit demo key.
+    """
+    _require_key(key)
     registry = load_registry(registry_path)
     section = registry.get(MARKET_SECTION) or {}
     entries = section.get("entries", []) or []
     verified, prev = [], None
     for i, entry in enumerate(entries):
+        if not isinstance(entry, dict):
+            raise InvMarketError(
+                f"invmarket: market entry at book index {i} is unsigned or malformed -- "
+                "refusing to trade on an unauthenticated book")
         pkg, nm = entry.get("package"), entry.get("name")
         label = f"{pkg!r}/{nm!r} (book index {i})"
-        if not isinstance(entry, dict) or "signature" not in entry:
+        if "signature" not in entry:
             raise InvMarketError(
                 f"invmarket: market entry {label} is unsigned -- refusing "
                 f"to trade on an unauthenticated book")
@@ -295,7 +313,7 @@ def discharge(obligations, market, lb=None) -> dict:
 
 
 def quote(entry) -> dict:
-    """Honest toy pricing: literal count x proof size, scaled by a fixed
+    """Deterministic heuristic pricing: literal count x proof size, scaled by a fixed
     constant. The basis string says IN PLAIN WORDS that this is a
     documented heuristic, not a market price."""
     atoms = [str(a) for a in entry.get("atoms", [])]
@@ -323,6 +341,6 @@ def claims() -> dict:
             "import is not re-proof; run discharge-time entailment against "
             "fresh contracts if freshness matters",
             "price is not financial advice -- quote() is a documented "
-            "toy heuristic, not a market price",
+            "deterministic heuristic, not a market price",
         ],
     }

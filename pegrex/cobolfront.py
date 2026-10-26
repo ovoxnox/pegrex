@@ -189,6 +189,7 @@ def _contracts_from_stmts(stmts, result_item):
     out = []
 
     def walk(ss, env, guards):
+        """Implement walk with the module's explicit API and failure semantics."""
         for st in ss:
             if st[0] == "stop":
                 if result_item not in env:
@@ -208,6 +209,7 @@ def _contracts_from_stmts(stmts, result_item):
 
     walk(stmts, {}, [])
     def up(s):
+        """Implement up with the module's explicit API and failure semantics."""
         return re.sub(r"[A-Za-z_]\w*", lambda m: m.group(0).upper(), s)
     return [(frozenset(up(a) for a in cs), up(res)) for cs, res in out]
 
@@ -261,7 +263,7 @@ def expand_copybooks(src, copydir, _seen=()):
         if path is None:
             raise CobolError(f"cobol: COPYBOOK {book!r} not found in "
                              f"{copydir!r} (tried .cpy .CPY .cob .txt)")
-        with open(path) as f:
+        with open(path, encoding="utf-8") as f:
             content = f.read()
         out.append(expand_copybooks(content, copydir, _seen + (book,)))
         changed = True
@@ -326,6 +328,7 @@ def _flatten_performs(parsed, order, entry):
     out = []
 
     def emit(ss, stack):
+        """Implement emit with the module's explicit API and failure semantics."""
         for st in ss:
             if st[0] == "perform":
                 visit(st[1], stack)
@@ -346,6 +349,7 @@ def _flatten_performs(parsed, order, entry):
                 out.append(st)
 
     def visit(name, stack):
+        """Implement visit with the module's explicit API and failure semantics."""
         if name in stack:
             raise CobolError(f"cobol: PERFORM cycle detected: "
                              f"{' -> '.join(stack + [name])}")
@@ -403,6 +407,7 @@ def program_contracts(src, entry=None) -> dict:
 
 
 def apply_stmt(st, env):
+    """Implement apply stmt with the module's explicit API and failure semantics."""
     op = st[0]
     if op == "move":
         src_s, dst = st[1], st[2]

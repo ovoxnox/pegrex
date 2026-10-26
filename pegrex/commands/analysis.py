@@ -9,13 +9,17 @@ from .common import ROOT, _emit_json, _expand
 
 
 def _cmd_audit(a) -> int:
-    from tools.secaudit import audit_report, gate_exit
+    from tools.secaudit import aggregate_scan_coverage, audit_report, gate_exit
 
     def emit(report, findings):
+        """Implement emit with the module's explicit API and failure semantics."""
         if a.sarif:
             from pegrex.export import to_sarif
             text = to_sarif(findings, provenance=report.get("provenance"))
         elif a.json:
+            if a.schema_envelope:
+                from ..schema import cli_envelope
+                report = cli_envelope("audit", report)
             text = json.dumps(report, indent=1)
         else:
             text = ""
@@ -29,10 +33,11 @@ def _cmd_audit(a) -> int:
         if text:
             print(text)
         if a.out:
-            pathlib.Path(a.out).write_text(text or json.dumps(report, indent=1))
+            pathlib.Path(a.out).write_text(text or json.dumps(report, indent=1), encoding="utf-8")
 
     if a.dir:
-        files = _expand(a.dir)
+        from ..languages import EXTENSION_MAP
+        files = _expand(a.dir, suffixes=tuple(EXTENSION_MAP))
         # Each file's regex worker is process-bounded; sequential orchestration
         # avoids nested daemon-process pools and preserves deterministic output.
         reports = [audit_report(str(f), None) for f in files]
@@ -44,6 +49,7 @@ def _cmd_audit(a) -> int:
             "findings": findings, "total": len(findings),
             "active_total": sum(row["active_total"] for row in reports),
             "suppressed_total": sum(row["suppressed_total"] for row in reports),
+            "coverage": aggregate_scan_coverage(reports),
             "provenance": {"schema": "pegrex.security-provenance-set.v1",
                            "sources": [row["provenance"] for row in reports]},
         }
@@ -56,7 +62,7 @@ def _cmd_audit(a) -> int:
                               f"L{finding['line']}")
             print(f"total: {len(findings)} findings across {len(reports)} files")
             if a.out:
-                pathlib.Path(a.out).write_text(json.dumps(report, indent=1))
+                pathlib.Path(a.out).write_text(json.dumps(report, indent=1), encoding="utf-8")
         else:
             emit(report, findings)
         return gate_exit(findings, a.fail_on, a.fail_on_unknown)
@@ -66,7 +72,7 @@ def _cmd_audit(a) -> int:
     import datetime
     log = pathlib.Path(".pegrex-cache/audit.log")
     log.parent.mkdir(parents=True, exist_ok=True)
-    with log.open("a") as fh:
+    with log.open("a", encoding="utf-8") as fh:
         fh.write(json.dumps({"ts": datetime.datetime.now().isoformat(
             timespec="seconds"), "file": a.file,
             "findings": len(findings)}) + chr(10))
@@ -115,7 +121,7 @@ def _cmd_callgraph(a) -> int:
             g.edges |= {(f"{f.stem}.{c}", f"{f.stem}.{d}")
                         for c, d in sub.edges}
     else:
-        g = build_call_graph(pathlib.Path(a.file).read_text(), a.lang)
+        g = build_call_graph(pathlib.Path(a.file).read_text(encoding="utf-8"), a.lang)
     print(g.to_ascii() if a.ascii else g.to_dot())
     return 0
 
@@ -148,7 +154,7 @@ def _cmd_gaps(a) -> int:
 
 def _cmd_tests(a) -> int:
     from pegrex import api
-    for t in api.synthesize(a.source, a.lcov):
+    for t in api.synthesize_tests_from_coverage(a.source, a.lcov):
         print(t.test_body)
         print()
     return 0
@@ -162,7 +168,7 @@ def _cmd_budget(a) -> int:
     for f in files:
         b = Budget(max_loc=a.max_loc,
                    max_function_lines=a.max_function_lines)
-        b.check(str(f), f.read_text())
+        b.check(str(f), f.read_text(encoding="utf-8"))
         all_findings += b.findings
         failed |= not b.passed
         if b.findings:
@@ -192,7 +198,7 @@ def _cmd_bundle(a) -> int:
             print(f"  {f.name}: {len(b['paths'])} paths")
         if a.out:
             pathlib.Path(a.out).write_text(_json.dumps(
-                {"bundles": bundles}, indent=1))
+                {"bundles": bundles}, indent=1), encoding="utf-8")
         return 0
     b = api.bundle(a.source or a.dir if isinstance(a.dir, str) else a.source, out=a.out)
     print(f"bundle: {len(b['paths'])} paths, sha {b['source_sha256'][:12]}")
@@ -212,14 +218,14 @@ def _cmd_probpath(args):
     import json as _json
     from pegrex import api
     from pegrex.probpath import fit, prioritize
-    spec = _json.load(open(args.spec))
+    spec = _json.load(open(args.spec, encoding="utf-8"))
     fitted = fit(api.contracts(spec["file"]), map(set, spec["traces"]))
     _emit_json({"fitted": fitted, "priority": prioritize(fitted, spec.get("sinks", []))})
 
 
 def _cmd_cognitive(args):
     from pegrex.cognitive import cognitive_complexity
-    out = cognitive_complexity(open(args.file).read(), budget=args.budget)
+    out = cognitive_complexity(open(args.file, encoding="utf-8").read(), budget=args.budget)
     _emit_json(out)
     if getattr(args, "fail_on_over", False) and out.get("verdict") == "ok":
         over = [f["name"] for f in out["functions"]
@@ -268,7 +274,7 @@ def _cmd_probverify(args):
     import json as _json
     from pegrex import api
     from pegrex.priorverify import verify_under_budget
-    spec = _json.load(open(args.spec))
+    spec = _json.load(open(args.spec, encoding="utf-8"))
     out = verify_under_budget(api.contracts(spec["file"]),
                               map(set, spec["traces"]),
                               lambda atoms: spec.get("verdicts", {}).get(

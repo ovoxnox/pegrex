@@ -17,6 +17,7 @@ _TOK = re.compile(r"[a-z0-9_]+")
 
 
 def tokens(text):
+    """Implement tokens with the module's explicit API and failure semantics."""
     return _TOK.findall(text.lower())
 
 
@@ -28,6 +29,7 @@ class HashEmbedder:
         self.n = n
 
     def embed(self, text):
+        """Implement embed with the module's explicit API and failure semantics."""
         vec = Counter()
         t = " " + text.lower() + " "
         grams = [text.lower()] + [" ".join(tokens(text))]
@@ -56,6 +58,7 @@ class BM25:
         self.avgdl = sum(len(d) for d in self.docs) / max(self.N, 1)
 
     def score(self, qi, d):
+        """Implement score with the module's explicit API and failure semantics."""
         dl = len(self.docs[d]) or 1
         tf = self.tf[d].get(qi, 0)
         if tf == 0:
@@ -65,6 +68,7 @@ class BM25:
         return idf * tf * (self.k1 + 1) / (tf + self.k1 * (1 - self.b + self.b * dl / self.avgdl))
 
     def scores(self, query):
+        """Implement scores with the module's explicit API and failure semantics."""
         qs = tokens(query)
         return [sum(self.score(qi, d) for qi in set(qs))
                 for d in range(self.N)]
@@ -88,6 +92,7 @@ class HybridRetriever:
         return dot
 
     def search(self, query, k=3):
+        """Implement search with the module's explicit API and failure semantics."""
         qv = self.embedder.embed(query)
         bm = self.bm25.scores(query)
         scored = []
@@ -110,6 +115,7 @@ class NGramFallback:
         self.n = n
 
     def search(self, query, k=3):
+        """Implement search with the module's explicit API and failure semantics."""
         q = " ".join(tokens(query))
         scored = []
         for i, d in enumerate(self.docs):

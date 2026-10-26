@@ -1,0 +1,63 @@
+{
+  "$id": "pegrex:pegrex.finding.v1:schema",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": true,
+  "properties": {
+    "confidence": {
+      "type": "string"
+    },
+    "evidence": {
+      "type": "string"
+    },
+    "file": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "id": {
+      "type": "string"
+    },
+    "kind": {
+      "type": "string"
+    },
+    "line": {
+      "minimum": 1,
+      "type": "integer"
+    },
+    "schema": {
+      "const": "pegrex.finding.v1"
+    },
+    "schema_version": {
+      "const": 1
+    },
+    "severity": {
+      "enum": [
+        "CRITICAL",
+        "HIGH",
+        "MEDIUM",
+        "LOW",
+        "INFO"
+      ],
+      "type": "string"
+    },
+    "suppressed": {
+      "type": "boolean"
+    },
+    "unknowns": {
+      "type": "array"
+    }
+  },
+  "required": [
+    "schema",
+    "schema_version",
+    "id",
+    "severity",
+    "confidence",
+    "line",
+    "evidence",
+    "kind"
+  ],
+  "title": "PegRex security finding",
+  "type": "object"
+}

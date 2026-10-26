@@ -1,0 +1,816 @@
+{
+  "edges": [
+    {
+      "kind": "witnesses",
+      "source": "contract:1c5f22e1aca7d409c84cc3b0ba8e478c8d2a1ef14567a8c600ea1f0d0742c17d",
+      "target": "invariant:1c5f22e1aca7d409c84cc3b0ba8e478c8d2a1ef14567a8c600ea1f0d0742c17d"
+    },
+    {
+      "kind": "witnesses",
+      "source": "contract:4df8c6fb80c2c554e65e77352cfc5670e598e02d33ecc7b4a8081cbf0a73dbbb",
+      "target": "invariant:4df8c6fb80c2c554e65e77352cfc5670e598e02d33ecc7b4a8081cbf0a73dbbb"
+    },
+    {
+      "kind": "witnesses",
+      "source": "contract:71becd5cd205a81bc5f8467f1e39a95365c56ff79df24974afaeb946d50ca930",
+      "target": "invariant:71becd5cd205a81bc5f8467f1e39a95365c56ff79df24974afaeb946d50ca930"
+    },
+    {
+      "kind": "witnesses",
+      "source": "contract:9f21b931ae3a1a292306c010fca187f0c792ca8475e724161f4d91de85198faf",
+      "target": "invariant:9f21b931ae3a1a292306c010fca187f0c792ca8475e724161f4d91de85198faf"
+    },
+    {
+      "kind": "witnesses",
+      "source": "contract:ba89562d6e9811017594e911d669405d17d66f4b3e5e8e49b483abf3438f8267",
+      "target": "invariant:ba89562d6e9811017594e911d669405d17d66f4b3e5e8e49b483abf3438f8267"
+    },
+    {
+      "kind": "witnesses",
+      "source": "contract:eba383ad6964968e469450ec4a38bdc1133a767294180d27392c0a94eda73844",
+      "target": "invariant:eba383ad6964968e469450ec4a38bdc1133a767294180d27392c0a94eda73844"
+    },
+    {
+      "kind": "defines",
+      "source": "contracts.py::_observable_behavior",
+      "target": "contract:71becd5cd205a81bc5f8467f1e39a95365c56ff79df24974afaeb946d50ca930"
+    },
+    {
+      "kind": "defines",
+      "source": "contracts.py::_observable_behavior",
+      "target": "contract:eba383ad6964968e469450ec4a38bdc1133a767294180d27392c0a94eda73844"
+    },
+    {
+      "kind": "defines",
+      "source": "contracts.py::as_legacy_pairs",
+      "target": "contract:ba89562d6e9811017594e911d669405d17d66f4b3e5e8e49b483abf3438f8267"
+    },
+    {
+      "kind": "calls",
+      "resolution": "resolved",
+      "source": "contracts.py::canonicalize",
+      "target": "models.py::contracts_from_pairs"
+    },
+    {
+      "kind": "calls",
+      "resolution": "resolved",
+      "source": "contracts.py::subsume",
+      "target": "contracts.py::_observable_behavior"
+    },
+    {
+      "kind": "calls",
+      "resolution": "conservative",
+      "source": "contracts.py::subsume",
+      "target": "models.py::OperationResult.to_dict"
+    },
+    {
+      "kind": "calls",
+      "resolution": "conservative",
+      "source": "contracts.py::subsume",
+      "target": "models.py::PathContract.to_dict"
+    },
+    {
+      "kind": "calls",
+      "resolution": "conservative",
+      "source": "contracts.py::subsume",
+      "target": "models.py::SourceDocument.to_dict"
+    },
+    {
+      "kind": "calls",
+      "resolution": "resolved",
+      "source": "engine.py::CoreEngine.audit",
+      "target": "engine.py::CoreEngine.language"
+    },
+    {
+      "kind": "calls",
+      "resolution": "resolved",
+      "source": "engine.py::CoreEngine.contracts_file",
+      "target": "engine.py::CoreEngine.extract_contracts"
+    },
+    {
+      "kind": "calls",
+      "resolution": "resolved",
+      "source": "engine.py::CoreEngine.contracts_file",
+      "target": "models.py::SourceDocument.from_path"
+    },
+    {
+      "kind": "calls",
+      "resolution": "resolved",
+      "source": "engine.py::CoreEngine.execute",
+      "target": "engine.py::CoreEngine.capabilities"
+    },
+    {
+      "kind": "calls",
+      "resolution": "resolved",
+      "source": "engine.py::CoreEngine.extract_contracts",
+      "target": "contracts.py::canonicalize"
+    },
+    {
+      "kind": "calls",
+      "resolution": "conservative",
+      "source": "engine.py::CoreEngine.extract_contracts",
+      "target": "models.py::OperationResult.to_dict"
+    },
+    {
+      "kind": "calls",
+      "resolution": "conservative",
+      "source": "engine.py::CoreEngine.extract_contracts",
+      "target": "models.py::PathContract.to_dict"
+    },
+    {
+      "kind": "calls",
+      "resolution": "conservative",
+      "source": "engine.py::CoreEngine.extract_contracts",
+      "target": "models.py::SourceDocument.to_dict"
+    },
+    {
+      "kind": "calls",
+      "resolution": "resolved",
+      "source": "engine.py::CoreEngine.parse",
+      "target": "engine.py::CoreEngine._node_count"
+    },
+    {
+      "kind": "calls",
+      "resolution": "resolved",
+      "source": "engine.py::CoreEngine.parse",
+      "target": "engine.py::CoreEngine._node_dict"
+    },
+    {
+      "kind": "calls",
+      "resolution": "resolved",
+      "source": "models.py::PathContract.identity",
+      "target": "models.py::sha256_json"
+    },
+    {
+      "kind": "calls",
+      "resolution": "resolved",
+      "source": "models.py::SourceDocument.line",
+      "target": "models.py::SourceDocument.slice"
+    },
+    {
+      "kind": "defines",
+      "source": "models.py::canonical_json",
+      "target": "contract:1c5f22e1aca7d409c84cc3b0ba8e478c8d2a1ef14567a8c600ea1f0d0742c17d"
+    },
+    {
+      "kind": "defines",
+      "source": "models.py::contracts_from_pairs",
+      "target": "contract:9f21b931ae3a1a292306c010fca187f0c792ca8475e724161f4d91de85198faf"
+    },
+    {
+      "kind": "calls",
+      "resolution": "resolved",
+      "source": "models.py::contracts_from_pairs",
+      "target": "models.py::PathContract.create"
+    },
+    {
+      "kind": "defines",
+      "source": "models.py::sha256_json",
+      "target": "contract:4df8c6fb80c2c554e65e77352cfc5670e598e02d33ecc7b4a8081cbf0a73dbbb"
+    },
+    {
+      "kind": "calls",
+      "resolution": "resolved",
+      "source": "models.py::sha256_json",
+      "target": "models.py::canonical_json"
+    },
+    {
+      "kind": "imports",
+      "source": "module:__init__.py",
+      "target": "module:contracts.py"
+    },
+    {
+      "kind": "imports",
+      "source": "module:__init__.py",
+      "target": "module:engine.py"
+    },
+    {
+      "kind": "imports",
+      "source": "module:__init__.py",
+      "target": "module:models.py"
+    },
+    {
+      "kind": "contains",
+      "source": "module:contracts.py",
+      "target": "contracts.py::_observable_behavior"
+    },
+    {
+      "kind": "contains",
+      "source": "module:contracts.py",
+      "target": "contracts.py::as_legacy_pairs"
+    },
+    {
+      "kind": "contains",
+      "source": "module:contracts.py",
+      "target": "contracts.py::canonicalize"
+    },
+    {
+      "kind": "contains",
+      "source": "module:contracts.py",
+      "target": "contracts.py::subsume"
+    },
+    {
+      "kind": "imports",
+      "source": "module:contracts.py",
+      "target": "module:models.py"
+    },
+    {
+      "kind": "contains",
+      "source": "module:engine.py",
+      "target": "engine.py::CoreEngine._node_count"
+    },
+    {
+      "kind": "contains",
+      "source": "module:engine.py",
+      "target": "engine.py::CoreEngine._node_dict"
+    },
+    {
+      "kind": "contains",
+      "source": "module:engine.py",
+      "target": "engine.py::CoreEngine.audit"
+    },
+    {
+      "kind": "contains",
+      "source": "module:engine.py",
+      "target": "engine.py::CoreEngine.call_graph"
+    },
+    {
+      "kind": "contains",
+      "source": "module:engine.py",
+      "target": "engine.py::CoreEngine.capabilities"
+    },
+    {
+      "kind": "contains",
+      "source": "module:engine.py",
+      "target": "engine.py::CoreEngine.contracts_file"
+    },
+    {
+      "kind": "contains",
+      "source": "module:engine.py",
+      "target": "engine.py::CoreEngine.execute"
+    },
+    {
+      "kind": "contains",
+      "source": "module:engine.py",
+      "target": "engine.py::CoreEngine.extract_contracts"
+    },
+    {
+      "kind": "contains",
+      "source": "module:engine.py",
+      "target": "engine.py::CoreEngine.language"
+    },
+    {
+      "kind": "contains",
+      "source": "module:engine.py",
+      "target": "engine.py::CoreEngine.operations"
+    },
+    {
+      "kind": "contains",
+      "source": "module:engine.py",
+      "target": "engine.py::CoreEngine.parse"
+    },
+    {
+      "kind": "contains",
+      "source": "module:engine.py",
+      "target": "engine.py::CoreEngine.soundness"
+    },
+    {
+      "kind": "contains",
+      "source": "module:engine.py",
+      "target": "engine.py::CoreEngine.verify_patch"
+    },
+    {
+      "kind": "contains",
+      "source": "module:engine.py",
+      "target": "engine.py::get_engine"
+    },
+    {
+      "kind": "imports",
+      "source": "module:engine.py",
+      "target": "module:contracts.py"
+    },
+    {
+      "kind": "imports",
+      "source": "module:engine.py",
+      "target": "module:models.py"
+    },
+    {
+      "kind": "contains",
+      "source": "module:models.py",
+      "target": "models.py::OperationResult.to_dict"
+    },
+    {
+      "kind": "contains",
+      "source": "module:models.py",
+      "target": "models.py::PathContract.create"
+    },
+    {
+      "kind": "contains",
+      "source": "module:models.py",
+      "target": "models.py::PathContract.identity"
+    },
+    {
+      "kind": "contains",
+      "source": "module:models.py",
+      "target": "models.py::PathContract.to_dict"
+    },
+    {
+      "kind": "contains",
+      "source": "module:models.py",
+      "target": "models.py::SourceDocument.__post_init__"
+    },
+    {
+      "kind": "contains",
+      "source": "module:models.py",
+      "target": "models.py::SourceDocument.from_path"
+    },
+    {
+      "kind": "contains",
+      "source": "module:models.py",
+      "target": "models.py::SourceDocument.line"
+    },
+    {
+      "kind": "contains",
+      "source": "module:models.py",
+      "target": "models.py::SourceDocument.slice"
+    },
+    {
+      "kind": "contains",
+      "source": "module:models.py",
+      "target": "models.py::SourceDocument.to_dict"
+    },
+    {
+      "kind": "contains",
+      "source": "module:models.py",
+      "target": "models.py::canonical_json"
+    },
+    {
+      "kind": "contains",
+      "source": "module:models.py",
+      "target": "models.py::contracts_from_pairs"
+    },
+    {
+      "kind": "contains",
+      "source": "module:models.py",
+      "target": "models.py::sha256_json"
+    }
+  ],
+  "nodes": [
+    {
+      "constraints": [],
+      "function": "models.py::canonical_json",
+      "id": "contract:1c5f22e1aca7d409c84cc3b0ba8e478c8d2a1ef14567a8c600ea1f0d0742c17d",
+      "kind": "contract",
+      "outcome": "json.dumps(value, sort_keys=True, separators=(\",\", \":\"),\n                      ensure_ascii=False, default=str)"
+    },
+    {
+      "constraints": [],
+      "function": "models.py::sha256_json",
+      "id": "contract:4df8c6fb80c2c554e65e77352cfc5670e598e02d33ecc7b4a8081cbf0a73dbbb",
+      "kind": "contract",
+      "outcome": "hashlib.sha256(canonical_json(value).encode(\"utf-8\")).hexdigest()"
+    },
+    {
+      "constraints": [
+        "(not (not semantic))"
+      ],
+      "function": "contracts.py::_observable_behavior",
+      "id": "contract:71becd5cd205a81bc5f8467f1e39a95365c56ff79df24974afaeb946d50ca930",
+      "kind": "contract",
+      "outcome": "(_canon_result(row.outcome), effects), row.function"
+    },
+    {
+      "constraints": [],
+      "function": "models.py::contracts_from_pairs",
+      "id": "contract:9f21b931ae3a1a292306c010fca187f0c792ca8475e724161f4d91de85198faf",
+      "kind": "contract",
+      "outcome": "sorted({row.identity: row for row in rows}.values(),\n                  key=lambda row: (row.constraints, row.outcome, row.identity))"
+    },
+    {
+      "constraints": [],
+      "function": "contracts.py::as_legacy_pairs",
+      "id": "contract:ba89562d6e9811017594e911d669405d17d66f4b3e5e8e49b483abf3438f8267",
+      "kind": "contract",
+      "outcome": "[(frozenset(row.constraints), row.outcome) for row in contracts]"
+    },
+    {
+      "constraints": [
+        "(not semantic)"
+      ],
+      "function": "contracts.py::_observable_behavior",
+      "id": "contract:eba383ad6964968e469450ec4a38bdc1133a767294180d27392c0a94eda73844",
+      "kind": "contract",
+      "outcome": "row.outcome, row.function"
+    },
+    {
+      "function": "_observable_behavior",
+      "function_sha256": "a77eb206d260ab956a4a3844975109b6945b1b6b445b25ddb401a3bf19285813",
+      "id": "contracts.py::_observable_behavior",
+      "kind": "function",
+      "path": "contracts.py",
+      "status": "ok"
+    },
+    {
+      "function": "as_legacy_pairs",
+      "function_sha256": "cd03b0806ebf835fe2945ce24c7552ba3c8f2b1717e4528296b22bac8072054f",
+      "id": "contracts.py::as_legacy_pairs",
+      "kind": "function",
+      "path": "contracts.py",
+      "status": "ok"
+    },
+    {
+      "function": "canonicalize",
+      "function_sha256": "525c24a9aef68454c7c7f85823bafbc94c7237b7e820606882ffa361a8b9d696",
+      "id": "contracts.py::canonicalize",
+      "kind": "function",
+      "path": "contracts.py",
+      "status": "unknown"
+    },
+    {
+      "function": "subsume",
+      "function_sha256": "3b2d01fc909211aafdf441a2497f6479bb3a9e2780517552d2d8a59b2ca9ea2f",
+      "id": "contracts.py::subsume",
+      "kind": "function",
+      "path": "contracts.py",
+      "status": "unknown"
+    },
+    {
+      "function": "CoreEngine._node_count",
+      "function_sha256": "76cc3fb39a15f019a2b0b9ee5b3694152eee4dba924a05d04d712d0d3b08ffbc",
+      "id": "engine.py::CoreEngine._node_count",
+      "kind": "function",
+      "path": "engine.py",
+      "status": "unknown"
+    },
+    {
+      "function": "CoreEngine._node_dict",
+      "function_sha256": "32469b8540682b72b61771878da18a01f83df2bc41911b0bbc3a698beb807fdf",
+      "id": "engine.py::CoreEngine._node_dict",
+      "kind": "function",
+      "path": "engine.py",
+      "status": "unknown"
+    },
+    {
+      "function": "CoreEngine.audit",
+      "function_sha256": "d9ac1caff934e07813b39dcdbeb08d1c51b18b4139274311d2dfb960d1d110a5",
+      "id": "engine.py::CoreEngine.audit",
+      "kind": "function",
+      "path": "engine.py",
+      "status": "unknown"
+    },
+    {
+      "function": "CoreEngine.call_graph",
+      "function_sha256": "fe2868ea7bcc32c4ed22c2f6bc3ad218d0daa6dffd4b4835a43ebf696b32c60d",
+      "id": "engine.py::CoreEngine.call_graph",
+      "kind": "function",
+      "path": "engine.py",
+      "status": "unknown"
+    },
+    {
+      "function": "CoreEngine.capabilities",
+      "function_sha256": "1f08932c470f22e3b41ae4aaaa06827eaf0328a574d8d6deb68091c6ff9bc35c",
+      "id": "engine.py::CoreEngine.capabilities",
+      "kind": "function",
+      "path": "engine.py",
+      "status": "unknown"
+    },
+    {
+      "function": "CoreEngine.contracts_file",
+      "function_sha256": "2869e669a9af20528b47dc25bbb218f6e2d6c602f5be50482d298abc72d2e23b",
+      "id": "engine.py::CoreEngine.contracts_file",
+      "kind": "function",
+      "path": "engine.py",
+      "status": "unknown"
+    },
+    {
+      "function": "CoreEngine.execute",
+      "function_sha256": "8d1972fccac909f3d1ee9426a55cd74b9890ba8da552e36094b10f8803a0bb23",
+      "id": "engine.py::CoreEngine.execute",
+      "kind": "function",
+      "path": "engine.py",
+      "status": "unknown"
+    },
+    {
+      "function": "CoreEngine.extract_contracts",
+      "function_sha256": "a82998ac418e9618f7844a991a002847341598f3dbfd3e6be3ef6b13750f8749",
+      "id": "engine.py::CoreEngine.extract_contracts",
+      "kind": "function",
+      "path": "engine.py",
+      "status": "unknown"
+    },
+    {
+      "function": "CoreEngine.language",
+      "function_sha256": "e15b188dce9696d9db93565d3db9a1fde3ae8c3d70ed5cc8b01b8a23052534fc",
+      "id": "engine.py::CoreEngine.language",
+      "kind": "function",
+      "path": "engine.py",
+      "status": "unknown"
+    },
+    {
+      "function": "CoreEngine.operations",
+      "function_sha256": "20d76f8617acf862c3d21eb03ad3472a2eb477a21e17bf8af40e1378ded11351",
+      "id": "engine.py::CoreEngine.operations",
+      "kind": "function",
+      "path": "engine.py",
+      "status": "unknown"
+    },
+    {
+      "function": "CoreEngine.parse",
+      "function_sha256": "3f9788f68cdebc804b2fa48b19893557eb44aa6f248c6206f8353a40455bf19f",
+      "id": "engine.py::CoreEngine.parse",
+      "kind": "function",
+      "path": "engine.py",
+      "status": "unknown"
+    },
+    {
+      "function": "CoreEngine.soundness",
+      "function_sha256": "34e2984e6ee78b05a261f93cd5a190a71f2ba62ace11d04bb7925344a50af665",
+      "id": "engine.py::CoreEngine.soundness",
+      "kind": "function",
+      "path": "engine.py",
+      "status": "unknown"
+    },
+    {
+      "function": "CoreEngine.verify_patch",
+      "function_sha256": "1dc7c832c8bdb1a301268155af3abb96506538d7d12c01c308da3920c9660e7c",
+      "id": "engine.py::CoreEngine.verify_patch",
+      "kind": "function",
+      "path": "engine.py",
+      "status": "unknown"
+    },
+    {
+      "function": "get_engine",
+      "function_sha256": "5aa467e3ee04a919d46dd02641a00e7900a25f1ada785ff4a998ffbc8fa740ec",
+      "id": "engine.py::get_engine",
+      "kind": "function",
+      "path": "engine.py",
+      "status": "unknown"
+    },
+    {
+      "function": "models.py::canonical_json",
+      "id": "invariant:1c5f22e1aca7d409c84cc3b0ba8e478c8d2a1ef14567a8c600ea1f0d0742c17d",
+      "invariant_kind": "path-contract",
+      "kind": "invariant",
+      "status": "ok"
+    },
+    {
+      "function": "models.py::sha256_json",
+      "id": "invariant:4df8c6fb80c2c554e65e77352cfc5670e598e02d33ecc7b4a8081cbf0a73dbbb",
+      "invariant_kind": "path-contract",
+      "kind": "invariant",
+      "status": "ok"
+    },
+    {
+      "function": "contracts.py::_observable_behavior",
+      "id": "invariant:71becd5cd205a81bc5f8467f1e39a95365c56ff79df24974afaeb946d50ca930",
+      "invariant_kind": "path-contract",
+      "kind": "invariant",
+      "status": "ok"
+    },
+    {
+      "function": "models.py::contracts_from_pairs",
+      "id": "invariant:9f21b931ae3a1a292306c010fca187f0c792ca8475e724161f4d91de85198faf",
+      "invariant_kind": "path-contract",
+      "kind": "invariant",
+      "status": "ok"
+    },
+    {
+      "function": "contracts.py::as_legacy_pairs",
+      "id": "invariant:ba89562d6e9811017594e911d669405d17d66f4b3e5e8e49b483abf3438f8267",
+      "invariant_kind": "path-contract",
+      "kind": "invariant",
+      "status": "ok"
+    },
+    {
+      "function": "contracts.py::_observable_behavior",
+      "id": "invariant:eba383ad6964968e469450ec4a38bdc1133a767294180d27392c0a94eda73844",
+      "invariant_kind": "path-contract",
+      "kind": "invariant",
+      "status": "ok"
+    },
+    {
+      "function": "OperationResult.to_dict",
+      "function_sha256": "0796cc827c6ca9b7834f95c2557708647f22ed903138b0fa77a84f34e0307c62",
+      "id": "models.py::OperationResult.to_dict",
+      "kind": "function",
+      "path": "models.py",
+      "status": "unknown"
+    },
+    {
+      "function": "PathContract.create",
+      "function_sha256": "910f072c546878d888d3b685c906c0bc52879a361ca64206a5f1182f3832ff18",
+      "id": "models.py::PathContract.create",
+      "kind": "function",
+      "path": "models.py",
+      "status": "unknown"
+    },
+    {
+      "function": "PathContract.identity",
+      "function_sha256": "30513b46a415484210c6281727f4c67e8482a808f1a604839fccbc63dd74dd13",
+      "id": "models.py::PathContract.identity",
+      "kind": "function",
+      "path": "models.py",
+      "status": "unknown"
+    },
+    {
+      "function": "PathContract.to_dict",
+      "function_sha256": "506b796d96ee9e1b78e5b7ea8c238a223705aebafdb77135a362c432f6516a1f",
+      "id": "models.py::PathContract.to_dict",
+      "kind": "function",
+      "path": "models.py",
+      "status": "unknown"
+    },
+    {
+      "function": "SourceDocument.__post_init__",
+      "function_sha256": "90ce6671021ae96a2c6ff60224ed5df9b18ed92c61e8164e38743b9660ce21c1",
+      "id": "models.py::SourceDocument.__post_init__",
+      "kind": "function",
+      "path": "models.py",
+      "status": "unknown"
+    },
+    {
+      "function": "SourceDocument.from_path",
+      "function_sha256": "60cb0d5ae42e0745895d0a1694bcec205b6d81558bfc6fab4a786b335afd041b",
+      "id": "models.py::SourceDocument.from_path",
+      "kind": "function",
+      "path": "models.py",
+      "status": "unknown"
+    },
+    {
+      "function": "SourceDocument.line",
+      "function_sha256": "a936ed990cb4a5ad3abee6d2fa8193b1440e5b6d0712dd27d458cf59ed9777ee",
+      "id": "models.py::SourceDocument.line",
+      "kind": "function",
+      "path": "models.py",
+      "status": "unknown"
+    },
+    {
+      "function": "SourceDocument.slice",
+      "function_sha256": "ca8096951d43e1ed3d6cc0e1889e2bda91bd3d69bfc6feed7c6a055a657132d3",
+      "id": "models.py::SourceDocument.slice",
+      "kind": "function",
+      "path": "models.py",
+      "status": "unknown"
+    },
+    {
+      "function": "SourceDocument.to_dict",
+      "function_sha256": "85013e806bf4165b417d7f321983bac0c260992bba44cf8295c0704b021f6e6d",
+      "id": "models.py::SourceDocument.to_dict",
+      "kind": "function",
+      "path": "models.py",
+      "status": "unknown"
+    },
+    {
+      "function": "canonical_json",
+      "function_sha256": "7d11bd5d0deaca4d48cc25b790ad11495e30ade770d30930e1c33f50b08d311e",
+      "id": "models.py::canonical_json",
+      "kind": "function",
+      "path": "models.py",
+      "status": "ok"
+    },
+    {
+      "function": "contracts_from_pairs",
+      "function_sha256": "142f0918a4cf8ebd226b5153d9295c0d96e4be2a6f69ae882853a01f7244f8f4",
+      "id": "models.py::contracts_from_pairs",
+      "kind": "function",
+      "path": "models.py",
+      "status": "ok"
+    },
+    {
+      "function": "sha256_json",
+      "function_sha256": "ed195ba7ee38d41e56df2b8a8bbe9ae0a04b4641730b100b9bee96fe2acfbf69",
+      "id": "models.py::sha256_json",
+      "kind": "function",
+      "path": "models.py",
+      "status": "ok"
+    },
+    {
+      "id": "module:__init__.py",
+      "kind": "module",
+      "path": "__init__.py",
+      "source_sha256": "5a6ef170f7fb4e524e9b4e887191e395b8573ac56fcd1e8857b30ba65bd757e0"
+    },
+    {
+      "id": "module:contracts.py",
+      "kind": "module",
+      "path": "contracts.py",
+      "source_sha256": "ef84ccafb0f9f7f9d362374beefb1222e16b711d1cfac0a28db6a7adc4554f87"
+    },
+    {
+      "id": "module:engine.py",
+      "kind": "module",
+      "path": "engine.py",
+      "source_sha256": "029b3a99235cb07868624b417169833b8b60d0e58c622d9b0c2088d4a7f0dcb0"
+    },
+    {
+      "id": "module:models.py",
+      "kind": "module",
+      "path": "models.py",
+      "source_sha256": "0499f3572ee84cca331dcd679783fa3bd5bd7bf8a9a83d0efc39dd5c5a690e8b"
+    }
+  ],
+  "revision": "5382589197859cd3c06a7876acb9be7f700699f6bf28fcc677d162528ca68102",
+  "schema": "pegrex.semantic-dependency-graph.v1",
+  "unknowns": [
+    "contracts.py: AnalysisTimeout: contracts.py: analysis exceeded 1000ms",
+    "contracts.py: AnalysisTimeout: contracts.py: analysis exceeded 1000ms",
+    "contracts.py: ValueError: no top-level function '_node_count' found",
+    "contracts.py: ValueError: no top-level function '_node_dict' found",
+    "contracts.py: ValueError: no top-level function 'audit' found",
+    "contracts.py: ValueError: no top-level function 'call_graph' found",
+    "contracts.py: ValueError: no top-level function 'capabilities' found",
+    "contracts.py: AnalysisTimeout: engine.py: analysis exceeded 1000ms",
+    "contracts.py: AnalysisTimeout: engine.py: analysis exceeded 1000ms",
+    "contracts.py: AnalysisTimeout: engine.py: analysis exceeded 1000ms",
+    "contracts.py: AnalysisTimeout: engine.py: analysis exceeded 1000ms",
+    "contracts.py: AnalysisTimeout: engine.py: analysis exceeded 1000ms",
+    "contracts.py: AnalysisTimeout: engine.py: analysis exceeded 1000ms",
+    "contracts.py: AnalysisTimeout: engine.py: analysis exceeded 1000ms",
+    "contracts.py: AnalysisTimeout: engine.py: analysis exceeded 1000ms",
+    "contracts.py: AnalysisTimeout: engine.py: analysis exceeded 1000ms",
+    "contracts.py: ValueError: no top-level function 'to_dict' found",
+    "contracts.py: ValueError: no top-level function 'create' found",
+    "contracts.py: ValueError: no top-level function 'identity' found",
+    "contracts.py: ValueError: no top-level function 'to_dict' found",
+    "contracts.py: ValueError: no top-level function '__post_init__' found",
+    "contracts.py: ValueError: no top-level function 'from_path' found",
+    "contracts.py: ValueError: no top-level function 'line' found",
+    "contracts.py: ValueError: no top-level function 'slice' found",
+    "contracts.py: ValueError: no top-level function 'to_dict' found",
+    "engine.py: AnalysisTimeout: contracts.py: analysis exceeded 1000ms",
+    "engine.py: AnalysisTimeout: contracts.py: analysis exceeded 1000ms",
+    "engine.py: ValueError: no top-level function '_node_count' found",
+    "engine.py: ValueError: no top-level function '_node_dict' found",
+    "engine.py: ValueError: no top-level function 'audit' found",
+    "engine.py: ValueError: no top-level function 'call_graph' found",
+    "engine.py: ValueError: no top-level function 'capabilities' found",
+    "engine.py: AnalysisTimeout: engine.py: analysis exceeded 1000ms",
+    "engine.py: AnalysisTimeout: engine.py: analysis exceeded 1000ms",
+    "engine.py: AnalysisTimeout: engine.py: analysis exceeded 1000ms",
+    "engine.py: AnalysisTimeout: engine.py: analysis exceeded 1000ms",
+    "engine.py: AnalysisTimeout: engine.py: analysis exceeded 1000ms",
+    "engine.py: AnalysisTimeout: engine.py: analysis exceeded 1000ms",
+    "engine.py: AnalysisTimeout: engine.py: analysis exceeded 1000ms",
+    "engine.py: AnalysisTimeout: engine.py: analysis exceeded 1000ms",
+    "engine.py: AnalysisTimeout: engine.py: analysis exceeded 1000ms",
+    "engine.py: ValueError: no top-level function 'to_dict' found",
+    "engine.py: ValueError: no top-level function 'create' found",
+    "engine.py: ValueError: no top-level function 'identity' found",
+    "engine.py: ValueError: no top-level function 'to_dict' found",
+    "engine.py: ValueError: no top-level function '__post_init__' found",
+    "engine.py: ValueError: no top-level function 'from_path' found",
+    "engine.py: ValueError: no top-level function 'line' found",
+    "engine.py: ValueError: no top-level function 'slice' found",
+    "engine.py: ValueError: no top-level function 'to_dict' found",
+    "models.py: AnalysisTimeout: contracts.py: analysis exceeded 1000ms",
+    "models.py: AnalysisTimeout: contracts.py: analysis exceeded 1000ms",
+    "models.py: ValueError: no top-level function '_node_count' found",
+    "models.py: ValueError: no top-level function '_node_dict' found",
+    "models.py: ValueError: no top-level function 'audit' found",
+    "models.py: ValueError: no top-level function 'call_graph' found",
+    "models.py: ValueError: no top-level function 'capabilities' found",
+    "models.py: AnalysisTimeout: engine.py: analysis exceeded 1000ms",
+    "models.py: AnalysisTimeout: engine.py: analysis exceeded 1000ms",
+    "models.py: AnalysisTimeout: engine.py: analysis exceeded 1000ms",
+    "models.py: AnalysisTimeout: engine.py: analysis exceeded 1000ms",
+    "models.py: AnalysisTimeout: engine.py: analysis exceeded 1000ms",
+    "models.py: AnalysisTimeout: engine.py: analysis exceeded 1000ms",
+    "models.py: AnalysisTimeout: engine.py: analysis exceeded 1000ms",
+    "models.py: AnalysisTimeout: engine.py: analysis exceeded 1000ms",
+    "models.py: AnalysisTimeout: engine.py: analysis exceeded 1000ms",
+    "models.py: ValueError: no top-level function 'to_dict' found",
+    "models.py: ValueError: no top-level function 'create' found",
+    "models.py: ValueError: no top-level function 'identity' found",
+    "models.py: ValueError: no top-level function 'to_dict' found",
+    "models.py: ValueError: no top-level function '__post_init__' found",
+    "models.py: ValueError: no top-level function 'from_path' found",
+    "models.py: ValueError: no top-level function 'line' found",
+    "models.py: ValueError: no top-level function 'slice' found",
+    "models.py: ValueError: no top-level function 'to_dict' found",
+    "contracts.py::canonicalize: AnalysisTimeout: contracts.py: analysis exceeded 1000ms",
+    "contracts.py::subsume: AnalysisTimeout: contracts.py: analysis exceeded 1000ms",
+    "engine.py::CoreEngine._node_count: ValueError: no top-level function '_node_count' found",
+    "engine.py::CoreEngine._node_dict: ValueError: no top-level function '_node_dict' found",
+    "engine.py::CoreEngine.audit: ValueError: no top-level function 'audit' found",
+    "engine.py::CoreEngine.call_graph: ValueError: no top-level function 'call_graph' found",
+    "engine.py::CoreEngine.capabilities: ValueError: no top-level function 'capabilities' found",
+    "engine.py::CoreEngine.contracts_file: AnalysisTimeout: engine.py: analysis exceeded 1000ms",
+    "engine.py::CoreEngine.execute: AnalysisTimeout: engine.py: analysis exceeded 1000ms",
+    "engine.py::CoreEngine.extract_contracts: AnalysisTimeout: engine.py: analysis exceeded 1000ms",
+    "engine.py::CoreEngine.language: AnalysisTimeout: engine.py: analysis exceeded 1000ms",
+    "engine.py::CoreEngine.operations: AnalysisTimeout: engine.py: analysis exceeded 1000ms",
+    "engine.py::CoreEngine.parse: AnalysisTimeout: engine.py: analysis exceeded 1000ms",
+    "engine.py::CoreEngine.soundness: AnalysisTimeout: engine.py: analysis exceeded 1000ms",
+    "engine.py::CoreEngine.verify_patch: AnalysisTimeout: engine.py: analysis exceeded 1000ms",
+    "engine.py::get_engine: AnalysisTimeout: engine.py: analysis exceeded 1000ms",
+    "models.py::OperationResult.to_dict: ValueError: no top-level function 'to_dict' found",
+    "models.py::PathContract.create: ValueError: no top-level function 'create' found",
+    "models.py::PathContract.identity: ValueError: no top-level function 'identity' found",
+    "models.py::PathContract.to_dict: ValueError: no top-level function 'to_dict' found",
+    "models.py::SourceDocument.__post_init__: ValueError: no top-level function '__post_init__' found",
+    "models.py::SourceDocument.from_path: ValueError: no top-level function 'from_path' found",
+    "models.py::SourceDocument.line: ValueError: no top-level function 'line' found",
+    "models.py::SourceDocument.slice: ValueError: no top-level function 'slice' found",
+    "models.py::SourceDocument.to_dict: ValueError: no top-level function 'to_dict' found"
+  ]
+}

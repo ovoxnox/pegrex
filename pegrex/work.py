@@ -22,7 +22,7 @@ def _rules():
     global _GRAMMAR
     if _GRAMMAR is None:
         g = (pathlib.Path(__file__).parent.parent / "examples"
-             / "agent.gram").read_text()
+             / "agent.gram").read_text(encoding="utf-8")
         _GRAMMAR = compile_grammar(g)
     return _GRAMMAR
 
@@ -36,6 +36,7 @@ def _text(node, src):
 def _list(node, src):
     out = []
     def walk(n):
+        """Implement walk with the module's explicit API and failure semantics."""
         if isinstance(n, str):
             v = n.strip()
             if v and v not in out:
@@ -49,8 +50,9 @@ def _list(node, src):
 
 
 def compile_work(path: str) -> dict:
+    """Implement compile work with the module's explicit API and failure semantics."""
     start, rules = _rules()
-    src = pathlib.Path(path).read_text()
+    src = pathlib.Path(path).read_text(encoding="utf-8")
     ast, err, pos = peg.run(start, src, rules)
     assert err is None, (err, pos)
     name0 = next((c for c in ast.children if isinstance(c, str)), None)

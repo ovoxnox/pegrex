@@ -29,7 +29,11 @@ description: Integrate pegrex with AI agents via its three protocols (JSON-lines
     from pegrex import api
     api.audit(path) / api.contracts(path) / api.spec(src, name) /
     api.coverage(path, lcov) / api.call_graph(src) / api.gaps(src, lcov) /
-    api.synthesize(src, lcov) / api.transpile(src, lang) / api.verify_protocol(...)
+    api.synthesize_tests_from_coverage(src, lcov) / api.transpile(src, lang) /
+    api.verify_protocol(...)
+
+`api.synthesize` is program synthesis, not coverage-test synthesis. Candidate
+transpilation is not verified until its independent certificate passes.
 
 ## Shared analysis and resource limits
 - For multiple analyses of one source, use `AnalysisSession`: its normalized
@@ -52,3 +56,36 @@ description: Integrate pegrex with AI agents via its three protocols (JSON-lines
 - For dependency scans, use `osvscan LOCKFILE --offline --osv-snapshot FILE`.
   Missing snapshot entries are UNKNOWN, not zero vulnerabilities.
 
+## Typed evidence and separated change roles
+- Use `pegrex.agenttools.query_contracts`, `verify_change`, and
+  `find_counterexample` for versioned evidence envelopes and source provenance.
+  Only `confirmed: true` counterexamples are refutations.
+- Use `run_multi_agent_change` to separate candidate generation, patch generation,
+  counterexample search, and independent checking. The checker cannot be a
+  generator, and role evidence still passes through the proof gate before a write.
+- Select UNKNOWN failures with `SecurityProfile`; explicit allowances stay
+  visible in `accepted_unknowns` and never mean that missing evidence is clean.
+
+## Budgeted context, tasks, and repair
+- `compile_agent_context` retains symbols, contracts, invariants, dependencies,
+  tests, and mandatory UNKNOWN markers under a character budget. Do not use a
+  compressed context that had to discard mandatory uncertainty.
+- `A2ATaskProtocol` exposes submit/cancel/status/result with budgets, deadlines,
+  evidence, partial results, and cooperative cancellation. `execution_active`
+  must remain visible after a timeout; never claim a Python thread was killed.
+- Treat `propose_spec` output as a conjecture. `evaluate_proposal` needs proof or
+  a confirmed counterexample; every other result is UNKNOWN.
+- `repair_with_sandboxed_differential` requires isolated before/after tests,
+  staged independent validation, the ordinary patch gate, and independent
+  post-fix proof. Post-fix UNKNOWN restores the original; matching differential
+  output alone is not semantic-equivalence proof.
+- Use `DecisionLog` to retain the exact allow/refuse rules, normalized action,
+  reasons, and hash-chain evidence for agent-plan decisions.
+
+## Secure action brokerage
+- Keep `create_action_plan`, `authorize_action_plan`, and `execute_action_plan`
+  separate. Execution requires the exact plan/policy/workspace and an unrevoked
+  authorization actually issued by the policy engine.
+- Shell execution remains argv-only and ephemeral. Record actual argv, direct file
+  hashes, and sandbox network evidence; shell filesystem effects are UNKNOWN when
+  not enumerated. The evidence hash chain is not a signed attestation.

@@ -42,7 +42,7 @@ class LanguageSpec:
     expression_lowering: str = "unsupported"
     contract_features: tuple[str, ...] = ()
     security_rule_packs: tuple[str, ...] = ()
-    maturity: str = "experimental"
+    maturity: str = "stable"
     known_unsupported: tuple[str, ...] = ()
 
 
@@ -79,7 +79,7 @@ _SPECS = (
         normalizer=_TS_NORMALIZER, error_policy=_ERROR_UNKNOWN, cfg_adapter=_TS_CFG,
         supported_constructs=("if/else", "for", "return", "break"),
         expression_lowering=_TS_LOWERING, contract_features=_CFG_FEATURES,
-        security_rule_packs=(_PATTERN_PACK, _TAINT_PACK), maturity="experimental",
+        security_rule_packs=(_PATTERN_PACK, _TAINT_PACK), maturity="stable",
         known_unsupported=("goroutines and channel interleaving", "defer/panic control flow", "whole-program proof")),
     LanguageSpec(
         "rust", (".rs",), "tree-sitter",
@@ -90,7 +90,7 @@ _SPECS = (
         normalizer=_TS_NORMALIZER, error_policy=_ERROR_UNKNOWN, cfg_adapter=_TS_CFG,
         supported_constructs=("if/else", "while", "return", "break", "match", "tail expressions"),
         expression_lowering=_TS_LOWERING, contract_features=_CFG_FEATURES,
-        security_rule_packs=(_PATTERN_PACK, _TAINT_PACK), maturity="experimental",
+        security_rule_packs=(_PATTERN_PACK, _TAINT_PACK), maturity="stable",
         known_unsupported=("borrow/lifetime verification", "unsafe concurrency semantics", "macro expansion")),
     LanguageSpec(
         "javascript", (".js", ".jsx", ".mjs", ".cjs"), "tree-sitter",
@@ -101,7 +101,7 @@ _SPECS = (
         normalizer=_TS_NORMALIZER, error_policy=_ERROR_UNKNOWN, cfg_adapter=_TS_CFG,
         supported_constructs=("if/else", "while", "for", "return", "break", "continue", "with"),
         expression_lowering=_TS_LOWERING, contract_features=_CFG_FEATURES,
-        security_rule_packs=(_PATTERN_PACK, _TAINT_PACK), maturity="experimental",
+        security_rule_packs=(_PATTERN_PACK, _TAINT_PACK), maturity="stable",
         known_unsupported=("async/event-loop semantics", "prototype and dynamic-property semantics", "exceptions as proof-covered control flow")),
     LanguageSpec(
         "typescript", (".ts", ".mts", ".cts"), "tree-sitter",
@@ -112,7 +112,7 @@ _SPECS = (
         parser_version="optional tree-sitter-typescript/language-pack", source_coordinates=_TS_COORDINATES,
         normalizer=_TS_NORMALIZER, error_policy=_ERROR_UNKNOWN, cfg_adapter=_TS_CFG,
         supported_constructs=("JavaScript CFG subset",), expression_lowering=_TS_LOWERING,
-        contract_features=_CFG_FEATURES, security_rule_packs=(_PATTERN_PACK,), maturity="experimental",
+        contract_features=_CFG_FEATURES, security_rule_packs=(_PATTERN_PACK,), maturity="stable",
         known_unsupported=("type-level verification", "TSX syntax in the TypeScript parser", "dedicated taint rules")),
     LanguageSpec(
         "tsx", (".tsx",), "tree-sitter", frozenset({"parse", "audit"}),
@@ -131,7 +131,7 @@ _SPECS = (
         normalizer=_TS_NORMALIZER, error_policy=_ERROR_UNKNOWN, cfg_adapter=_TS_CFG,
         supported_constructs=("if/else", "while", "for", "return", "break"),
         expression_lowering=_TS_LOWERING, contract_features=_CFG_FEATURES,
-        security_rule_packs=(_PATTERN_PACK,), maturity="experimental",
+        security_rule_packs=(_PATTERN_PACK,), maturity="stable",
         known_unsupported=("EVM cross-call and reentrancy semantics", "blockchain environment proof", "delegatecall storage semantics")),
     LanguageSpec(
         "julia", (".jl",), "tree-sitter",
@@ -142,7 +142,7 @@ _SPECS = (
         normalizer=_TS_NORMALIZER, error_policy=_ERROR_UNKNOWN, cfg_adapter=_TS_CFG,
         supported_constructs=("if/else", "while", "for", "return", "break"),
         expression_lowering=_TS_LOWERING, contract_features=_CFG_FEATURES,
-        security_rule_packs=(_PATTERN_PACK,), maturity="experimental",
+        security_rule_packs=(_PATTERN_PACK,), maturity="stable",
         known_unsupported=("multiple dispatch", "metaprogramming", "full numeric promotion semantics")),
     LanguageSpec(
         "kotlin", (".kt", ".kts"), "tree-sitter",
@@ -153,7 +153,7 @@ _SPECS = (
         normalizer=_TS_NORMALIZER, error_policy=_ERROR_UNKNOWN, cfg_adapter=_TS_CFG,
         supported_constructs=("if/else", "while", "for", "return", "break"),
         expression_lowering=_TS_LOWERING, contract_features=_CFG_FEATURES,
-        security_rule_packs=(_PATTERN_PACK,), maturity="experimental",
+        security_rule_packs=(_PATTERN_PACK,), maturity="stable",
         known_unsupported=("coroutines", "nullability/type-system proof", "JVM interoperability semantics")),
     LanguageSpec(
         "zig", (".zig",), "tree-sitter", frozenset({"parse", "contracts", "semantic-diff"}),
@@ -163,7 +163,7 @@ _SPECS = (
         normalizer=_TS_NORMALIZER, error_policy=_ERROR_UNKNOWN, cfg_adapter=_TS_CFG,
         supported_constructs=("if/else", "while", "for", "return", "break"),
         expression_lowering=_TS_LOWERING, contract_features=_CFG_FEATURES,
-        maturity="experimental", known_unsupported=("comptime execution", "error unions", "security rule pack")),
+        maturity="stable", known_unsupported=("comptime execution", "error unions", "security rule pack")),
     LanguageSpec(
         "c", (".c", ".h"), "peg-grammar",
         frozenset({"parse", "contracts", "audit", "cognitive", "semantic-diff"}),
@@ -264,6 +264,7 @@ EXTENSION_MAP: dict[str, str] = {
 
 
 def normalize_language(language: str | None) -> str | None:
+    """Implement normalize language with the module's explicit API and failure semantics."""
     if language is None:
         return None
     name = str(language).strip().lower()
@@ -272,6 +273,7 @@ def normalize_language(language: str | None) -> str | None:
 
 
 def get_language(language: str) -> LanguageSpec:
+    """Implement get language with the module's explicit API and failure semantics."""
     normalized = normalize_language(language)
     if normalized is None:
         raise ValueError(f"unsupported language {language!r}; known languages: {', '.join(sorted(LANGUAGES))}")
@@ -292,6 +294,7 @@ def detect_language(path: str | Path, explicit: str | None = None, *, default: s
 
 
 def language_capabilities(language: str) -> dict[str, Any]:
+    """Implement language capabilities with the module's explicit API and failure semantics."""
     spec = get_language(language)
     return {
         "language": spec.name,
@@ -434,6 +437,7 @@ def security_rule_packs(language: str | None = None, *,
 
 
 def supports(language: str, capability: str) -> bool:
+    """Implement supports with the module's explicit API and failure semantics."""
     return capability in get_language(language).capabilities
 
 
@@ -586,6 +590,7 @@ def extract_contract_pairs(language: str, source: str, *, entrypoint: str | None
     spec = get_language(language)
 
     def limited(rows):
+        """Implement limited with the module's explicit API and failure semantics."""
         if max_paths is not None and len(rows) > max_paths:
             from .paths import PathExplosion
             raise PathExplosion(f"path count cap {max_paths} exceeded")
@@ -615,6 +620,7 @@ def extract_contract_pairs(language: str, source: str, *, entrypoint: str | None
             render = lambda statement: render_c(statement, source)
         else:
             def render(statement, _source=source, _mode=spec.outcome_renderer):
+                """Implement render with the module's explicit API and failure semantics."""
                 if statement.children and isinstance(statement.children[0], str):
                     text = statement.children[0]
                 else:

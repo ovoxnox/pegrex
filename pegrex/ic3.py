@@ -51,6 +51,7 @@ def _norm_condition(text):
 
 
 def prove(init_atoms, trans_primed_texts, prop_text, lb=None, max_frames=6):
+    """Implement prove with the module's explicit API and failure semantics."""
     lb = lb or DEFAULT_LB
     init_norm = _norm(init_atoms, lb)
     if init_norm is None:

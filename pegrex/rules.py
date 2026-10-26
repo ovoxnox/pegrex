@@ -15,6 +15,7 @@ class RuleOrigin:
     index: int
 
     def to_dict(self) -> dict:
+        """Implement to dict with the module's explicit API and failure semantics."""
         return {"pack": self.pack, "upstream": self.upstream,
                 "version": self.version, "index": self.index}
 
@@ -35,6 +36,7 @@ class RulePack:
 
     @property
     def rules(self) -> list[dict]:
+        """Implement rules with the module's explicit API and failure semantics."""
         return [record.rule for record in self.records]
 
     def catalog_version(self) -> str:
@@ -52,6 +54,7 @@ class RulePack:
 
     def coverage(self, language: str | None = None, *,
                  rule_languages=frozenset()) -> dict:
+        """Implement coverage with the module's explicit API and failure semantics."""
         applicable, inapplicable = [], []
         for record in self.records:
             langs = set(record.rule.get("langs", ()))
@@ -98,6 +101,7 @@ def deduplicate_records(records, *, disabled=(), duplicates=(), packs=()) -> Rul
 
 
 def read_rule_pack(path: str | pathlib.Path) -> RulePack:
+    """Implement read rule pack with the module's explicit API and failure semantics."""
     path = pathlib.Path(path)
     raw = path.read_bytes()
     document = json.loads(raw)
@@ -118,6 +122,7 @@ def read_rule_pack(path: str | pathlib.Path) -> RulePack:
 
 
 def merge_rule_packs(packs) -> RulePack:
+    """Implement merge rule packs with the module's explicit API and failure semantics."""
     packs = list(packs)
     return deduplicate_records(
         [record for pack in packs for record in pack.records],

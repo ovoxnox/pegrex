@@ -178,6 +178,12 @@ class JsonCatalog:
                                        or "regex" in r.langs):
                 yield r
 
+    def all_rules(self) -> Iterable[Rule]:
+        """All valid rules for unknown-language coverage explanations."""
+        if self._hot and self._stale():
+            self._reload()
+        return iter(self._rules)
+
     def rejected(self, lang: str | None) -> list[dict]:
         """Rules not executed, exposed as scanner coverage uncertainty."""
         if self._hot and self._stale():
@@ -523,6 +529,11 @@ class Auditor:
         findings = (self._patterns.scan(ast)
                     + RegexScanner().scan(ast, self.catalog)
                     + TaintScanner().scan(ast, self.taint_rules))
+        if ast.lang is None:
+            findings.append(Finding(
+                "PEGREX-LANGUAGE-UNKNOWN", "MEDIUM", "low", 1, "",
+                message="Source language is unsupported or could not be detected; AST and taint rules were skipped",
+                kind="unknown"))
         if ast.lang and ast.tree is None:
             findings.append(Finding(
                 "PEGREX-PARSER-UNKNOWN", "MEDIUM", "low", 1, "",
@@ -552,6 +563,104 @@ class Auditor:
         return {key: coverage[key] for key in (
             "catalog_version", "active", "disabled", "duplicates_removed",
             "inapplicable", "provenance")}
+
+    def file_coverage(self, ast: AstProvider, findings: list[Finding], *,
+                      path: str | None = None) -> dict:
+        """Explain file/language/rule execution and every intentional coverage gap."""
+        coverage = self.coverage(ast.lang)
+        unknowns = [f.message for f in findings if f.kind == "unknown"]
+        languages = set(rule_languages(ast.lang)) if ast.lang else set()
+        audit_supported = bool(ast.lang and "audit" in get_language(ast.lang).capabilities)
+        taint_supported = bool(ast.lang and "taint" in get_language(ast.lang).capabilities)
+        pattern_executed, pattern_skipped = [], []
+
+        candidate_rules = (self.catalog.all_rules() if ast.lang is None
+                           else self.catalog.rules(ast.lang))
+        for rule in candidate_rules:
+            row = {"id": rule.execution_id, "kind": rule.kind}
+            reason = None
+            if ast.input_error:
+                reason = "input-refused"
+            elif rule.kind == "call":
+                if ast.lang is None:
+                    reason = "language-unknown"
+                elif not audit_supported:
+                    reason = "audit-unsupported-for-language"
+                elif ast.tree is None:
+                    reason = "parser-unavailable"
+                elif not any(token in ast.src for token in _callee_hints(rule.text)):
+                    reason = "no-callee-hint-in-source"
+            elif len(rule.text) < 10:
+                reason = "short-regex-not-executed"
+            elif not ast.src:
+                reason = "empty-input"
+            if reason is None:
+                pattern_executed.append(row)
+            else:
+                pattern_skipped.append({**row, "reason": reason})
+        for rule_id in coverage["pattern"]["disabled_rules"]:
+            pattern_skipped.append({"id": rule_id, "kind": "pattern", "reason": "disabled"})
+        for rule_id in coverage["pattern"]["inapplicable_rules"]:
+            pattern_skipped.append({"id": rule_id, "kind": "pattern",
+                                    "reason": "language-not-applicable"})
+        for rejected in coverage["pattern"].get("rejected", []):
+            pattern_skipped.append({"id": rejected["id"], "kind": rejected["kind"],
+                                    "reason": "rule-rejected: " + rejected["reason"]})
+
+        taint_executed, taint_skipped = [], []
+        id_counts = {}
+        for record in self.taint_pack.records:
+            rule_id = record.rule["id"]
+            id_counts[rule_id] = id_counts.get(rule_id, 0) + 1
+        for record in self.taint_pack.records:
+            rule = record.rule
+            rule_id = (rule["id"] if id_counts[rule["id"]] == 1 else
+                       f"{rule['id']}@{record.semantics[:16]}")
+            row = {"id": rule_id, "kind": "taint"}
+            applies = (ast.lang is None or not rule.get("langs") or
+                       bool(set(rule.get("langs", ())) & languages))
+            reason = None
+            if not applies:
+                reason = "language-not-applicable"
+            elif ast.input_error:
+                reason = "input-refused"
+            elif ast.lang is None:
+                reason = "language-unknown"
+            elif not taint_supported:
+                reason = "taint-unsupported-for-language"
+            elif ast.tree is None:
+                reason = "parser-unavailable"
+            (taint_executed if reason is None else taint_skipped).append(
+                row if reason is None else {**row, "reason": reason})
+        for rule_id in coverage["taint"]["disabled_rules"]:
+            taint_skipped.append({"id": rule_id, "kind": "taint", "reason": "disabled"})
+        for rule_id in coverage["taint"]["inapplicable_rules"]:
+            # Already present from the active-record pass only when a pack
+            # reports a separate inapplicable record; avoid duplicate rows.
+            row = {"id": rule_id, "kind": "taint", "reason": "language-not-applicable"}
+            if row not in taint_skipped:
+                taint_skipped.append(row)
+
+        regex_undecided = any(f.id == "PEGREX-REGEX-UNKNOWN" for f in findings)
+        undecided = ([dict(row) for row in pattern_executed if row["kind"] == "file"]
+                     if regex_undecided else [])
+        return {
+            "schema": "pegrex.scan-coverage.v1",
+            "status": "partial" if unknowns else "complete",
+            "file": {"path": path, "sha256": ast.source_digest,
+                     "bytes": ast.source_bytes,
+                     "status": "refused" if ast.input_error else "scanned"},
+            "language": {"id": ast.lang,
+                         "status": "supported" if audit_supported else "unsupported",
+                         "audit": audit_supported, "taint": taint_supported},
+            "rules": {
+                "pattern": {"executed": pattern_executed, "skipped": pattern_skipped,
+                            "undecided": undecided},
+                "taint": {"executed": taint_executed, "skipped": taint_skipped,
+                          "undecided": []},
+            },
+            "unknowns": unknowns,
+        }
 
     def provenance(self, ast: AstProvider, *, path: str | None = None,
                    osv: dict | None = None) -> dict:
@@ -595,13 +704,17 @@ class Auditor:
         """Reproducible, offline source scan with exact input/tool identity."""
         ast = TreeSitterAst(pathlib.Path(path), lang=lang)
         findings = self._audit_with_ast(ast, str(path))
-        rows = [finding.__dict__ for finding in findings]
+        from pegrex.schema import finding_document, unknown_document
+        rows = [finding_document(finding.__dict__) for finding in findings]
+        unknowns = [unknown_document(finding.message, source=str(path), resource="scan-coverage")
+                    for finding in findings if finding.kind == "unknown"]
         return {
             "schema": "pegrex.security-scan.v1",
             "file": str(path), "language": ast.lang,
-            "findings": rows, "total": len(rows),
+            "findings": rows, "total": len(rows), "unknowns": unknowns,
             "active_total": sum(not f.suppressed for f in findings),
             "suppressed_total": sum(f.suppressed for f in findings),
+            "coverage": self.file_coverage(ast, findings, path=str(path)),
             "provenance": self.provenance(ast, path=str(path), osv=osv),
         }
 
@@ -635,7 +748,7 @@ def _semgrep_findings(semgrep_bin: str, path: str, config: str) -> list[dict]:
 def _ts_parse(path):
     from pegrex.languages import get_contract_frontend
     p = pathlib.Path(path)
-    src = p.read_text()
+    src = p.read_text(encoding="utf-8")
     parse, _, _ = get_contract_frontend("typescript")()
     try:
         body = parse(src)
@@ -657,6 +770,37 @@ def audit_source(source: str, lang: str, *, tree=None) -> list[dict]:
 def audit_report(path: str, lang: str | None = None, *,
                  osv: dict | None = None) -> dict:
     return Auditor().scan_report(path, lang, osv=osv)
+
+
+def aggregate_scan_coverage(reports: list[dict]) -> dict:
+    """Aggregate structured per-file coverage without collapsing skip reasons."""
+    files = [report["coverage"] for report in reports]
+    languages: dict[str, dict] = {}
+    for row in files:
+        language = row["language"]["id"] or "<unknown>"
+        bucket = languages.setdefault(language, {
+            "language": row["language"]["id"], "files": 0,
+            "complete": 0, "partial": 0,
+            "audit": row["language"]["audit"], "taint": row["language"]["taint"],
+        })
+        bucket["files"] += 1
+        bucket[row["status"]] += 1
+    skipped = [{"file": row["file"]["path"], "kind": kind, **rule}
+               for row in files for kind, rules in row["rules"].items()
+               for rule in rules["skipped"]]
+    undecided = [{"file": row["file"]["path"], "kind": kind, **rule}
+                 for row in files for kind, rules in row["rules"].items()
+                 for rule in rules["undecided"]]
+    return {
+        "schema": "pegrex.scan-coverage-set.v1",
+        "status": "partial" if any(row["status"] == "partial" for row in files) else "complete",
+        "totals": {"files": len(files),
+                   "complete": sum(row["status"] == "complete" for row in files),
+                   "partial": sum(row["status"] == "partial" for row in files),
+                   "skipped_rules": len(skipped), "undecided_rules": len(undecided)},
+        "languages": [languages[key] for key in sorted(languages)],
+        "files": files, "skipped_rules": skipped, "undecided_rules": undecided,
+    }
 
 
 def gate_exit(findings: list[dict], fail_on: str | None = None,
@@ -701,7 +845,7 @@ def main() -> int:
                   f"L{f['line']:<4} {f.get('kind', ''):8} {f['evidence']}{suppressed}")
         print(f"\ntotal: {len(findings)} findings; active: {report['active_total']}")
     if a.out:
-        pathlib.Path(a.out).write_text(text if text else json.dumps(report, indent=1))
+        pathlib.Path(a.out).write_text(text if text else json.dumps(report, indent=1), encoding="utf-8")
     return gate_exit(findings, a.fail_on, a.fail_on_unknown)
 
 

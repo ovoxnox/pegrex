@@ -1,0 +1,42 @@
+{
+ "schema": "pegrex.core-operations.v2",
+ "api_version": "2.0",
+ "operations": {
+  "parse": [
+   "source",
+   "language",
+   "function_body?",
+   "entrypoint?"
+  ],
+  "contracts": [
+   "source",
+   "language",
+   "path?",
+   "entrypoint?"
+  ],
+  "contracts_file": [
+   "path",
+   "language?"
+  ],
+  "audit": [
+   "path",
+   "language?"
+  ],
+  "call_graph": [
+   "source",
+   "language?"
+  ],
+  "verify_patch": [
+   "before_path",
+   "after_path",
+   "claim?"
+  ],
+  "capabilities": [
+   "language?"
+  ],
+  "soundness": [
+   "language?"
+  ]
+ },
+ "error_policy": "exceptions become status=error and verdict=unknown"
+}

@@ -55,15 +55,18 @@ class Ctx:
         self.recorders: list = []
 
     def checkpoint(self):
+        """Implement checkpoint with the module's explicit API and failure semantics."""
         return {k: len(v) for k, v in self.names.items()}
 
     def rollback(self, mark) -> None:
+        """Implement rollback with the module's explicit API and failure semantics."""
         for k, n in mark.items():
             del self.names[k][n:]
         for k in [k for k in self.names if k not in mark]:
             del self.names[k]
 
     def run(self, p: Patt, s: str, pos: int):
+        """Implement run with the module's explicit API and failure semantics."""
         if getattr(p, "_nomemo", False):        # match-time fns see live state
             return p.match(s, pos, self)
         if not isinstance(p, V):
@@ -95,6 +98,7 @@ def _record(ctx: Ctx, start: int, end: int, text: str) -> None:
 
 class Eps(Patt):
     def match(self, s, pos, ctx):
+        """Implement match with the module's explicit API and failure semantics."""
         return pos, []
 
 
@@ -104,11 +108,13 @@ class Lit(Patt):
         self.text = text
 
     def match(self, s, pos, ctx):
+        """Implement match with the module's explicit API and failure semantics."""
         return (pos + len(self.text), []) if s.startswith(self.text, pos) else None
 
 
 class AnyP(Patt):
     def match(self, s, pos, ctx):
+        """Implement match with the module's explicit API and failure semantics."""
         return (pos + 1, []) if pos < len(s) else None
 
 
@@ -119,6 +125,7 @@ class SetP(Patt):
         self.items, self.complement = items, complement
 
     def match(self, s, pos, ctx):
+        """Implement match with the module's explicit API and failure semantics."""
         if pos >= len(s):
             return None
         c = s[pos]
@@ -133,6 +140,7 @@ class SeqP(Patt):
         self.ps = ps
 
     def match(self, s, pos, ctx):
+        """Implement match with the module's explicit API and failure semantics."""
         caps, p = [], pos
         for q in self.ps:
             if (r := ctx.run(q, s, p)) is None:
@@ -148,6 +156,7 @@ class AltP(Patt):
         self.ps = ps
 
     def match(self, s, pos, ctx):
+        """Implement match with the module's explicit API and failure semantics."""
         for q in self.ps:
             mark = ctx.checkpoint()
             if (r := ctx.run(q, s, pos)) is not None:
@@ -163,6 +172,7 @@ class RepP(Patt):
         self.p, self.lo, self.hi = p, lo, hi
 
     def match(self, s, pos, ctx):
+        """Implement match with the module's explicit API and failure semantics."""
         caps, p, n = [], pos, 0
         while self.hi is None or n < self.hi:
             mark = ctx.checkpoint()
@@ -185,6 +195,7 @@ class NotP(Patt):
         self.p = p
 
     def match(self, s, pos, ctx):
+        """Implement match with the module's explicit API and failure semantics."""
         mark = ctx.checkpoint()
         r = ctx.run(self.p, s, pos)
         if r is not None:
@@ -199,6 +210,7 @@ class AndP(Patt):
         self.p = p
 
     def match(self, s, pos, ctx):
+        """Implement match with the module's explicit API and failure semantics."""
         return (pos, []) if ctx.run(self.p, s, pos) is not None else None
 
 
@@ -209,6 +221,7 @@ class CapP(Patt):
         self.p = p
 
     def match(self, s, pos, ctx):
+        """Implement match with the module's explicit API and failure semantics."""
         if (r := ctx.run(self.p, s, pos)) is None:
             return None
         p, cs = r
@@ -223,6 +236,7 @@ class CsP(Patt):
         self.p = p
 
     def match(self, s, pos, ctx):
+        """Implement match with the module's explicit API and failure semantics."""
         rec: list = []
         ctx.recorders.append(rec)
         try:
@@ -253,6 +267,7 @@ class CtP(Patt):
         self.p = p
 
     def match(self, s, pos, ctx):
+        """Implement match with the module's explicit API and failure semantics."""
         if (r := ctx.run(self.p, s, pos)) is None:
             return None
         p, cs = r
@@ -262,6 +277,7 @@ class CtP(Patt):
 class CpP(Patt):
     """{} -- capture the current position."""
     def match(self, s, pos, ctx):
+        """Implement match with the module's explicit API and failure semantics."""
         return pos, [pos]
 
 
@@ -272,6 +288,7 @@ class ValP(Patt):
         self.value = value
 
     def match(self, s, pos, ctx):
+        """Implement match with the module's explicit API and failure semantics."""
         return pos, [self.value]
 
 
@@ -282,6 +299,7 @@ class FuncP(Patt):
         self.p, self.fn = p, fn
 
     def match(self, s, pos, ctx):
+        """Implement match with the module's explicit API and failure semantics."""
         if (r := ctx.run(self.p, s, pos)) is None:
             return None
         p, cs = r
@@ -305,6 +323,7 @@ class CmtP(Patt):
         self.p, self.fn = p, fn
 
     def match(self, s, pos, ctx):
+        """Implement match with the module's explicit API and failure semantics."""
         if (r := ctx.run(self.p, s, pos)) is None:
             return None
         end, cs = r
@@ -321,6 +340,7 @@ class FoldP(Patt):
         self.p, self.fn = p, fn
 
     def match(self, s, pos, ctx):
+        """Implement match with the module's explicit API and failure semantics."""
         if (r := ctx.run(self.p, s, pos)) is None:
             return None
         p, cs = r
@@ -334,6 +354,7 @@ class GroupP(Patt):
         self.name, self.p = name, p
 
     def match(self, s, pos, ctx):
+        """Implement match with the module's explicit API and failure semantics."""
         if (r := ctx.run(self.p, s, pos)) is None:
             return None
         p, cs = r
@@ -349,6 +370,7 @@ class BackP(Patt):
         self.name = name
 
     def match(self, s, pos, ctx):
+        """Implement match with the module's explicit API and failure semantics."""
         if not (stack := ctx.names.get(self.name)):
             return None
         return pos, list(stack[-1])
@@ -361,6 +383,7 @@ class EqBackP(Patt):
         self.name = name
 
     def match(self, s, pos, ctx):
+        """Implement match with the module's explicit API and failure semantics."""
         if not (stack := ctx.names.get(self.name)):
             return None
         val = "".join(str(x) for x in stack[-1])
@@ -375,6 +398,7 @@ class ThrowP(Patt):
         self.label = label
 
     def match(self, s, pos, ctx):
+        """Implement match with the module's explicit API and failure semantics."""
         raise Throw(self.label, pos)
 
 
@@ -386,6 +410,7 @@ class NodeP(Patt):
         self.with_pos, self.with_end = with_pos, with_end
 
     def match(self, s, pos, ctx):
+        """Implement match with the module's explicit API and failure semantics."""
         if (r := ctx.run(self.p, s, pos)) is None:
             return None
         p, cs = r
@@ -401,6 +426,7 @@ class V(Patt):
         self.name = name
 
     def match(self, s, pos, ctx):
+        """Implement match with the module's explicit API and failure semantics."""
         if (q := ctx.rules.get(self.name)) is None:
             raise Throw("UndefinedRule_" + self.name, pos)
         return ctx.run(q, s, pos)

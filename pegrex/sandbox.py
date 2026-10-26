@@ -102,11 +102,11 @@ def run_python_isolated(src, fn_name, args: list, timeout=5.0, mem_mb=256,
     if not sandbox_available():
         raise SandboxError("refusing to claim isolation on this platform")
     with tempfile.TemporaryDirectory() as td:
-        with open(os.path.join(td, "candidate.py"), "w") as f:
+        with open(os.path.join(td, "candidate.py"), "w", encoding="utf-8") as f:
             f.write(src)
-        with open(os.path.join(td, "wrapper.py"), "w") as f:
+        with open(os.path.join(td, "wrapper.py"), "w", encoding="utf-8") as f:
             f.write(_WRAPPER)
-        with open(os.path.join(td, "data.json"), "w") as f:
+        with open(os.path.join(td, "data.json"), "w", encoding="utf-8") as f:
             json.dump({"fn_name": fn_name, "args": list(args),
                        "data": argv_data}, f)
         try:
@@ -162,7 +162,7 @@ def _load(src, name):
           (the candidate never takes this path)."""
     import importlib.util
     fd, p = tempfile.mkstemp(suffix=".py")
-    with os.fdopen(fd, "w") as f:
+    with os.fdopen(fd, "w", encoding="utf-8") as f:
         f.write(src)
     spec = importlib.util.spec_from_file_location(name, p)
     mod = importlib.util.module_from_spec(spec)

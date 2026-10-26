@@ -18,6 +18,7 @@ class CallGraph:
     edges: set = field(default_factory=set)       # (caller, callee)
 
     def to_dot(self) -> str:
+        """Implement to dot with the module's explicit API and failure semantics."""
         lines = ["digraph callgraph {", "  rankdir=LR;",
                  '  node [shape=box, style=rounded];']
         for name in sorted(self.functions):
@@ -28,6 +29,7 @@ class CallGraph:
         return chr(10).join(lines)
 
     def to_ascii(self) -> str:
+        """Implement to ascii with the module's explicit API and failure semantics."""
         out = []
         for name in sorted(self.functions):
             callees = sorted(c for a, c in self.edges if a == name)

@@ -1,0 +1,14 @@
+{
+ "source_sha256": "ef84ccafb0f9f7f9d362374beefb1222e16b711d1cfac0a28db6a7adc4554f87",
+ "language": "python",
+ "entrypoint": "contracts",
+ "paths": [
+  {
+   "blocks": [
+    0
+   ],
+   "constraints": []
+  }
+ ],
+ "smt2": "(set-logic QF_NIA)\n\n\n(check-sat)\n"
+}

@@ -27,6 +27,7 @@ class CountingLoop:
 
 
 def detect(assignments: list[str], inits: dict[str, int]) -> CountingLoop | None:
+    """Implement detect with the module's explicit API and failure semantics."""
     step = acc = None
     for a in (x.replace(" ", "") for x in assignments):
         if (m := _STEP.match(a)):
@@ -59,5 +60,6 @@ def closed_form(lp: CountingLoop, bound) -> object:
 
 
 def contract_closed_form(lp: CountingLoop, bound) -> dict[str, str]:
+    """Implement contract closed form with the module's explicit API and failure semantics."""
     return {"index_exit": f"{lp.index} = ({bound} + 1)",
             "result": str(closed_form(lp, bound))}

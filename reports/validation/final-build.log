@@ -1,0 +1,1313 @@
+* Creating isolated environment: venv+pip...
+* Installing packages in isolated environment:
+  - setuptools>=68
+* Getting build dependencies for sdist...
+running egg_info
+creating pegrex.egg-info
+writing pegrex.egg-info/PKG-INFO
+writing dependency_links to pegrex.egg-info/dependency_links.txt
+writing entry points to pegrex.egg-info/entry_points.txt
+writing requirements to pegrex.egg-info/requires.txt
+writing top-level names to pegrex.egg-info/top_level.txt
+writing manifest file 'pegrex.egg-info/SOURCES.txt'
+reading manifest file 'pegrex.egg-info/SOURCES.txt'
+adding license file 'LICENSE'
+writing manifest file 'pegrex.egg-info/SOURCES.txt'
+* Installed build dependency versions:
+  - setuptools==84.2.1
+* Building sdist...
+running sdist
+running egg_info
+writing pegrex.egg-info/PKG-INFO
+writing dependency_links to pegrex.egg-info/dependency_links.txt
+writing entry points to pegrex.egg-info/entry_points.txt
+writing requirements to pegrex.egg-info/requires.txt
+writing top-level names to pegrex.egg-info/top_level.txt
+reading manifest file 'pegrex.egg-info/SOURCES.txt'
+adding license file 'LICENSE'
+writing manifest file 'pegrex.egg-info/SOURCES.txt'
+running check
+creating pegrex-1.1.0
+creating pegrex-1.1.0/pegrex
+creating pegrex-1.1.0/pegrex.egg-info
+creating pegrex-1.1.0/pegrex/commands
+creating pegrex-1.1.0/pegrex/core
+creating pegrex-1.1.0/pegrex/grammars
+creating pegrex-1.1.0/pegrex/jsonschemas
+creating pegrex-1.1.0/pegrex/lpegc
+creating pegrex-1.1.0/tests
+creating pegrex-1.1.0/tools
+creating pegrex-1.1.0/tools/mkspec
+creating pegrex-1.1.0/tools/mkspec/analyzers
+creating pegrex-1.1.0/tools/mkspec/opus
+copying files to pegrex-1.1.0...
+copying LICENSE -> pegrex-1.1.0
+copying README.md -> pegrex-1.1.0
+copying pipeline.py -> pegrex-1.1.0
+copying pyproject.toml -> pegrex-1.1.0
+copying service.py -> pegrex-1.1.0
+copying pegrex/__init__.py -> pegrex-1.1.0/pegrex
+copying pegrex/a2a.py -> pegrex-1.1.0/pegrex
+copying pegrex/a2atasks.py -> pegrex-1.1.0/pegrex
+copying pegrex/abstract.py -> pegrex-1.1.0/pegrex
+copying pegrex/acp.py -> pegrex-1.1.0/pegrex
+copying pegrex/actionbroker.py -> pegrex-1.1.0/pegrex
+copying pegrex/agenttools.py -> pegrex-1.1.0/pegrex
+copying pegrex/analyzermutation.py -> pegrex-1.1.0/pegrex
+copying pegrex/annotations.py -> pegrex-1.1.0/pegrex
+copying pegrex/antihalluc.py -> pegrex-1.1.0/pegrex
+copying pegrex/api.py -> pegrex-1.1.0/pegrex
+copying pegrex/apicontract.py -> pegrex-1.1.0/pegrex
+copying pegrex/assign.py -> pegrex-1.1.0/pegrex
+copying pegrex/assurancegraph.py -> pegrex-1.1.0/pegrex
+copying pegrex/attackgraph.py -> pegrex-1.1.0/pegrex
+copying pegrex/attest.py -> pegrex-1.1.0/pegrex
+copying pegrex/auditbundle.py -> pegrex-1.1.0/pegrex
+copying pegrex/autopilot.py -> pegrex-1.1.0/pegrex
+copying pegrex/autopwn.py -> pegrex-1.1.0/pegrex
+copying pegrex/benchmark.py -> pegrex-1.1.0/pegrex
+copying pegrex/bisim.py -> pegrex-1.1.0/pegrex
+copying pegrex/bounty.py -> pegrex-1.1.0/pegrex
+copying pegrex/budget.py -> pegrex-1.1.0/pegrex
+copying pegrex/buildprovenance.py -> pegrex-1.1.0/pegrex
+copying pegrex/cache.py -> pegrex-1.1.0/pegrex
+copying pegrex/callgraph.py -> pegrex-1.1.0/pegrex
+copying pegrex/capabilities.py -> pegrex-1.1.0/pegrex
+copying pegrex/cegis.py -> pegrex-1.1.0/pegrex
+copying pegrex/cfg.py -> pegrex-1.1.0/pegrex
+copying pegrex/chain.py -> pegrex-1.1.0/pegrex
+copying pegrex/changebudget.py -> pegrex-1.1.0/pegrex
+copying pegrex/ci.py -> pegrex-1.1.0/pegrex
+copying pegrex/circuit.py -> pegrex-1.1.0/pegrex
+copying pegrex/cli.py -> pegrex-1.1.0/pegrex
+copying pegrex/cobolfront.py -> pegrex-1.1.0/pegrex
+copying pegrex/codegen.py -> pegrex-1.1.0/pegrex
+copying pegrex/cognitive.py -> pegrex-1.1.0/pegrex
+copying pegrex/compiler.py -> pegrex-1.1.0/pegrex
+copying pegrex/compilerdiff.py -> pegrex-1.1.0/pegrex
+copying pegrex/compilerir.py -> pegrex-1.1.0/pegrex
+copying pegrex/compliance.py -> pegrex-1.1.0/pegrex
+copying pegrex/compliancemap.py -> pegrex-1.1.0/pegrex
+copying pegrex/compress.py -> pegrex-1.1.0/pegrex
+copying pegrex/concolic.py -> pegrex-1.1.0/pegrex
+copying pegrex/concurrency.py -> pegrex-1.1.0/pegrex
+copying pegrex/concurrency_analysis.py -> pegrex-1.1.0/pegrex
+copying pegrex/constraints.py -> pegrex-1.1.0/pegrex
+copying pegrex/contextcompiler.py -> pegrex-1.1.0/pegrex
+copying pegrex/continuity.py -> pegrex-1.1.0/pegrex
+copying pegrex/contract.py -> pegrex-1.1.0/pegrex
+copying pegrex/coverage.py -> pegrex-1.1.0/pegrex
+copying pegrex/decisionlog.py -> pegrex-1.1.0/pegrex
+copying pegrex/difforacle.py -> pegrex-1.1.0/pegrex
+copying pegrex/digitaltwin.py -> pegrex-1.1.0/pegrex
+copying pegrex/drift.py -> pegrex-1.1.0/pegrex
+copying pegrex/editaudit.py -> pegrex-1.1.0/pegrex
+copying pegrex/effects.py -> pegrex-1.1.0/pegrex
+copying pegrex/eggx.py -> pegrex-1.1.0/pegrex
+copying pegrex/egraphs.py -> pegrex-1.1.0/pegrex
+copying pegrex/emitter.py -> pegrex-1.1.0/pegrex
+copying pegrex/evidence.py -> pegrex-1.1.0/pegrex
+copying pegrex/evidencepack.py -> pegrex-1.1.0/pegrex
+copying pegrex/explain.py -> pegrex-1.1.0/pegrex
+copying pegrex/exploitability.py -> pegrex-1.1.0/pegrex
+copying pegrex/export.py -> pegrex-1.1.0/pegrex
+copying pegrex/extension.py -> pegrex-1.1.0/pegrex
+copying pegrex/facade.py -> pegrex-1.1.0/pegrex
+copying pegrex/facts.py -> pegrex-1.1.0/pegrex
+copying pegrex/flow.py -> pegrex-1.1.0/pegrex
+copying pegrex/formalize.py -> pegrex-1.1.0/pegrex
+copying pegrex/formalprotocols.py -> pegrex-1.1.0/pegrex
+copying pegrex/formulas.py -> pegrex-1.1.0/pegrex
+copying pegrex/fortranfront.py -> pegrex-1.1.0/pegrex
+copying pegrex/frameworkpacks.py -> pegrex-1.1.0/pegrex
+copying pegrex/gatepipe.py -> pegrex-1.1.0/pegrex
+copying pegrex/golfbench.py -> pegrex-1.1.0/pegrex
+copying pegrex/gramir.py -> pegrex-1.1.0/pegrex
+copying pegrex/graph.py -> pegrex-1.1.0/pegrex
+copying pegrex/harness.py -> pegrex-1.1.0/pegrex
+copying pegrex/harnessmutation.py -> pegrex-1.1.0/pegrex
+copying pegrex/hybridrag.py -> pegrex-1.1.0/pegrex
+copying pegrex/iac.py -> pegrex-1.1.0/pegrex
+copying pegrex/ic3.py -> pegrex-1.1.0/pegrex
+copying pegrex/idioms.py -> pegrex-1.1.0/pegrex
+copying pegrex/impact.py -> pegrex-1.1.0/pegrex
+copying pegrex/incident.py -> pegrex-1.1.0/pegrex
+copying pegrex/incremental.py -> pegrex-1.1.0/pegrex
+copying pegrex/incverify.py -> pegrex-1.1.0/pegrex
+copying pegrex/induce.py -> pegrex-1.1.0/pegrex
+copying pegrex/insure.py -> pegrex-1.1.0/pegrex
+copying pegrex/interprocedural.py -> pegrex-1.1.0/pegrex
+copying pegrex/intervals.py -> pegrex-1.1.0/pegrex
+copying pegrex/invariants.py -> pegrex-1.1.0/pegrex
+copying pegrex/invmarket.py -> pegrex-1.1.0/pegrex
+copying pegrex/ir.py -> pegrex-1.1.0/pegrex
+copying pegrex/kernel.py -> pegrex-1.1.0/pegrex
+copying pegrex/languages.py -> pegrex-1.1.0/pegrex
+copying pegrex/legacy_common.py -> pegrex-1.1.0/pegrex
+copying pegrex/legal.py -> pegrex-1.1.0/pegrex
+copying pegrex/legalci.py -> pegrex-1.1.0/pegrex
+copying pegrex/linsolve.py -> pegrex-1.1.0/pegrex
+copying pegrex/llmcegis.py -> pegrex-1.1.0/pegrex
+copying pegrex/lockpolicy.py -> pegrex-1.1.0/pegrex
+copying pegrex/loops.py -> pegrex-1.1.0/pegrex
+copying pegrex/loopsum.py -> pegrex-1.1.0/pegrex
+copying pegrex/lsp.py -> pegrex-1.1.0/pegrex
+copying pegrex/marketplace.py -> pegrex-1.1.0/pegrex
+copying pegrex/mcp.py -> pegrex-1.1.0/pegrex
+copying pegrex/memory.py -> pegrex-1.1.0/pegrex
+copying pegrex/metaengine.py -> pegrex-1.1.0/pegrex
+copying pegrex/mini_llm.py -> pegrex-1.1.0/pegrex
+copying pegrex/mlgraph.py -> pegrex-1.1.0/pegrex
+copying pegrex/modelcheck.py -> pegrex-1.1.0/pegrex
+copying pegrex/modernization.py -> pegrex-1.1.0/pegrex
+copying pegrex/modernize.py -> pegrex-1.1.0/pegrex
+copying pegrex/multiagent.py -> pegrex-1.1.0/pegrex
+copying pegrex/mutation.py -> pegrex-1.1.0/pegrex
+copying pegrex/nlspec.py -> pegrex-1.1.0/pegrex
+copying pegrex/octagon.py -> pegrex-1.1.0/pegrex
+copying pegrex/orgtwin.py -> pegrex-1.1.0/pegrex
+copying pegrex/overflow.py -> pegrex-1.1.0/pegrex
+copying pegrex/ownership.py -> pegrex-1.1.0/pegrex
+copying pegrex/parallel.py -> pegrex-1.1.0/pegrex
+copying pegrex/passverify.py -> pegrex-1.1.0/pegrex
+copying pegrex/patchgate.py -> pegrex-1.1.0/pegrex
+copying pegrex/pathrefine.py -> pegrex-1.1.0/pegrex
+copying pegrex/paths.py -> pegrex-1.1.0/pegrex
+copying pegrex/patterns.py -> pegrex-1.1.0/pegrex
+copying pegrex/pdr.py -> pegrex-1.1.0/pegrex
+copying pegrex/peg.py -> pegrex-1.1.0/pegrex
+copying pegrex/perfgolf.py -> pegrex-1.1.0/pegrex
+copying pegrex/planner.py -> pegrex-1.1.0/pegrex
+copying pegrex/poc.py -> pegrex-1.1.0/pegrex
+copying pegrex/pocsandbox.py -> pegrex-1.1.0/pegrex
+copying pegrex/policy.py -> pegrex-1.1.0/pegrex
+copying pegrex/policygate.py -> pegrex-1.1.0/pegrex
+copying pegrex/prchat.py -> pegrex-1.1.0/pegrex
+copying pegrex/priorverify.py -> pegrex-1.1.0/pegrex
+copying pegrex/probpath.py -> pegrex-1.1.0/pegrex
+copying pegrex/proofrepair.py -> pegrex-1.1.0/pegrex
+copying pegrex/proofreplay.py -> pegrex-1.1.0/pegrex
+copying pegrex/proofs.py -> pegrex-1.1.0/pegrex
+copying pegrex/protocol.py -> pegrex-1.1.0/pegrex
+copying pegrex/proverbridge.py -> pegrex-1.1.0/pegrex
+copying pegrex/py2cobol.py -> pegrex-1.1.0/pegrex
+copying pegrex/python_ast.py -> pegrex-1.1.0/pegrex
+copying pegrex/rag.py -> pegrex-1.1.0/pegrex
+copying pegrex/rank.py -> pegrex-1.1.0/pegrex
+copying pegrex/reachability.py -> pegrex-1.1.0/pegrex
+copying pegrex/recover.py -> pegrex-1.1.0/pegrex
+copying pegrex/recursion.py -> pegrex-1.1.0/pegrex
+copying pegrex/refine.py -> pegrex-1.1.0/pegrex
+copying pegrex/registry.py -> pegrex-1.1.0/pegrex
+copying pegrex/regressionmemory.py -> pegrex-1.1.0/pegrex
+copying pegrex/releaseproof.py -> pegrex-1.1.0/pegrex
+copying pegrex/repairloop.py -> pegrex-1.1.0/pegrex
+copying pegrex/repomemory.py -> pegrex-1.1.0/pegrex
+copying pegrex/repository.py -> pegrex-1.1.0/pegrex
+copying pegrex/researchcapsule.py -> pegrex-1.1.0/pegrex
+copying pegrex/resourcebounds.py -> pegrex-1.1.0/pegrex
+copying pegrex/rosetta.py -> pegrex-1.1.0/pegrex
+copying pegrex/roundtrip.py -> pegrex-1.1.0/pegrex
+copying pegrex/rules.py -> pegrex-1.1.0/pegrex
+copying pegrex/sandbox.py -> pegrex-1.1.0/pegrex
+copying pegrex/sbom.py -> pegrex-1.1.0/pegrex
+copying pegrex/sca.py -> pegrex-1.1.0/pegrex
+copying pegrex/schema.py -> pegrex-1.1.0/pegrex
+copying pegrex/secrules.json -> pegrex-1.1.0/pegrex
+copying pegrex/secrules_taint.json -> pegrex-1.1.0/pegrex
+copying pegrex/securitycontracts.py -> pegrex-1.1.0/pegrex
+copying pegrex/selfplay.py -> pegrex-1.1.0/pegrex
+copying pegrex/semanticchecksum.py -> pegrex-1.1.0/pegrex
+copying pegrex/semantics.py -> pegrex-1.1.0/pegrex
+copying pegrex/semgraph.py -> pegrex-1.1.0/pegrex
+copying pegrex/sessions.py -> pegrex-1.1.0/pegrex
+copying pegrex/slsa.py -> pegrex-1.1.0/pegrex
+copying pegrex/smartcontract.py -> pegrex-1.1.0/pegrex
+copying pegrex/smt.py -> pegrex-1.1.0/pegrex
+copying pegrex/smtlib.py -> pegrex-1.1.0/pegrex
+copying pegrex/specgen.py -> pegrex-1.1.0/pegrex
+copying pegrex/specmine.py -> pegrex-1.1.0/pegrex
+copying pegrex/specproposals.py -> pegrex-1.1.0/pegrex
+copying pegrex/specs.py -> pegrex-1.1.0/pegrex
+copying pegrex/sqlrel.py -> pegrex-1.1.0/pegrex
+copying pegrex/ssa.py -> pegrex-1.1.0/pegrex
+copying pegrex/statemachine.py -> pegrex-1.1.0/pegrex
+copying pegrex/strategies.py -> pegrex-1.1.0/pegrex
+copying pegrex/summaries.py -> pegrex-1.1.0/pegrex
+copying pegrex/sym.py -> pegrex-1.1.0/pegrex
+copying pegrex/synthesize.py -> pegrex-1.1.0/pegrex
+copying pegrex/taint.py -> pegrex-1.1.0/pegrex
+copying pegrex/testpromotion.py -> pegrex-1.1.0/pegrex
+copying pegrex/testsynth.py -> pegrex-1.1.0/pegrex
+copying pegrex/tokenizer.py -> pegrex-1.1.0/pegrex
+copying pegrex/toolsapi.py -> pegrex-1.1.0/pegrex
+copying pegrex/traceguided.py -> pegrex-1.1.0/pegrex
+copying pegrex/trainer.py -> pegrex-1.1.0/pegrex
+copying pegrex/transpiler.py -> pegrex-1.1.0/pegrex
+copying pegrex/tree_sitter_bridge.py -> pegrex-1.1.0/pegrex
+copying pegrex/tscontracts.py -> pegrex-1.1.0/pegrex
+copying pegrex/tsmock.py -> pegrex-1.1.0/pegrex
+copying pegrex/tv.py -> pegrex-1.1.0/pegrex
+copying pegrex/twin.py -> pegrex-1.1.0/pegrex
+copying pegrex/vapi.py -> pegrex-1.1.0/pegrex
+copying pegrex/veritest.py -> pegrex-1.1.0/pegrex
+copying pegrex/vm.py -> pegrex-1.1.0/pegrex
+copying pegrex/wire.py -> pegrex-1.1.0/pegrex
+copying pegrex/witness.py -> pegrex-1.1.0/pegrex
+copying pegrex/work.py -> pegrex-1.1.0/pegrex
+copying pegrex/workers.py -> pegrex-1.1.0/pegrex
+copying pegrex/workexec.py -> pegrex-1.1.0/pegrex
+copying pegrex/workflow.py -> pegrex-1.1.0/pegrex
+copying pegrex/wp.py -> pegrex-1.1.0/pegrex
+copying pegrex/zk.py -> pegrex-1.1.0/pegrex
+copying pegrex/zkproof.py -> pegrex-1.1.0/pegrex
+copying pegrex.egg-info/PKG-INFO -> pegrex-1.1.0/pegrex.egg-info
+copying pegrex.egg-info/SOURCES.txt -> pegrex-1.1.0/pegrex.egg-info
+copying pegrex.egg-info/dependency_links.txt -> pegrex-1.1.0/pegrex.egg-info
+copying pegrex.egg-info/entry_points.txt -> pegrex-1.1.0/pegrex.egg-info
+copying pegrex.egg-info/requires.txt -> pegrex-1.1.0/pegrex.egg-info
+copying pegrex.egg-info/top_level.txt -> pegrex-1.1.0/pegrex.egg-info
+copying pegrex/commands/__init__.py -> pegrex-1.1.0/pegrex/commands
+copying pegrex/commands/analysis.py -> pegrex-1.1.0/pegrex/commands
+copying pegrex/commands/common.py -> pegrex-1.1.0/pegrex/commands
+copying pegrex/commands/production.py -> pegrex-1.1.0/pegrex/commands
+copying pegrex/commands/tooling.py -> pegrex-1.1.0/pegrex/commands
+copying pegrex/commands/verification.py -> pegrex-1.1.0/pegrex/commands
+copying pegrex/core/__init__.py -> pegrex-1.1.0/pegrex/core
+copying pegrex/core/contracts.py -> pegrex-1.1.0/pegrex/core
+copying pegrex/core/engine.py -> pegrex-1.1.0/pegrex/core
+copying pegrex/core/models.py -> pegrex-1.1.0/pegrex/core
+copying pegrex/grammars/agent.gram -> pegrex-1.1.0/pegrex/grammars
+copying pegrex/grammars/c11.gram -> pegrex-1.1.0/pegrex/grammars
+copying pegrex/grammars/csv.gram -> pegrex-1.1.0/pegrex/grammars
+copying pegrex/grammars/go-subset.gram -> pegrex-1.1.0/pegrex/grammars
+copying pegrex/grammars/ini.gram -> pegrex-1.1.0/pegrex/grammars
+copying pegrex/grammars/json.gram -> pegrex-1.1.0/pegrex/grammars
+copying pegrex/grammars/mir.gram -> pegrex-1.1.0/pegrex/grammars
+copying pegrex/grammars/mlir.gram -> pegrex-1.1.0/pegrex/grammars
+copying pegrex/grammars/sexpr.gram -> pegrex-1.1.0/pegrex/grammars
+copying pegrex/grammars/url.gram -> pegrex-1.1.0/pegrex/grammars
+copying pegrex/grammars/vyper-subset.gram -> pegrex-1.1.0/pegrex/grammars
+copying pegrex/jsonschemas/certificate.v1.json -> pegrex-1.1.0/pegrex/jsonschemas
+copying pegrex/jsonschemas/cli-envelope.v1.json -> pegrex-1.1.0/pegrex/jsonschemas
+copying pegrex/jsonschemas/contract.v1.json -> pegrex-1.1.0/pegrex/jsonschemas
+copying pegrex/jsonschemas/finding.v1.json -> pegrex-1.1.0/pegrex/jsonschemas
+copying pegrex/jsonschemas/unknown.v1.json -> pegrex-1.1.0/pegrex/jsonschemas
+copying pegrex/lpegc/__init__.py -> pegrex-1.1.0/pegrex/lpegc
+copying pegrex/lpegc/compiler.py -> pegrex-1.1.0/pegrex/lpegc
+copying pegrex/lpegc/diagnostics.py -> pegrex-1.1.0/pegrex/lpegc
+copying pegrex/lpegc/parser.py -> pegrex-1.1.0/pegrex/lpegc
+copying tests/test_agent_protocol_63_67.py -> pegrex-1.1.0/tests
+copying tests/test_agent_repair_differential.py -> pegrex-1.1.0/tests
+copying tests/test_agent_security_57_62.py -> pegrex-1.1.0/tests
+copying tests/test_api.py -> pegrex-1.1.0/tests
+copying tests/test_apicontract.py -> pegrex-1.1.0/tests
+copying tests/test_auditbundle.py -> pegrex-1.1.0/tests
+copying tests/test_autopilot.py -> pegrex-1.1.0/tests
+copying tests/test_bounded_modelcheck.py -> pegrex-1.1.0/tests
+copying tests/test_bridge.py -> pegrex-1.1.0/tests
+copying tests/test_build_release.py -> pegrex-1.1.0/tests
+copying tests/test_c11.py -> pegrex-1.1.0/tests
+copying tests/test_cegis.py -> pegrex-1.1.0/tests
+copying tests/test_chain.py -> pegrex-1.1.0/tests
+copying tests/test_checksum_capsule_impact_broker_83_86.py -> pegrex-1.1.0/tests
+copying tests/test_ci_gate.py -> pegrex-1.1.0/tests
+copying tests/test_cobol.py -> pegrex-1.1.0/tests
+copying tests/test_codelens.py -> pegrex-1.1.0/tests
+copying tests/test_cognitive.py -> pegrex-1.1.0/tests
+copying tests/test_compose.py -> pegrex-1.1.0/tests
+copying tests/test_compress.py -> pegrex-1.1.0/tests
+copying tests/test_concolic.py -> pegrex-1.1.0/tests
+copying tests/test_concurrency_analysis.py -> pegrex-1.1.0/tests
+copying tests/test_constraints_canonical.py -> pegrex-1.1.0/tests
+copying tests/test_continuity.py -> pegrex-1.1.0/tests
+copying tests/test_contract.py -> pegrex-1.1.0/tests
+copying tests/test_difforacle.py -> pegrex-1.1.0/tests
+copying tests/test_effects.py -> pegrex-1.1.0/tests
+copying tests/test_effects_concurrency_extensions.py -> pegrex-1.1.0/tests
+copying tests/test_eggx.py -> pegrex-1.1.0/tests
+copying tests/test_emitter.py -> pegrex-1.1.0/tests
+copying tests/test_endpoints.py -> pegrex-1.1.0/tests
+copying tests/test_evidence.py -> pegrex-1.1.0/tests
+copying tests/test_expansion.py -> pegrex-1.1.0/tests
+copying tests/test_extension.py -> pegrex-1.1.0/tests
+copying tests/test_flow.py -> pegrex-1.1.0/tests
+copying tests/test_fortran.py -> pegrex-1.1.0/tests
+copying tests/test_frontend_plugins.py -> pegrex-1.1.0/tests
+copying tests/test_gaps.py -> pegrex-1.1.0/tests
+copying tests/test_gaps2.py -> pegrex-1.1.0/tests
+copying tests/test_gaps3.py -> pegrex-1.1.0/tests
+copying tests/test_gatepipe.py -> pegrex-1.1.0/tests
+copying tests/test_go_client.py -> pegrex-1.1.0/tests
+copying tests/test_gramir.py -> pegrex-1.1.0/tests
+copying tests/test_grammars.py -> pegrex-1.1.0/tests
+copying tests/test_health_report.py -> pegrex-1.1.0/tests
+copying tests/test_hybridrag.py -> pegrex-1.1.0/tests
+copying tests/test_idioms.py -> pegrex-1.1.0/tests
+copying tests/test_incremental_contracts.py -> pegrex-1.1.0/tests
+copying tests/test_incverify.py -> pegrex-1.1.0/tests
+copying tests/test_interprocedural.py -> pegrex-1.1.0/tests
+copying tests/test_intervals.py -> pegrex-1.1.0/tests
+copying tests/test_invariant_validation.py -> pegrex-1.1.0/tests
+copying tests/test_invariants.py -> pegrex-1.1.0/tests
+copying tests/test_invmarket.py -> pegrex-1.1.0/tests
+copying tests/test_ir.py -> pegrex-1.1.0/tests
+copying tests/test_json.py -> pegrex-1.1.0/tests
+copying tests/test_kernel_patchgate.py -> pegrex-1.1.0/tests
+copying tests/test_linsolve.py -> pegrex-1.1.0/tests
+copying tests/test_llmcegis.py -> pegrex-1.1.0/tests
+copying tests/test_loops.py -> pegrex-1.1.0/tests
+copying tests/test_loopsum.py -> pegrex-1.1.0/tests
+copying tests/test_m10.py -> pegrex-1.1.0/tests
+copying tests/test_m5.py -> pegrex-1.1.0/tests
+copying tests/test_m6.py -> pegrex-1.1.0/tests
+copying tests/test_m8.py -> pegrex-1.1.0/tests
+copying tests/test_m9.py -> pegrex-1.1.0/tests
+copying tests/test_marketplace.py -> pegrex-1.1.0/tests
+copying tests/test_memory.py -> pegrex-1.1.0/tests
+copying tests/test_mini_llm.py -> pegrex-1.1.0/tests
+copying tests/test_modernization_protocol_ir_68_72.py -> pegrex-1.1.0/tests
+copying tests/test_multiagent.py -> pegrex-1.1.0/tests
+copying tests/test_mutation.py -> pegrex-1.1.0/tests
+copying tests/test_nlspec.py -> pegrex-1.1.0/tests
+copying tests/test_octagon.py -> pegrex-1.1.0/tests
+copying tests/test_overflow.py -> pegrex-1.1.0/tests
+copying tests/test_parser_properties.py -> pegrex-1.1.0/tests
+copying tests/test_pdr.py -> pegrex-1.1.0/tests
+copying tests/test_perfgolf.py -> pegrex-1.1.0/tests
+copying tests/test_pipeline.py -> pegrex-1.1.0/tests
+copying tests/test_policy.py -> pegrex-1.1.0/tests
+copying tests/test_policy_agent_tools.py -> pegrex-1.1.0/tests
+copying tests/test_prchat.py -> pegrex-1.1.0/tests
+copying tests/test_production_hardening.py -> pegrex-1.1.0/tests
+copying tests/test_proofs.py -> pegrex-1.1.0/tests
+copying tests/test_public_contracts.py -> pegrex-1.1.0/tests
+copying tests/test_python_frontend.py -> pegrex-1.1.0/tests
+copying tests/test_rank.py -> pegrex-1.1.0/tests
+copying tests/test_refine.py -> pegrex-1.1.0/tests
+copying tests/test_registry.py -> pegrex-1.1.0/tests
+copying tests/test_release_assurance_budget_compliance_79_82.py -> pegrex-1.1.0/tests
+copying tests/test_repairloop.py -> pegrex-1.1.0/tests
+copying tests/test_repository_index.py -> pegrex-1.1.0/tests
+copying tests/test_repository_memory_graph.py -> pegrex-1.1.0/tests
+copying tests/test_repository_prover_evidence_73_78.py -> pegrex-1.1.0/tests
+copying tests/test_rosetta.py -> pegrex-1.1.0/tests
+copying tests/test_sandbox.py -> pegrex-1.1.0/tests
+copying tests/test_sca.py -> pegrex-1.1.0/tests
+copying tests/test_scaling_budgets.py -> pegrex-1.1.0/tests
+copying tests/test_scaling_concurrency.py -> pegrex-1.1.0/tests
+copying tests/test_scaling_ir.py -> pegrex-1.1.0/tests
+copying tests/test_scaling_rules.py -> pegrex-1.1.0/tests
+copying tests/test_scaling_sessions.py -> pegrex-1.1.0/tests
+copying tests/test_scan_coverage.py -> pegrex-1.1.0/tests
+copying tests/test_scanner_boundaries.py -> pegrex-1.1.0/tests
+copying tests/test_schema_versioning.py -> pegrex-1.1.0/tests
+copying tests/test_security_contracts_packs.py -> pegrex-1.1.0/tests
+copying tests/test_selfhost.py -> pegrex-1.1.0/tests
+copying tests/test_selfplay.py -> pegrex-1.1.0/tests
+copying tests/test_semantic_diff_golden.py -> pegrex-1.1.0/tests
+copying tests/test_semantic_subsumption.py -> pegrex-1.1.0/tests
+copying tests/test_semantics.py -> pegrex-1.1.0/tests
+copying tests/test_service.py -> pegrex-1.1.0/tests
+copying tests/test_ship1.py -> pegrex-1.1.0/tests
+copying tests/test_ship2.py -> pegrex-1.1.0/tests
+copying tests/test_skill_packaging.py -> pegrex-1.1.0/tests
+copying tests/test_smt.py -> pegrex-1.1.0/tests
+copying tests/test_smtcross.py -> pegrex-1.1.0/tests
+copying tests/test_solver_z3_differential.py -> pegrex-1.1.0/tests
+copying tests/test_specmine.py -> pegrex-1.1.0/tests
+copying tests/test_sqlrel.py -> pegrex-1.1.0/tests
+copying tests/test_ssa.py -> pegrex-1.1.0/tests
+copying tests/test_stable_architecture.py -> pegrex-1.1.0/tests
+copying tests/test_strategies.py -> pegrex-1.1.0/tests
+copying tests/test_summaries.py -> pegrex-1.1.0/tests
+copying tests/test_supply_chain_evidence.py -> pegrex-1.1.0/tests
+copying tests/test_test_runner.py -> pegrex-1.1.0/tests
+copying tests/test_testpromotion.py -> pegrex-1.1.0/tests
+copying tests/test_tokenizer.py -> pegrex-1.1.0/tests
+copying tests/test_trust_boundaries.py -> pegrex-1.1.0/tests
+copying tests/test_tsmock.py -> pegrex-1.1.0/tests
+copying tests/test_unicode_spans.py -> pegrex-1.1.0/tests
+copying tests/test_varpatterns.py -> pegrex-1.1.0/tests
+copying tests/test_verification_evidence.py -> pegrex-1.1.0/tests
+copying tests/test_veritest.py -> pegrex-1.1.0/tests
+copying tests/test_vm.py -> pegrex-1.1.0/tests
+copying tests/test_vm_loops.py -> pegrex-1.1.0/tests
+copying tests/test_workers.py -> pegrex-1.1.0/tests
+copying tests/test_workflow.py -> pegrex-1.1.0/tests
+copying tests/test_zkproof.py -> pegrex-1.1.0/tests
+copying tools/build_release.py -> pegrex-1.1.0/tools
+copying tools/build_skills.py -> pegrex-1.1.0/tools
+copying tools/ci_gate.py -> pegrex-1.1.0/tools
+copying tools/extract_grammar.py -> pegrex-1.1.0/tools
+copying tools/grammar_lint.py -> pegrex-1.1.0/tools
+copying tools/health_report.py -> pegrex-1.1.0/tools
+copying tools/repokit.py -> pegrex-1.1.0/tools
+copying tools/secaudit.py -> pegrex-1.1.0/tools
+copying tools/selfhost.py -> pegrex-1.1.0/tools
+copying tools/mkspec/__init__.py -> pegrex-1.1.0/tools/mkspec
+copying tools/mkspec/__main__.py -> pegrex-1.1.0/tools/mkspec
+copying tools/mkspec/core.py -> pegrex-1.1.0/tools/mkspec
+copying tools/mkspec/templates.py -> pegrex-1.1.0/tools/mkspec
+copying tools/mkspec/analyzers/builtin.py -> pegrex-1.1.0/tools/mkspec/analyzers
+copying tools/mkspec/opus/__init__.py -> pegrex-1.1.0/tools/mkspec/opus
+copying tools/mkspec/opus/builtin.py -> pegrex-1.1.0/tools/mkspec/opus
+Writing pegrex-1.1.0/setup.cfg
+Creating tar archive
+removing 'pegrex-1.1.0' (and everything under it)
+* Building wheel from sdist
+* Creating isolated environment: venv+pip...
+* Installing packages in isolated environment:
+  - setuptools>=68
+* Getting build dependencies for wheel...
+running egg_info
+writing pegrex.egg-info/PKG-INFO
+writing dependency_links to pegrex.egg-info/dependency_links.txt
+writing entry points to pegrex.egg-info/entry_points.txt
+writing requirements to pegrex.egg-info/requires.txt
+writing top-level names to pegrex.egg-info/top_level.txt
+reading manifest file 'pegrex.egg-info/SOURCES.txt'
+adding license file 'LICENSE'
+writing manifest file 'pegrex.egg-info/SOURCES.txt'
+* Installed build dependency versions:
+  - setuptools==84.2.1
+* Building wheel...
+running bdist_wheel
+running build
+running build_py
+creating build/lib
+copying pipeline.py -> build/lib
+copying service.py -> build/lib
+creating build/lib/tools
+copying tools/build_skills.py -> build/lib/tools
+copying tools/grammar_lint.py -> build/lib/tools
+copying tools/ci_gate.py -> build/lib/tools
+copying tools/selfhost.py -> build/lib/tools
+copying tools/secaudit.py -> build/lib/tools
+copying tools/health_report.py -> build/lib/tools
+copying tools/repokit.py -> build/lib/tools
+copying tools/build_release.py -> build/lib/tools
+copying tools/extract_grammar.py -> build/lib/tools
+creating build/lib/pegrex
+copying pegrex/sqlrel.py -> build/lib/pegrex
+copying pegrex/budget.py -> build/lib/pegrex
+copying pegrex/lockpolicy.py -> build/lib/pegrex
+copying pegrex/legacy_common.py -> build/lib/pegrex
+copying pegrex/pdr.py -> build/lib/pegrex
+copying pegrex/ownership.py -> build/lib/pegrex
+copying pegrex/export.py -> build/lib/pegrex
+copying pegrex/legalci.py -> build/lib/pegrex
+copying pegrex/tokenizer.py -> build/lib/pegrex
+copying pegrex/legal.py -> build/lib/pegrex
+copying pegrex/idioms.py -> build/lib/pegrex
+copying pegrex/analyzermutation.py -> build/lib/pegrex
+copying pegrex/specproposals.py -> build/lib/pegrex
+copying pegrex/codegen.py -> build/lib/pegrex
+copying pegrex/sbom.py -> build/lib/pegrex
+copying pegrex/formalprotocols.py -> build/lib/pegrex
+copying pegrex/semanticchecksum.py -> build/lib/pegrex
+copying pegrex/synthesize.py -> build/lib/pegrex
+copying pegrex/workflow.py -> build/lib/pegrex
+copying pegrex/drift.py -> build/lib/pegrex
+copying pegrex/eggx.py -> build/lib/pegrex
+copying pegrex/smartcontract.py -> build/lib/pegrex
+copying pegrex/semantics.py -> build/lib/pegrex
+copying pegrex/actionbroker.py -> build/lib/pegrex
+copying pegrex/wire.py -> build/lib/pegrex
+copying pegrex/abstract.py -> build/lib/pegrex
+copying pegrex/selfplay.py -> build/lib/pegrex
+copying pegrex/reachability.py -> build/lib/pegrex
+copying pegrex/egraphs.py -> build/lib/pegrex
+copying pegrex/taint.py -> build/lib/pegrex
+copying pegrex/summaries.py -> build/lib/pegrex
+copying pegrex/auditbundle.py -> build/lib/pegrex
+copying pegrex/harnessmutation.py -> build/lib/pegrex
+copying pegrex/invmarket.py -> build/lib/pegrex
+copying pegrex/coverage.py -> build/lib/pegrex
+copying pegrex/researchcapsule.py -> build/lib/pegrex
+copying pegrex/rag.py -> build/lib/pegrex
+copying pegrex/frameworkpacks.py -> build/lib/pegrex
+copying pegrex/interprocedural.py -> build/lib/pegrex
+copying pegrex/passverify.py -> build/lib/pegrex
+copying pegrex/veritest.py -> build/lib/pegrex
+copying pegrex/tree_sitter_bridge.py -> build/lib/pegrex
+copying pegrex/evidencepack.py -> build/lib/pegrex
+copying pegrex/concurrency_analysis.py -> build/lib/pegrex
+copying pegrex/traceguided.py -> build/lib/pegrex
+copying pegrex/witness.py -> build/lib/pegrex
+copying pegrex/twin.py -> build/lib/pegrex
+copying pegrex/specmine.py -> build/lib/pegrex
+copying pegrex/impact.py -> build/lib/pegrex
+copying pegrex/marketplace.py -> build/lib/pegrex
+copying pegrex/work.py -> build/lib/pegrex
+copying pegrex/cobolfront.py -> build/lib/pegrex
+copying pegrex/nlspec.py -> build/lib/pegrex
+copying pegrex/changebudget.py -> build/lib/pegrex
+copying pegrex/repository.py -> build/lib/pegrex
+copying pegrex/assign.py -> build/lib/pegrex
+copying pegrex/wp.py -> build/lib/pegrex
+copying pegrex/facade.py -> build/lib/pegrex
+copying pegrex/modelcheck.py -> build/lib/pegrex
+copying pegrex/rank.py -> build/lib/pegrex
+copying pegrex/capabilities.py -> build/lib/pegrex
+copying pegrex/probpath.py -> build/lib/pegrex
+copying pegrex/modernization.py -> build/lib/pegrex
+copying pegrex/vm.py -> build/lib/pegrex
+copying pegrex/explain.py -> build/lib/pegrex
+copying pegrex/apicontract.py -> build/lib/pegrex
+copying pegrex/policygate.py -> build/lib/pegrex
+copying pegrex/sandbox.py -> build/lib/pegrex
+copying pegrex/semgraph.py -> build/lib/pegrex
+copying pegrex/patchgate.py -> build/lib/pegrex
+copying pegrex/peg.py -> build/lib/pegrex
+copying pegrex/compress.py -> build/lib/pegrex
+copying pegrex/cfg.py -> build/lib/pegrex
+copying pegrex/parallel.py -> build/lib/pegrex
+copying pegrex/statemachine.py -> build/lib/pegrex
+copying pegrex/hybridrag.py -> build/lib/pegrex
+copying pegrex/iac.py -> build/lib/pegrex
+copying pegrex/zk.py -> build/lib/pegrex
+copying pegrex/extension.py -> build/lib/pegrex
+copying pegrex/linsolve.py -> build/lib/pegrex
+copying pegrex/evidence.py -> build/lib/pegrex
+copying pegrex/a2a.py -> build/lib/pegrex
+copying pegrex/ssa.py -> build/lib/pegrex
+copying pegrex/registry.py -> build/lib/pegrex
+copying pegrex/bisim.py -> build/lib/pegrex
+copying pegrex/incident.py -> build/lib/pegrex
+copying pegrex/lsp.py -> build/lib/pegrex
+copying pegrex/exploitability.py -> build/lib/pegrex
+copying pegrex/effects.py -> build/lib/pegrex
+copying pegrex/ir.py -> build/lib/pegrex
+copying pegrex/facts.py -> build/lib/pegrex
+copying pegrex/repomemory.py -> build/lib/pegrex
+copying pegrex/languages.py -> build/lib/pegrex
+copying pegrex/smt.py -> build/lib/pegrex
+copying pegrex/mlgraph.py -> build/lib/pegrex
+copying pegrex/callgraph.py -> build/lib/pegrex
+copying pegrex/sca.py -> build/lib/pegrex
+copying pegrex/incremental.py -> build/lib/pegrex
+copying pegrex/smtlib.py -> build/lib/pegrex
+copying pegrex/intervals.py -> build/lib/pegrex
+copying pegrex/insure.py -> build/lib/pegrex
+copying pegrex/api.py -> build/lib/pegrex
+copying pegrex/py2cobol.py -> build/lib/pegrex
+copying pegrex/schema.py -> build/lib/pegrex
+copying pegrex/modernize.py -> build/lib/pegrex
+copying pegrex/pathrefine.py -> build/lib/pegrex
+copying pegrex/graph.py -> build/lib/pegrex
+copying pegrex/pocsandbox.py -> build/lib/pegrex
+copying pegrex/golfbench.py -> build/lib/pegrex
+copying pegrex/testsynth.py -> build/lib/pegrex
+copying pegrex/workers.py -> build/lib/pegrex
+copying pegrex/attest.py -> build/lib/pegrex
+copying pegrex/fortranfront.py -> build/lib/pegrex
+copying pegrex/compliancemap.py -> build/lib/pegrex
+copying pegrex/recursion.py -> build/lib/pegrex
+copying pegrex/assurancegraph.py -> build/lib/pegrex
+copying pegrex/resourcebounds.py -> build/lib/pegrex
+copying pegrex/concurrency.py -> build/lib/pegrex
+copying pegrex/mutation.py -> build/lib/pegrex
+copying pegrex/cegis.py -> build/lib/pegrex
+copying pegrex/cache.py -> build/lib/pegrex
+copying pegrex/autopilot.py -> build/lib/pegrex
+copying pegrex/perfgolf.py -> build/lib/pegrex
+copying pegrex/prchat.py -> build/lib/pegrex
+copying pegrex/annotations.py -> build/lib/pegrex
+copying pegrex/proofrepair.py -> build/lib/pegrex
+copying pegrex/llmcegis.py -> build/lib/pegrex
+copying pegrex/rules.py -> build/lib/pegrex
+copying pegrex/benchmark.py -> build/lib/pegrex
+copying pegrex/tsmock.py -> build/lib/pegrex
+copying pegrex/specgen.py -> build/lib/pegrex
+copying pegrex/compliance.py -> build/lib/pegrex
+copying pegrex/recover.py -> build/lib/pegrex
+copying pegrex/overflow.py -> build/lib/pegrex
+copying pegrex/paths.py -> build/lib/pegrex
+copying pegrex/trainer.py -> build/lib/pegrex
+copying pegrex/emitter.py -> build/lib/pegrex
+copying pegrex/toolsapi.py -> build/lib/pegrex
+copying pegrex/digitaltwin.py -> build/lib/pegrex
+copying pegrex/contextcompiler.py -> build/lib/pegrex
+copying pegrex/kernel.py -> build/lib/pegrex
+copying pegrex/cli.py -> build/lib/pegrex
+copying pegrex/poc.py -> build/lib/pegrex
+copying pegrex/planner.py -> build/lib/pegrex
+copying pegrex/formalize.py -> build/lib/pegrex
+copying pegrex/tscontracts.py -> build/lib/pegrex
+copying pegrex/bounty.py -> build/lib/pegrex
+copying pegrex/gatepipe.py -> build/lib/pegrex
+copying pegrex/securitycontracts.py -> build/lib/pegrex
+copying pegrex/tv.py -> build/lib/pegrex
+copying pegrex/priorverify.py -> build/lib/pegrex
+copying pegrex/metaengine.py -> build/lib/pegrex
+copying pegrex/a2atasks.py -> build/lib/pegrex
+copying pegrex/constraints.py -> build/lib/pegrex
+copying pegrex/protocol.py -> build/lib/pegrex
+copying pegrex/harness.py -> build/lib/pegrex
+copying pegrex/contract.py -> build/lib/pegrex
+copying pegrex/refine.py -> build/lib/pegrex
+copying pegrex/gramir.py -> build/lib/pegrex
+copying pegrex/memory.py -> build/lib/pegrex
+copying pegrex/roundtrip.py -> build/lib/pegrex
+copying pegrex/regressionmemory.py -> build/lib/pegrex
+copying pegrex/flow.py -> build/lib/pegrex
+copying pegrex/cognitive.py -> build/lib/pegrex
+copying pegrex/antihalluc.py -> build/lib/pegrex
+copying pegrex/invariants.py -> build/lib/pegrex
+copying pegrex/incverify.py -> build/lib/pegrex
+copying pegrex/specs.py -> build/lib/pegrex
+copying pegrex/python_ast.py -> build/lib/pegrex
+copying pegrex/orgtwin.py -> build/lib/pegrex
+copying pegrex/ic3.py -> build/lib/pegrex
+copying pegrex/chain.py -> build/lib/pegrex
+copying pegrex/attackgraph.py -> build/lib/pegrex
+copying pegrex/ci.py -> build/lib/pegrex
+copying pegrex/strategies.py -> build/lib/pegrex
+copying pegrex/mini_llm.py -> build/lib/pegrex
+copying pegrex/concolic.py -> build/lib/pegrex
+copying pegrex/zkproof.py -> build/lib/pegrex
+copying pegrex/agenttools.py -> build/lib/pegrex
+copying pegrex/loopsum.py -> build/lib/pegrex
+copying pegrex/transpiler.py -> build/lib/pegrex
+copying pegrex/proverbridge.py -> build/lib/pegrex
+copying pegrex/__init__.py -> build/lib/pegrex
+copying pegrex/multiagent.py -> build/lib/pegrex
+copying pegrex/testpromotion.py -> build/lib/pegrex
+copying pegrex/workexec.py -> build/lib/pegrex
+copying pegrex/acp.py -> build/lib/pegrex
+copying pegrex/loops.py -> build/lib/pegrex
+copying pegrex/circuit.py -> build/lib/pegrex
+copying pegrex/difforacle.py -> build/lib/pegrex
+copying pegrex/proofs.py -> build/lib/pegrex
+copying pegrex/rosetta.py -> build/lib/pegrex
+copying pegrex/proofreplay.py -> build/lib/pegrex
+copying pegrex/decisionlog.py -> build/lib/pegrex
+copying pegrex/vapi.py -> build/lib/pegrex
+copying pegrex/compiler.py -> build/lib/pegrex
+copying pegrex/releaseproof.py -> build/lib/pegrex
+copying pegrex/slsa.py -> build/lib/pegrex
+copying pegrex/sym.py -> build/lib/pegrex
+copying pegrex/autopwn.py -> build/lib/pegrex
+copying pegrex/octagon.py -> build/lib/pegrex
+copying pegrex/policy.py -> build/lib/pegrex
+copying pegrex/compilerir.py -> build/lib/pegrex
+copying pegrex/editaudit.py -> build/lib/pegrex
+copying pegrex/mcp.py -> build/lib/pegrex
+copying pegrex/buildprovenance.py -> build/lib/pegrex
+copying pegrex/sessions.py -> build/lib/pegrex
+copying pegrex/induce.py -> build/lib/pegrex
+copying pegrex/compilerdiff.py -> build/lib/pegrex
+copying pegrex/continuity.py -> build/lib/pegrex
+copying pegrex/patterns.py -> build/lib/pegrex
+copying pegrex/formulas.py -> build/lib/pegrex
+copying pegrex/repairloop.py -> build/lib/pegrex
+creating build/lib/tools/mkspec
+copying tools/mkspec/__main__.py -> build/lib/tools/mkspec
+copying tools/mkspec/core.py -> build/lib/tools/mkspec
+copying tools/mkspec/__init__.py -> build/lib/tools/mkspec
+copying tools/mkspec/templates.py -> build/lib/tools/mkspec
+creating build/lib/tools/mkspec/analyzers
+copying tools/mkspec/analyzers/builtin.py -> build/lib/tools/mkspec/analyzers
+creating build/lib/tools/mkspec/opus
+copying tools/mkspec/opus/builtin.py -> build/lib/tools/mkspec/opus
+copying tools/mkspec/opus/__init__.py -> build/lib/tools/mkspec/opus
+creating build/lib/pegrex/commands
+copying pegrex/commands/tooling.py -> build/lib/pegrex/commands
+copying pegrex/commands/analysis.py -> build/lib/pegrex/commands
+copying pegrex/commands/production.py -> build/lib/pegrex/commands
+copying pegrex/commands/common.py -> build/lib/pegrex/commands
+copying pegrex/commands/__init__.py -> build/lib/pegrex/commands
+copying pegrex/commands/verification.py -> build/lib/pegrex/commands
+creating build/lib/pegrex/core
+copying pegrex/core/contracts.py -> build/lib/pegrex/core
+copying pegrex/core/engine.py -> build/lib/pegrex/core
+copying pegrex/core/models.py -> build/lib/pegrex/core
+copying pegrex/core/__init__.py -> build/lib/pegrex/core
+creating build/lib/pegrex/lpegc
+copying pegrex/lpegc/parser.py -> build/lib/pegrex/lpegc
+copying pegrex/lpegc/__init__.py -> build/lib/pegrex/lpegc
+copying pegrex/lpegc/diagnostics.py -> build/lib/pegrex/lpegc
+copying pegrex/lpegc/compiler.py -> build/lib/pegrex/lpegc
+running egg_info
+writing pegrex.egg-info/PKG-INFO
+writing dependency_links to pegrex.egg-info/dependency_links.txt
+writing entry points to pegrex.egg-info/entry_points.txt
+writing requirements to pegrex.egg-info/requires.txt
+writing top-level names to pegrex.egg-info/top_level.txt
+reading manifest file 'pegrex.egg-info/SOURCES.txt'
+adding license file 'LICENSE'
+writing manifest file 'pegrex.egg-info/SOURCES.txt'
+copying pegrex/secrules.json -> build/lib/pegrex
+copying pegrex/secrules_taint.json -> build/lib/pegrex
+creating build/lib/pegrex/grammars
+copying pegrex/grammars/mlir.gram -> build/lib/pegrex/grammars
+copying pegrex/grammars/csv.gram -> build/lib/pegrex/grammars
+copying pegrex/grammars/go-subset.gram -> build/lib/pegrex/grammars
+copying pegrex/grammars/sexpr.gram -> build/lib/pegrex/grammars
+copying pegrex/grammars/vyper-subset.gram -> build/lib/pegrex/grammars
+copying pegrex/grammars/ini.gram -> build/lib/pegrex/grammars
+copying pegrex/grammars/c11.gram -> build/lib/pegrex/grammars
+copying pegrex/grammars/agent.gram -> build/lib/pegrex/grammars
+copying pegrex/grammars/json.gram -> build/lib/pegrex/grammars
+copying pegrex/grammars/url.gram -> build/lib/pegrex/grammars
+copying pegrex/grammars/mir.gram -> build/lib/pegrex/grammars
+creating build/lib/pegrex/jsonschemas
+copying pegrex/jsonschemas/finding.v1.json -> build/lib/pegrex/jsonschemas
+copying pegrex/jsonschemas/certificate.v1.json -> build/lib/pegrex/jsonschemas
+copying pegrex/jsonschemas/contract.v1.json -> build/lib/pegrex/jsonschemas
+copying pegrex/jsonschemas/unknown.v1.json -> build/lib/pegrex/jsonschemas
+copying pegrex/jsonschemas/cli-envelope.v1.json -> build/lib/pegrex/jsonschemas
+installing to build/bdist.linux-x86_64/wheel
+running install
+running install_lib
+creating build/bdist.linux-x86_64/wheel
+copying build/lib/service.py -> build/bdist.linux-x86_64/wheel/.
+creating build/bdist.linux-x86_64/wheel/tools
+creating build/bdist.linux-x86_64/wheel/tools/mkspec
+copying build/lib/tools/mkspec/__main__.py -> build/bdist.linux-x86_64/wheel/./tools/mkspec
+creating build/bdist.linux-x86_64/wheel/tools/mkspec/analyzers
+copying build/lib/tools/mkspec/analyzers/builtin.py -> build/bdist.linux-x86_64/wheel/./tools/mkspec/analyzers
+copying build/lib/tools/mkspec/core.py -> build/bdist.linux-x86_64/wheel/./tools/mkspec
+copying build/lib/tools/mkspec/__init__.py -> build/bdist.linux-x86_64/wheel/./tools/mkspec
+creating build/bdist.linux-x86_64/wheel/tools/mkspec/opus
+copying build/lib/tools/mkspec/opus/builtin.py -> build/bdist.linux-x86_64/wheel/./tools/mkspec/opus
+copying build/lib/tools/mkspec/opus/__init__.py -> build/bdist.linux-x86_64/wheel/./tools/mkspec/opus
+copying build/lib/tools/mkspec/templates.py -> build/bdist.linux-x86_64/wheel/./tools/mkspec
+copying build/lib/tools/build_skills.py -> build/bdist.linux-x86_64/wheel/./tools
+copying build/lib/tools/grammar_lint.py -> build/bdist.linux-x86_64/wheel/./tools
+copying build/lib/tools/ci_gate.py -> build/bdist.linux-x86_64/wheel/./tools
+copying build/lib/tools/selfhost.py -> build/bdist.linux-x86_64/wheel/./tools
+copying build/lib/tools/secaudit.py -> build/bdist.linux-x86_64/wheel/./tools
+copying build/lib/tools/health_report.py -> build/bdist.linux-x86_64/wheel/./tools
+copying build/lib/tools/repokit.py -> build/bdist.linux-x86_64/wheel/./tools
+copying build/lib/tools/build_release.py -> build/bdist.linux-x86_64/wheel/./tools
+copying build/lib/tools/extract_grammar.py -> build/bdist.linux-x86_64/wheel/./tools
+copying build/lib/pipeline.py -> build/bdist.linux-x86_64/wheel/.
+creating build/bdist.linux-x86_64/wheel/pegrex
+copying build/lib/pegrex/sqlrel.py -> build/bdist.linux-x86_64/wheel/./pegrex
+copying build/lib/pegrex/budget.py -> build/bdist.linux-x86_64/wheel/./pegrex
+copying build/lib/pegrex/lockpolicy.py -> build/bdist.linux-x86_64/wheel/./pegrex
+copying build/lib/pegrex/legacy_common.py -> build/bdist.linux-x86_64/wheel/./pegrex
+copying build/lib/pegrex/pdr.py -> build/bdist.linux-x86_64/wheel/./pegrex
+copying build/lib/pegrex/ownership.py -> build/bdist.linux-x86_64/wheel/./pegrex
+copying build/lib/pegrex/export.py -> build/bdist.linux-x86_64/wheel/./pegrex
+copying build/lib/pegrex/legalci.py -> build/bdist.linux-x86_64/wheel/./pegrex
+copying build/lib/pegrex/tokenizer.py -> build/bdist.linux-x86_64/wheel/./pegrex
+copying build/lib/pegrex/legal.py -> build/bdist.linux-x86_64/wheel/./pegrex
+copying build/lib/pegrex/idioms.py -> build/bdist.linux-x86_64/wheel/./pegrex
+copying build/lib/pegrex/analyzermutation.py -> build/bdist.linux-x86_64/wheel/./pegrex
+copying build/lib/pegrex/specproposals.py -> build/bdist.linux-x86_64/wheel/./pegrex
+copying build/lib/pegrex/codegen.py -> build/bdist.linux-x86_64/wheel/./pegrex
+copying build/lib/pegrex/sbom.py -> build/bdist.linux-x86_64/wheel/./pegrex
+copying build/lib/pegrex/formalprotocols.py -> build/bdist.linux-x86_64/wheel/./pegrex
+copying build/lib/pegrex/semanticchecksum.py -> build/bdist.linux-x86_64/wheel/./pegrex
+copying build/lib/pegrex/synthesize.py -> build/bdist.linux-x86_64/wheel/./pegrex
+copying build/lib/pegrex/workflow.py -> build/bdist.linux-x86_64/wheel/./pegrex
+copying build/lib/pegrex/drift.py -> build/bdist.linux-x86_64/wheel/./pegrex
+creating build/bdist.linux-x86_64/wheel/pegrex/jsonschemas
+copying build/lib/pegrex/jsonschemas/finding.v1.json -> build/bdist.linux-x86_64/wheel/./pegrex/jsonschemas
+copying build/lib/pegrex/jsonschemas/certificate.v1.json -> build/bdist.linux-x86_64/wheel/./pegrex/jsonschemas
+copying build/lib/pegrex/jsonschemas/contract.v1.json -> build/bdist.linux-x86_64/wheel/./pegrex/jsonschemas
+copying build/lib/pegrex/jsonschemas/unknown.v1.json -> build/bdist.linux-x86_64/wheel/./pegrex/jsonschemas
+copying build/lib/pegrex/jsonschemas/cli-envelope.v1.json -> build/bdist.linux-x86_64/wheel/./pegrex/jsonschemas
+copying build/lib/pegrex/eggx.py -> build/bdist.linux-x86_64/wheel/./pegrex
+copying build/lib/pegrex/smartcontract.py -> build/bdist.linux-x86_64/wheel/./pegrex
+copying build/lib/pegrex/semantics.py -> build/bdist.linux-x86_64/wheel/./pegrex
+copying build/lib/pegrex/actionbroker.py -> build/bdist.linux-x86_64/wheel/./pegrex
+copying build/lib/pegrex/wire.py -> build/bdist.linux-x86_64/wheel/./pegrex
+copying build/lib/pegrex/abstract.py -> build/bdist.linux-x86_64/wheel/./pegrex
+copying build/lib/pegrex/selfplay.py -> build/bdist.linux-x86_64/wheel/./pegrex
+copying build/lib/pegrex/reachability.py -> build/bdist.linux-x86_64/wheel/./pegrex
+copying build/lib/pegrex/egraphs.py -> build/bdist.linux-x86_64/wheel/./pegrex
+copying build/lib/pegrex/taint.py -> build/bdist.linux-x86_64/wheel/./pegrex
+copying build/lib/pegrex/summaries.py -> build/bdist.linux-x86_64/wheel/./pegrex
+copying build/lib/pegrex/auditbundle.py -> build/bdist.linux-x86_64/wheel/./pegrex
+copying build/lib/pegrex/harnessmutation.py -> build/bdist.linux-x86_64/wheel/./pegrex
+copying build/lib/pegrex/invmarket.py -> build/bdist.linux-x86_64/wheel/./pegrex
+copying build/lib/pegrex/coverage.py -> build/bdist.linux-x86_64/wheel/./pegrex
+copying build/lib/pegrex/researchcapsule.py -> build/bdist.linux-x86_64/wheel/./pegrex
+copying build/lib/pegrex/rag.py -> build/bdist.linux-x86_64/wheel/./pegrex
+copying build/lib/pegrex/frameworkpacks.py -> build/bdist.linux-x86_64/wheel/./pegrex
+copying build/lib/pegrex/interprocedural.py -> build/bdist.linux-x86_64/wheel/./pegrex
+copying build/lib/pegrex/passverify.py -> build/bdist.linux-x86_64/wheel/./pegrex
+copying build/lib/pegrex/veritest.py -> build/bdist.linux-x86_64/wheel/./pegrex
+copying build/lib/pegrex/tree_sitter_bridge.py -> build/bdist.linux-x86_64/wheel/./pegrex
+copying build/lib/pegrex/evidencepack.py -> build/bdist.linux-x86_64/wheel/./pegrex
+copying build/lib/pegrex/concurrency_analysis.py -> build/bdist.linux-x86_64/wheel/./pegrex
+copying build/lib/pegrex/traceguided.py -> build/bdist.linux-x86_64/wheel/./pegrex
+copying build/lib/pegrex/witness.py -> build/bdist.linux-x86_64/wheel/./pegrex
+copying build/lib/pegrex/twin.py -> build/bdist.linux-x86_64/wheel/./pegrex
+copying build/lib/pegrex/specmine.py -> build/bdist.linux-x86_64/wheel/./pegrex
+copying build/lib/pegrex/impact.py -> build/bdist.linux-x86_64/wheel/./pegrex
+copying build/lib/pegrex/marketplace.py -> build/bdist.linux-x86_64/wheel/./pegrex
+copying build/lib/pegrex/work.py -> build/bdist.linux-x86_64/wheel/./pegrex
+copying build/lib/pegrex/cobolfront.py -> build/bdist.linux-x86_64/wheel/./pegrex
+copying build/lib/pegrex/nlspec.py -> build/bdist.linux-x86_64/wheel/./pegrex
+copying build/lib/pegrex/changebudget.py -> build/bdist.linux-x86_64/wheel/./pegrex
+copying build/lib/pegrex/repository.py -> build/bdist.linux-x86_64/wheel/./pegrex
+copying build/lib/pegrex/assign.py -> build/bdist.linux-x86_64/wheel/./pegrex
+copying build/lib/pegrex/wp.py -> build/bdist.linux-x86_64/wheel/./pegrex
+copying build/lib/pegrex/facade.py -> build/bdist.linux-x86_64/wheel/./pegrex
+copying build/lib/pegrex/modelcheck.py -> build/bdist.linux-x86_64/wheel/./pegrex
+copying build/lib/pegrex/rank.py -> build/bdist.linux-x86_64/wheel/./pegrex
+copying build/lib/pegrex/capabilities.py -> build/bdist.linux-x86_64/wheel/./pegrex
+copying build/lib/pegrex/probpath.py -> build/bdist.linux-x86_64/wheel/./pegrex
+copying build/lib/pegrex/modernization.py -> build/bdist.linux-x86_64/wheel/./pegrex
+copying build/lib/pegrex/vm.py -> build/bdist.linux-x86_64/wheel/./pegrex
+copying build/lib/pegrex/explain.py -> build/bdist.linux-x86_64/wheel/./pegrex
+creating build/bdist.linux-x86_64/wheel/pegrex/commands
+copying build/lib/pegrex/commands/tooling.py -> build/bdist.linux-x86_64/wheel/./pegrex/commands
+copying build/lib/pegrex/commands/analysis.py -> build/bdist.linux-x86_64/wheel/./pegrex/commands
+copying build/lib/pegrex/commands/production.py -> build/bdist.linux-x86_64/wheel/./pegrex/commands
+copying build/lib/pegrex/commands/common.py -> build/bdist.linux-x86_64/wheel/./pegrex/commands
+copying build/lib/pegrex/commands/__init__.py -> build/bdist.linux-x86_64/wheel/./pegrex/commands
+copying build/lib/pegrex/commands/verification.py -> build/bdist.linux-x86_64/wheel/./pegrex/commands
+copying build/lib/pegrex/apicontract.py -> build/bdist.linux-x86_64/wheel/./pegrex
+copying build/lib/pegrex/policygate.py -> build/bdist.linux-x86_64/wheel/./pegrex
+copying build/lib/pegrex/sandbox.py -> build/bdist.linux-x86_64/wheel/./pegrex
+copying build/lib/pegrex/semgraph.py -> build/bdist.linux-x86_64/wheel/./pegrex
+copying build/lib/pegrex/patchgate.py -> build/bdist.linux-x86_64/wheel/./pegrex
+copying build/lib/pegrex/peg.py -> build/bdist.linux-x86_64/wheel/./pegrex
+copying build/lib/pegrex/compress.py -> build/bdist.linux-x86_64/wheel/./pegrex
+copying build/lib/pegrex/cfg.py -> build/bdist.linux-x86_64/wheel/./pegrex
+copying build/lib/pegrex/parallel.py -> build/bdist.linux-x86_64/wheel/./pegrex
+copying build/lib/pegrex/statemachine.py -> build/bdist.linux-x86_64/wheel/./pegrex
+copying build/lib/pegrex/hybridrag.py -> build/bdist.linux-x86_64/wheel/./pegrex
+copying build/lib/pegrex/iac.py -> build/bdist.linux-x86_64/wheel/./pegrex
+copying build/lib/pegrex/zk.py -> build/bdist.linux-x86_64/wheel/./pegrex
+copying build/lib/pegrex/extension.py -> build/bdist.linux-x86_64/wheel/./pegrex
+copying build/lib/pegrex/linsolve.py -> build/bdist.linux-x86_64/wheel/./pegrex
+copying build/lib/pegrex/evidence.py -> build/bdist.linux-x86_64/wheel/./pegrex
+copying build/lib/pegrex/a2a.py -> build/bdist.linux-x86_64/wheel/./pegrex
+copying build/lib/pegrex/ssa.py -> build/bdist.linux-x86_64/wheel/./pegrex
+copying build/lib/pegrex/registry.py -> build/bdist.linux-x86_64/wheel/./pegrex
+copying build/lib/pegrex/bisim.py -> build/bdist.linux-x86_64/wheel/./pegrex
+copying build/lib/pegrex/incident.py -> build/bdist.linux-x86_64/wheel/./pegrex
+copying build/lib/pegrex/lsp.py -> build/bdist.linux-x86_64/wheel/./pegrex
+copying build/lib/pegrex/exploitability.py -> build/bdist.linux-x86_64/wheel/./pegrex
+copying build/lib/pegrex/effects.py -> build/bdist.linux-x86_64/wheel/./pegrex
+copying build/lib/pegrex/ir.py -> build/bdist.linux-x86_64/wheel/./pegrex
+copying build/lib/pegrex/facts.py -> build/bdist.linux-x86_64/wheel/./pegrex
+copying build/lib/pegrex/repomemory.py -> build/bdist.linux-x86_64/wheel/./pegrex
+copying build/lib/pegrex/languages.py -> build/bdist.linux-x86_64/wheel/./pegrex
+copying build/lib/pegrex/smt.py -> build/bdist.linux-x86_64/wheel/./pegrex
+copying build/lib/pegrex/mlgraph.py -> build/bdist.linux-x86_64/wheel/./pegrex
+copying build/lib/pegrex/callgraph.py -> build/bdist.linux-x86_64/wheel/./pegrex
+copying build/lib/pegrex/sca.py -> build/bdist.linux-x86_64/wheel/./pegrex
+copying build/lib/pegrex/incremental.py -> build/bdist.linux-x86_64/wheel/./pegrex
+copying build/lib/pegrex/smtlib.py -> build/bdist.linux-x86_64/wheel/./pegrex
+copying build/lib/pegrex/intervals.py -> build/bdist.linux-x86_64/wheel/./pegrex
+copying build/lib/pegrex/insure.py -> build/bdist.linux-x86_64/wheel/./pegrex
+copying build/lib/pegrex/api.py -> build/bdist.linux-x86_64/wheel/./pegrex
+copying build/lib/pegrex/py2cobol.py -> build/bdist.linux-x86_64/wheel/./pegrex
+copying build/lib/pegrex/schema.py -> build/bdist.linux-x86_64/wheel/./pegrex
+copying build/lib/pegrex/modernize.py -> build/bdist.linux-x86_64/wheel/./pegrex
+copying build/lib/pegrex/pathrefine.py -> build/bdist.linux-x86_64/wheel/./pegrex
+copying build/lib/pegrex/graph.py -> build/bdist.linux-x86_64/wheel/./pegrex
+copying build/lib/pegrex/pocsandbox.py -> build/bdist.linux-x86_64/wheel/./pegrex
+copying build/lib/pegrex/golfbench.py -> build/bdist.linux-x86_64/wheel/./pegrex
+copying build/lib/pegrex/testsynth.py -> build/bdist.linux-x86_64/wheel/./pegrex
+copying build/lib/pegrex/workers.py -> build/bdist.linux-x86_64/wheel/./pegrex
+copying build/lib/pegrex/attest.py -> build/bdist.linux-x86_64/wheel/./pegrex
+copying build/lib/pegrex/fortranfront.py -> build/bdist.linux-x86_64/wheel/./pegrex
+copying build/lib/pegrex/compliancemap.py -> build/bdist.linux-x86_64/wheel/./pegrex
+copying build/lib/pegrex/recursion.py -> build/bdist.linux-x86_64/wheel/./pegrex
+copying build/lib/pegrex/assurancegraph.py -> build/bdist.linux-x86_64/wheel/./pegrex
+copying build/lib/pegrex/resourcebounds.py -> build/bdist.linux-x86_64/wheel/./pegrex
+copying build/lib/pegrex/concurrency.py -> build/bdist.linux-x86_64/wheel/./pegrex
+copying build/lib/pegrex/mutation.py -> build/bdist.linux-x86_64/wheel/./pegrex
+copying build/lib/pegrex/cegis.py -> build/bdist.linux-x86_64/wheel/./pegrex
+creating build/bdist.linux-x86_64/wheel/pegrex/core
+copying build/lib/pegrex/core/contracts.py -> build/bdist.linux-x86_64/wheel/./pegrex/core
+copying build/lib/pegrex/core/engine.py -> build/bdist.linux-x86_64/wheel/./pegrex/core
+copying build/lib/pegrex/core/models.py -> build/bdist.linux-x86_64/wheel/./pegrex/core
+copying build/lib/pegrex/core/__init__.py -> build/bdist.linux-x86_64/wheel/./pegrex/core
+copying build/lib/pegrex/cache.py -> build/bdist.linux-x86_64/wheel/./pegrex
+copying build/lib/pegrex/autopilot.py -> build/bdist.linux-x86_64/wheel/./pegrex
+copying build/lib/pegrex/perfgolf.py -> build/bdist.linux-x86_64/wheel/./pegrex
+copying build/lib/pegrex/prchat.py -> build/bdist.linux-x86_64/wheel/./pegrex
+copying build/lib/pegrex/annotations.py -> build/bdist.linux-x86_64/wheel/./pegrex
+copying build/lib/pegrex/proofrepair.py -> build/bdist.linux-x86_64/wheel/./pegrex
+copying build/lib/pegrex/secrules.json -> build/bdist.linux-x86_64/wheel/./pegrex
+copying build/lib/pegrex/llmcegis.py -> build/bdist.linux-x86_64/wheel/./pegrex
+copying build/lib/pegrex/rules.py -> build/bdist.linux-x86_64/wheel/./pegrex
+copying build/lib/pegrex/benchmark.py -> build/bdist.linux-x86_64/wheel/./pegrex
+copying build/lib/pegrex/tsmock.py -> build/bdist.linux-x86_64/wheel/./pegrex
+copying build/lib/pegrex/specgen.py -> build/bdist.linux-x86_64/wheel/./pegrex
+copying build/lib/pegrex/compliance.py -> build/bdist.linux-x86_64/wheel/./pegrex
+copying build/lib/pegrex/recover.py -> build/bdist.linux-x86_64/wheel/./pegrex
+copying build/lib/pegrex/overflow.py -> build/bdist.linux-x86_64/wheel/./pegrex
+copying build/lib/pegrex/paths.py -> build/bdist.linux-x86_64/wheel/./pegrex
+copying build/lib/pegrex/trainer.py -> build/bdist.linux-x86_64/wheel/./pegrex
+copying build/lib/pegrex/emitter.py -> build/bdist.linux-x86_64/wheel/./pegrex
+copying build/lib/pegrex/toolsapi.py -> build/bdist.linux-x86_64/wheel/./pegrex
+copying build/lib/pegrex/digitaltwin.py -> build/bdist.linux-x86_64/wheel/./pegrex
+copying build/lib/pegrex/contextcompiler.py -> build/bdist.linux-x86_64/wheel/./pegrex
+copying build/lib/pegrex/kernel.py -> build/bdist.linux-x86_64/wheel/./pegrex
+copying build/lib/pegrex/cli.py -> build/bdist.linux-x86_64/wheel/./pegrex
+copying build/lib/pegrex/poc.py -> build/bdist.linux-x86_64/wheel/./pegrex
+copying build/lib/pegrex/planner.py -> build/bdist.linux-x86_64/wheel/./pegrex
+copying build/lib/pegrex/formalize.py -> build/bdist.linux-x86_64/wheel/./pegrex
+copying build/lib/pegrex/tscontracts.py -> build/bdist.linux-x86_64/wheel/./pegrex
+copying build/lib/pegrex/bounty.py -> build/bdist.linux-x86_64/wheel/./pegrex
+copying build/lib/pegrex/gatepipe.py -> build/bdist.linux-x86_64/wheel/./pegrex
+copying build/lib/pegrex/securitycontracts.py -> build/bdist.linux-x86_64/wheel/./pegrex
+copying build/lib/pegrex/tv.py -> build/bdist.linux-x86_64/wheel/./pegrex
+copying build/lib/pegrex/priorverify.py -> build/bdist.linux-x86_64/wheel/./pegrex
+copying build/lib/pegrex/metaengine.py -> build/bdist.linux-x86_64/wheel/./pegrex
+copying build/lib/pegrex/a2atasks.py -> build/bdist.linux-x86_64/wheel/./pegrex
+copying build/lib/pegrex/constraints.py -> build/bdist.linux-x86_64/wheel/./pegrex
+copying build/lib/pegrex/protocol.py -> build/bdist.linux-x86_64/wheel/./pegrex
+copying build/lib/pegrex/harness.py -> build/bdist.linux-x86_64/wheel/./pegrex
+copying build/lib/pegrex/contract.py -> build/bdist.linux-x86_64/wheel/./pegrex
+copying build/lib/pegrex/refine.py -> build/bdist.linux-x86_64/wheel/./pegrex
+copying build/lib/pegrex/gramir.py -> build/bdist.linux-x86_64/wheel/./pegrex
+copying build/lib/pegrex/memory.py -> build/bdist.linux-x86_64/wheel/./pegrex
+copying build/lib/pegrex/roundtrip.py -> build/bdist.linux-x86_64/wheel/./pegrex
+copying build/lib/pegrex/regressionmemory.py -> build/bdist.linux-x86_64/wheel/./pegrex
+copying build/lib/pegrex/flow.py -> build/bdist.linux-x86_64/wheel/./pegrex
+copying build/lib/pegrex/cognitive.py -> build/bdist.linux-x86_64/wheel/./pegrex
+copying build/lib/pegrex/antihalluc.py -> build/bdist.linux-x86_64/wheel/./pegrex
+copying build/lib/pegrex/invariants.py -> build/bdist.linux-x86_64/wheel/./pegrex
+copying build/lib/pegrex/incverify.py -> build/bdist.linux-x86_64/wheel/./pegrex
+copying build/lib/pegrex/specs.py -> build/bdist.linux-x86_64/wheel/./pegrex
+copying build/lib/pegrex/python_ast.py -> build/bdist.linux-x86_64/wheel/./pegrex
+copying build/lib/pegrex/orgtwin.py -> build/bdist.linux-x86_64/wheel/./pegrex
+copying build/lib/pegrex/ic3.py -> build/bdist.linux-x86_64/wheel/./pegrex
+copying build/lib/pegrex/chain.py -> build/bdist.linux-x86_64/wheel/./pegrex
+copying build/lib/pegrex/attackgraph.py -> build/bdist.linux-x86_64/wheel/./pegrex
+copying build/lib/pegrex/ci.py -> build/bdist.linux-x86_64/wheel/./pegrex
+copying build/lib/pegrex/strategies.py -> build/bdist.linux-x86_64/wheel/./pegrex
+copying build/lib/pegrex/secrules_taint.json -> build/bdist.linux-x86_64/wheel/./pegrex
+copying build/lib/pegrex/mini_llm.py -> build/bdist.linux-x86_64/wheel/./pegrex
+creating build/bdist.linux-x86_64/wheel/pegrex/lpegc
+copying build/lib/pegrex/lpegc/parser.py -> build/bdist.linux-x86_64/wheel/./pegrex/lpegc
+copying build/lib/pegrex/lpegc/__init__.py -> build/bdist.linux-x86_64/wheel/./pegrex/lpegc
+copying build/lib/pegrex/lpegc/diagnostics.py -> build/bdist.linux-x86_64/wheel/./pegrex/lpegc
+copying build/lib/pegrex/lpegc/compiler.py -> build/bdist.linux-x86_64/wheel/./pegrex/lpegc
+copying build/lib/pegrex/concolic.py -> build/bdist.linux-x86_64/wheel/./pegrex
+copying build/lib/pegrex/zkproof.py -> build/bdist.linux-x86_64/wheel/./pegrex
+copying build/lib/pegrex/agenttools.py -> build/bdist.linux-x86_64/wheel/./pegrex
+copying build/lib/pegrex/loopsum.py -> build/bdist.linux-x86_64/wheel/./pegrex
+copying build/lib/pegrex/transpiler.py -> build/bdist.linux-x86_64/wheel/./pegrex
+copying build/lib/pegrex/proverbridge.py -> build/bdist.linux-x86_64/wheel/./pegrex
+copying build/lib/pegrex/__init__.py -> build/bdist.linux-x86_64/wheel/./pegrex
+copying build/lib/pegrex/multiagent.py -> build/bdist.linux-x86_64/wheel/./pegrex
+copying build/lib/pegrex/testpromotion.py -> build/bdist.linux-x86_64/wheel/./pegrex
+copying build/lib/pegrex/workexec.py -> build/bdist.linux-x86_64/wheel/./pegrex
+copying build/lib/pegrex/acp.py -> build/bdist.linux-x86_64/wheel/./pegrex
+copying build/lib/pegrex/loops.py -> build/bdist.linux-x86_64/wheel/./pegrex
+copying build/lib/pegrex/circuit.py -> build/bdist.linux-x86_64/wheel/./pegrex
+copying build/lib/pegrex/difforacle.py -> build/bdist.linux-x86_64/wheel/./pegrex
+copying build/lib/pegrex/proofs.py -> build/bdist.linux-x86_64/wheel/./pegrex
+copying build/lib/pegrex/rosetta.py -> build/bdist.linux-x86_64/wheel/./pegrex
+copying build/lib/pegrex/proofreplay.py -> build/bdist.linux-x86_64/wheel/./pegrex
+copying build/lib/pegrex/decisionlog.py -> build/bdist.linux-x86_64/wheel/./pegrex
+copying build/lib/pegrex/vapi.py -> build/bdist.linux-x86_64/wheel/./pegrex
+copying build/lib/pegrex/compiler.py -> build/bdist.linux-x86_64/wheel/./pegrex
+copying build/lib/pegrex/releaseproof.py -> build/bdist.linux-x86_64/wheel/./pegrex
+copying build/lib/pegrex/slsa.py -> build/bdist.linux-x86_64/wheel/./pegrex
+copying build/lib/pegrex/sym.py -> build/bdist.linux-x86_64/wheel/./pegrex
+copying build/lib/pegrex/autopwn.py -> build/bdist.linux-x86_64/wheel/./pegrex
+copying build/lib/pegrex/octagon.py -> build/bdist.linux-x86_64/wheel/./pegrex
+creating build/bdist.linux-x86_64/wheel/pegrex/grammars
+copying build/lib/pegrex/grammars/mlir.gram -> build/bdist.linux-x86_64/wheel/./pegrex/grammars
+copying build/lib/pegrex/grammars/csv.gram -> build/bdist.linux-x86_64/wheel/./pegrex/grammars
+copying build/lib/pegrex/grammars/go-subset.gram -> build/bdist.linux-x86_64/wheel/./pegrex/grammars
+copying build/lib/pegrex/grammars/sexpr.gram -> build/bdist.linux-x86_64/wheel/./pegrex/grammars
+copying build/lib/pegrex/grammars/vyper-subset.gram -> build/bdist.linux-x86_64/wheel/./pegrex/grammars
+copying build/lib/pegrex/grammars/ini.gram -> build/bdist.linux-x86_64/wheel/./pegrex/grammars
+copying build/lib/pegrex/grammars/c11.gram -> build/bdist.linux-x86_64/wheel/./pegrex/grammars
+copying build/lib/pegrex/grammars/agent.gram -> build/bdist.linux-x86_64/wheel/./pegrex/grammars
+copying build/lib/pegrex/grammars/json.gram -> build/bdist.linux-x86_64/wheel/./pegrex/grammars
+copying build/lib/pegrex/grammars/url.gram -> build/bdist.linux-x86_64/wheel/./pegrex/grammars
+copying build/lib/pegrex/grammars/mir.gram -> build/bdist.linux-x86_64/wheel/./pegrex/grammars
+copying build/lib/pegrex/policy.py -> build/bdist.linux-x86_64/wheel/./pegrex
+copying build/lib/pegrex/compilerir.py -> build/bdist.linux-x86_64/wheel/./pegrex
+copying build/lib/pegrex/editaudit.py -> build/bdist.linux-x86_64/wheel/./pegrex
+copying build/lib/pegrex/mcp.py -> build/bdist.linux-x86_64/wheel/./pegrex
+copying build/lib/pegrex/buildprovenance.py -> build/bdist.linux-x86_64/wheel/./pegrex
+copying build/lib/pegrex/sessions.py -> build/bdist.linux-x86_64/wheel/./pegrex
+copying build/lib/pegrex/induce.py -> build/bdist.linux-x86_64/wheel/./pegrex
+copying build/lib/pegrex/compilerdiff.py -> build/bdist.linux-x86_64/wheel/./pegrex
+copying build/lib/pegrex/continuity.py -> build/bdist.linux-x86_64/wheel/./pegrex
+copying build/lib/pegrex/patterns.py -> build/bdist.linux-x86_64/wheel/./pegrex
+copying build/lib/pegrex/formulas.py -> build/bdist.linux-x86_64/wheel/./pegrex
+copying build/lib/pegrex/repairloop.py -> build/bdist.linux-x86_64/wheel/./pegrex
+running install_egg_info
+Copying pegrex.egg-info to build/bdist.linux-x86_64/wheel/./pegrex-1.1.0-py3.12.egg-info
+running install_scripts
+creating build/bdist.linux-x86_64/wheel/pegrex-1.1.0.dist-info/WHEEL
+creating '/tmp/pegrex-build-final/dist/.tmp-urglfip4/pegrex-1.1.0-py3-none-any.whl' and adding 'build/bdist.linux-x86_64/wheel' to it
+adding 'pipeline.py'
+adding 'service.py'
+adding 'pegrex/__init__.py'
+adding 'pegrex/a2a.py'
+adding 'pegrex/a2atasks.py'
+adding 'pegrex/abstract.py'
+adding 'pegrex/acp.py'
+adding 'pegrex/actionbroker.py'
+adding 'pegrex/agenttools.py'
+adding 'pegrex/analyzermutation.py'
+adding 'pegrex/annotations.py'
+adding 'pegrex/antihalluc.py'
+adding 'pegrex/api.py'
+adding 'pegrex/apicontract.py'
+adding 'pegrex/assign.py'
+adding 'pegrex/assurancegraph.py'
+adding 'pegrex/attackgraph.py'
+adding 'pegrex/attest.py'
+adding 'pegrex/auditbundle.py'
+adding 'pegrex/autopilot.py'
+adding 'pegrex/autopwn.py'
+adding 'pegrex/benchmark.py'
+adding 'pegrex/bisim.py'
+adding 'pegrex/bounty.py'
+adding 'pegrex/budget.py'
+adding 'pegrex/buildprovenance.py'
+adding 'pegrex/cache.py'
+adding 'pegrex/callgraph.py'
+adding 'pegrex/capabilities.py'
+adding 'pegrex/cegis.py'
+adding 'pegrex/cfg.py'
+adding 'pegrex/chain.py'
+adding 'pegrex/changebudget.py'
+adding 'pegrex/ci.py'
+adding 'pegrex/circuit.py'
+adding 'pegrex/cli.py'
+adding 'pegrex/cobolfront.py'
+adding 'pegrex/codegen.py'
+adding 'pegrex/cognitive.py'
+adding 'pegrex/compiler.py'
+adding 'pegrex/compilerdiff.py'
+adding 'pegrex/compilerir.py'
+adding 'pegrex/compliance.py'
+adding 'pegrex/compliancemap.py'
+adding 'pegrex/compress.py'
+adding 'pegrex/concolic.py'
+adding 'pegrex/concurrency.py'
+adding 'pegrex/concurrency_analysis.py'
+adding 'pegrex/constraints.py'
+adding 'pegrex/contextcompiler.py'
+adding 'pegrex/continuity.py'
+adding 'pegrex/contract.py'
+adding 'pegrex/coverage.py'
+adding 'pegrex/decisionlog.py'
+adding 'pegrex/difforacle.py'
+adding 'pegrex/digitaltwin.py'
+adding 'pegrex/drift.py'
+adding 'pegrex/editaudit.py'
+adding 'pegrex/effects.py'
+adding 'pegrex/eggx.py'
+adding 'pegrex/egraphs.py'
+adding 'pegrex/emitter.py'
+adding 'pegrex/evidence.py'
+adding 'pegrex/evidencepack.py'
+adding 'pegrex/explain.py'
+adding 'pegrex/exploitability.py'
+adding 'pegrex/export.py'
+adding 'pegrex/extension.py'
+adding 'pegrex/facade.py'
+adding 'pegrex/facts.py'
+adding 'pegrex/flow.py'
+adding 'pegrex/formalize.py'
+adding 'pegrex/formalprotocols.py'
+adding 'pegrex/formulas.py'
+adding 'pegrex/fortranfront.py'
+adding 'pegrex/frameworkpacks.py'
+adding 'pegrex/gatepipe.py'
+adding 'pegrex/golfbench.py'
+adding 'pegrex/gramir.py'
+adding 'pegrex/graph.py'
+adding 'pegrex/harness.py'
+adding 'pegrex/harnessmutation.py'
+adding 'pegrex/hybridrag.py'
+adding 'pegrex/iac.py'
+adding 'pegrex/ic3.py'
+adding 'pegrex/idioms.py'
+adding 'pegrex/impact.py'
+adding 'pegrex/incident.py'
+adding 'pegrex/incremental.py'
+adding 'pegrex/incverify.py'
+adding 'pegrex/induce.py'
+adding 'pegrex/insure.py'
+adding 'pegrex/interprocedural.py'
+adding 'pegrex/intervals.py'
+adding 'pegrex/invariants.py'
+adding 'pegrex/invmarket.py'
+adding 'pegrex/ir.py'
+adding 'pegrex/kernel.py'
+adding 'pegrex/languages.py'
+adding 'pegrex/legacy_common.py'
+adding 'pegrex/legal.py'
+adding 'pegrex/legalci.py'
+adding 'pegrex/linsolve.py'
+adding 'pegrex/llmcegis.py'
+adding 'pegrex/lockpolicy.py'
+adding 'pegrex/loops.py'
+adding 'pegrex/loopsum.py'
+adding 'pegrex/lsp.py'
+adding 'pegrex/marketplace.py'
+adding 'pegrex/mcp.py'
+adding 'pegrex/memory.py'
+adding 'pegrex/metaengine.py'
+adding 'pegrex/mini_llm.py'
+adding 'pegrex/mlgraph.py'
+adding 'pegrex/modelcheck.py'
+adding 'pegrex/modernization.py'
+adding 'pegrex/modernize.py'
+adding 'pegrex/multiagent.py'
+adding 'pegrex/mutation.py'
+adding 'pegrex/nlspec.py'
+adding 'pegrex/octagon.py'
+adding 'pegrex/orgtwin.py'
+adding 'pegrex/overflow.py'
+adding 'pegrex/ownership.py'
+adding 'pegrex/parallel.py'
+adding 'pegrex/passverify.py'
+adding 'pegrex/patchgate.py'
+adding 'pegrex/pathrefine.py'
+adding 'pegrex/paths.py'
+adding 'pegrex/patterns.py'
+adding 'pegrex/pdr.py'
+adding 'pegrex/peg.py'
+adding 'pegrex/perfgolf.py'
+adding 'pegrex/planner.py'
+adding 'pegrex/poc.py'
+adding 'pegrex/pocsandbox.py'
+adding 'pegrex/policy.py'
+adding 'pegrex/policygate.py'
+adding 'pegrex/prchat.py'
+adding 'pegrex/priorverify.py'
+adding 'pegrex/probpath.py'
+adding 'pegrex/proofrepair.py'
+adding 'pegrex/proofreplay.py'
+adding 'pegrex/proofs.py'
+adding 'pegrex/protocol.py'
+adding 'pegrex/proverbridge.py'
+adding 'pegrex/py2cobol.py'
+adding 'pegrex/python_ast.py'
+adding 'pegrex/rag.py'
+adding 'pegrex/rank.py'
+adding 'pegrex/reachability.py'
+adding 'pegrex/recover.py'
+adding 'pegrex/recursion.py'
+adding 'pegrex/refine.py'
+adding 'pegrex/registry.py'
+adding 'pegrex/regressionmemory.py'
+adding 'pegrex/releaseproof.py'
+adding 'pegrex/repairloop.py'
+adding 'pegrex/repomemory.py'
+adding 'pegrex/repository.py'
+adding 'pegrex/researchcapsule.py'
+adding 'pegrex/resourcebounds.py'
+adding 'pegrex/rosetta.py'
+adding 'pegrex/roundtrip.py'
+adding 'pegrex/rules.py'
+adding 'pegrex/sandbox.py'
+adding 'pegrex/sbom.py'
+adding 'pegrex/sca.py'
+adding 'pegrex/schema.py'
+adding 'pegrex/secrules.json'
+adding 'pegrex/secrules_taint.json'
+adding 'pegrex/securitycontracts.py'
+adding 'pegrex/selfplay.py'
+adding 'pegrex/semanticchecksum.py'
+adding 'pegrex/semantics.py'
+adding 'pegrex/semgraph.py'
+adding 'pegrex/sessions.py'
+adding 'pegrex/slsa.py'
+adding 'pegrex/smartcontract.py'
+adding 'pegrex/smt.py'
+adding 'pegrex/smtlib.py'
+adding 'pegrex/specgen.py'
+adding 'pegrex/specmine.py'
+adding 'pegrex/specproposals.py'
+adding 'pegrex/specs.py'
+adding 'pegrex/sqlrel.py'
+adding 'pegrex/ssa.py'
+adding 'pegrex/statemachine.py'
+adding 'pegrex/strategies.py'
+adding 'pegrex/summaries.py'
+adding 'pegrex/sym.py'
+adding 'pegrex/synthesize.py'
+adding 'pegrex/taint.py'
+adding 'pegrex/testpromotion.py'
+adding 'pegrex/testsynth.py'
+adding 'pegrex/tokenizer.py'
+adding 'pegrex/toolsapi.py'
+adding 'pegrex/traceguided.py'
+adding 'pegrex/trainer.py'
+adding 'pegrex/transpiler.py'
+adding 'pegrex/tree_sitter_bridge.py'
+adding 'pegrex/tscontracts.py'
+adding 'pegrex/tsmock.py'
+adding 'pegrex/tv.py'
+adding 'pegrex/twin.py'
+adding 'pegrex/vapi.py'
+adding 'pegrex/veritest.py'
+adding 'pegrex/vm.py'
+adding 'pegrex/wire.py'
+adding 'pegrex/witness.py'
+adding 'pegrex/work.py'
+adding 'pegrex/workers.py'
+adding 'pegrex/workexec.py'
+adding 'pegrex/workflow.py'
+adding 'pegrex/wp.py'
+adding 'pegrex/zk.py'
+adding 'pegrex/zkproof.py'
+adding 'pegrex/commands/__init__.py'
+adding 'pegrex/commands/analysis.py'
+adding 'pegrex/commands/common.py'
+adding 'pegrex/commands/production.py'
+adding 'pegrex/commands/tooling.py'
+adding 'pegrex/commands/verification.py'
+adding 'pegrex/core/__init__.py'
+adding 'pegrex/core/contracts.py'
+adding 'pegrex/core/engine.py'
+adding 'pegrex/core/models.py'
+adding 'pegrex/grammars/agent.gram'
+adding 'pegrex/grammars/c11.gram'
+adding 'pegrex/grammars/csv.gram'
+adding 'pegrex/grammars/go-subset.gram'
+adding 'pegrex/grammars/ini.gram'
+adding 'pegrex/grammars/json.gram'
+adding 'pegrex/grammars/mir.gram'
+adding 'pegrex/grammars/mlir.gram'
+adding 'pegrex/grammars/sexpr.gram'
+adding 'pegrex/grammars/url.gram'
+adding 'pegrex/grammars/vyper-subset.gram'
+adding 'pegrex/jsonschemas/certificate.v1.json'
+adding 'pegrex/jsonschemas/cli-envelope.v1.json'
+adding 'pegrex/jsonschemas/contract.v1.json'
+adding 'pegrex/jsonschemas/finding.v1.json'
+adding 'pegrex/jsonschemas/unknown.v1.json'
+adding 'pegrex/lpegc/__init__.py'
+adding 'pegrex/lpegc/compiler.py'
+adding 'pegrex/lpegc/diagnostics.py'
+adding 'pegrex/lpegc/parser.py'
+adding 'pegrex-1.1.0.dist-info/licenses/LICENSE'
+adding 'tools/build_release.py'
+adding 'tools/build_skills.py'
+adding 'tools/ci_gate.py'
+adding 'tools/extract_grammar.py'
+adding 'tools/grammar_lint.py'
+adding 'tools/health_report.py'
+adding 'tools/repokit.py'
+adding 'tools/secaudit.py'
+adding 'tools/selfhost.py'
+adding 'tools/mkspec/__init__.py'
+adding 'tools/mkspec/__main__.py'
+adding 'tools/mkspec/core.py'
+adding 'tools/mkspec/templates.py'
+adding 'tools/mkspec/analyzers/builtin.py'
+adding 'tools/mkspec/opus/__init__.py'
+adding 'tools/mkspec/opus/builtin.py'
+adding 'pegrex-1.1.0.dist-info/METADATA'
+adding 'pegrex-1.1.0.dist-info/WHEEL'
+adding 'pegrex-1.1.0.dist-info/entry_points.txt'
+adding 'pegrex-1.1.0.dist-info/top_level.txt'
+adding 'pegrex-1.1.0.dist-info/RECORD'
+removing build/bdist.linux-x86_64/wheel
+Successfully built pegrex-1.1.0.tar.gz and pegrex-1.1.0-py3-none-any.whl

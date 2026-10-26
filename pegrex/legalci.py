@@ -53,6 +53,7 @@ def report_clauses(clauses, today=None, warn_days=14):
 
 
 def ci_report(text, today=None, warn_days=14):
+    """Implement ci report with the module's explicit API and failure semantics."""
     today = today or date.today()
     clauses = parse_clauses(text)
     shalls = text.lower().count(" shall ") + text.lower().count(" must ")

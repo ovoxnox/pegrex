@@ -1,4 +1,7 @@
 """Built-in analyzers: security, structure, quality, testing, docs, deps."""
+import ast
+from functools import lru_cache
+import pathlib
 import re
 import sys
 
@@ -91,6 +94,20 @@ def quality(ctx):
     if ctx.tree is None:
         return []
     out = []
+    mutable_default_lines = set()
+    if ctx.lang == "python":
+        try:
+            python_tree = ast.parse(ctx.src, filename=str(ctx.path))
+        except SyntaxError:
+            python_tree = None
+        if python_tree is not None:
+            for function in ast.walk(python_tree):
+                if not isinstance(function, (ast.FunctionDef, ast.AsyncFunctionDef)):
+                    continue
+                defaults = [*function.args.defaults, *function.args.kw_defaults]
+                if any(isinstance(value, (ast.List, ast.Dict, ast.Set))
+                       for value in defaults if value is not None):
+                    mutable_default_lines.add(function.lineno)
     for name, node, body in _func_bodies(ctx.tree):
         if (body.endpos - body.pos) // 40 > 40:
             out.append(Finding("quality", "long-function", "MEDIUM",
@@ -103,9 +120,12 @@ def quality(ctx):
         if n.tag == "except_clause" and re.match(r"except\s*:", t):
             out.append(Finding("quality", "bare-except", "HIGH", L,
                                t.strip()[:70], fix="catch specific exceptions"))
-        if n.tag == "function_definition" and re.search(r"\(\s*\w+\s*=\s*\[\s*\]", t):
+        if n.tag == "function_definition" and (
+                L in mutable_default_lines if ctx.lang == "python" else
+                re.search(r"\(\s*\w+\s*=\s*[\[{]", t)):
             out.append(Finding("quality", "mutable-default", "HIGH", L,
-                               t.strip()[:70], fix="default None + init in body"))
+                               t.strip()[:70], symbol=name,
+                               fix="default None + init in body"))
         if n.tag == "global_statement":
             out.append(Finding("quality", "global-statement", "MEDIUM", L,
                                t.strip()[:70], fix="pass state explicitly"))
@@ -122,20 +142,51 @@ def quality(ctx):
     return out
 
 
+def _tests_root(path):
+    """Find the nearest repository test directory, not the source-file folder."""
+    for parent in (path.parent, *path.parents):
+        candidate = parent / "tests"
+        if candidate.is_dir():
+            return candidate
+        if (parent / "pyproject.toml").exists() or (parent / ".git").exists():
+            break
+    return None
+
+
+@lru_cache(maxsize=16)
+def _test_symbols(root):
+    """Collect static test references; this is evidence, not runtime coverage."""
+    identifiers, test_functions = set(), set()
+    for path in sorted(root.glob("test_*.py")):
+        try:
+            tree = ast.parse(path.read_text(encoding="utf-8"), filename=str(path))
+        except (OSError, SyntaxError, UnicodeError):
+            continue
+        for node in ast.walk(tree):
+            if isinstance(node, ast.Name):
+                identifiers.add(node.id)
+            elif isinstance(node, ast.Attribute):
+                identifiers.add(node.attr)
+            elif isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)):
+                test_functions.add(node.name)
+    return identifiers, test_functions
+
+
 @analyzer("testing")
 def testing(ctx):
     out = []
-    test_names = set()
-    for tp in ctx.path.parent.glob("test_*.py"):
-        test_names |= set(re.findall(r"def\s+(test_\w+)", tp.read_text()))
-    for name, node, body in _func_bodies(ctx.tree or []):
+    root = _tests_root(ctx.path)
+    if root is None or ctx.tree is None:
+        return out
+    identifiers, test_functions = _test_symbols(root)
+    for name, node, _body in _func_bodies(ctx.tree):
         if name.startswith("_"):
             continue
-        if ("test_" + name) not in test_names:
+        if name not in identifiers and ("test_" + name) not in test_functions:
             out.append(Finding("testing", "untested-function", "MEDIUM",
                                _line(ctx.src, node.pos),
-                               "no test_%s found" % name, symbol=name,
-                               fix="add test_%s (happy + edge paths)" % name))
+                               "no static test reference found" , symbol=name,
+                               fix="add direct happy-path and edge-path tests"))
     return out
 
 
@@ -144,6 +195,21 @@ def documentation(ctx):
     if ctx.tree is None:
         return []
     out = []
+    if ctx.lang == "python":
+        try:
+            tree = ast.parse(ctx.src, filename=str(ctx.path))
+        except (SyntaxError, UnicodeError):
+            return out
+        for node in ast.walk(tree):
+            if not isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)):
+                continue
+            if node.name.startswith("_") or ast.get_docstring(node):
+                continue
+            out.append(Finding("documentation", "missing-docstring", "LOW",
+                               node.lineno, f"{node.name} has no docstring",
+                               symbol=node.name,
+                               fix="docstring: purpose, params, returns, raises"))
+        return out
     for name, node, body in _func_bodies(ctx.tree):
         if name.startswith("_"):
             continue
@@ -186,7 +252,7 @@ def sca(ctx):
     out = []
     go_mod = ctx.path.parent / "go.mod"
     if go_mod.exists():
-        go_src = go_mod.read_text()
+        go_src = go_mod.read_text(encoding="utf-8")
         for ln in go_src.splitlines():
             m = re.match(r"^\s*(require\s+)?([\w.~/-]+)\s+v([\w.+-]+)", ln)
             if m and not ln.strip().startswith(("module", "go ")):
@@ -197,7 +263,7 @@ def sca(ctx):
     lock = ctx.path.parent / "package-lock.json"
     if lock.exists():
         import json as _json
-        data = _json.loads(lock.read_text())
+        data = _json.loads(lock.read_text(encoding="utf-8"))
         for name, meta in (data.get("packages") or {}).items():
             if name.startswith("node_modules/"):
                 out.append(Finding("sca", "npm-dependency", "INFO", 0,
@@ -206,7 +272,7 @@ def sca(ctx):
     cargo = ctx.path.parent / "Cargo.lock"
     if cargo.exists():
         for m in re.finditer(r'name = "([\w-]+)"\nversion = "([\w.+-]+)"',
-                             cargo.read_text()):
+                             cargo.read_text(encoding="utf-8")):
             out.append(Finding("sca", "crate-dependency", "INFO", 0,
                                f"{m.group(1)} v{m.group(2)}",
                                fix="check against OSV"))

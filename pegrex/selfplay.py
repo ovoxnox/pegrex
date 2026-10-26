@@ -77,15 +77,17 @@ def fuzz(policy=None, ground_truth=None):
 
 
 def load_corpus(path) -> list:
+    """Implement load corpus with the module's explicit API and failure semantics."""
     p = pathlib.Path(path)
     if not p.exists():
         return []
-    return json.loads(p.read_text())
+    return json.loads(p.read_text(encoding="utf-8"))
 
 
 def save_corpus(path, corpus) -> None:
+    """Implement save corpus with the module's explicit API and failure semantics."""
     pathlib.Path(path).write_text(
-        json.dumps(corpus, indent=1, sort_keys=True) + "\n")
+        json.dumps(corpus, indent=1, sort_keys=True) + "\n", encoding="utf-8")
 
 
 def _corpus_key(entry):

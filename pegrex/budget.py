@@ -18,6 +18,7 @@ class Budget:
 
     def check(self, path, src: str, fn_lines: dict | None = None,
               doc_ratio: float | None = None) -> "Budget":
+        """Implement check with the module's explicit API and failure semantics."""
         loc = src.count(chr(10)) + 1
         if loc > self.max_loc:
             self.findings.append(
@@ -35,4 +36,5 @@ class Budget:
 
     @property
     def passed(self) -> bool:
+        """Implement passed with the module's explicit API and failure semantics."""
         return not self.findings

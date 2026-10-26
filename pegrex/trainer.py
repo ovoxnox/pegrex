@@ -16,7 +16,7 @@ def export_pairs(path, cases=None):
     """Write JSONL of verified pairs only. Returns counts."""
     cases = cases if cases is not None else CASES
     verified = excluded = 0
-    with open(path, "w") as f:
+    with open(path, "w", encoding="utf-8") as f:
         for case in cases:
             r = run_case(case)
             if r["verified"] is True and r["expected"]:
@@ -34,5 +34,6 @@ def export_pairs(path, cases=None):
 
 
 def load_pairs(path):
-    with open(path) as f:
+    """Implement load pairs with the module's explicit API and failure semantics."""
+    with open(path, encoding="utf-8") as f:
         return [json.loads(line) for line in f if line.strip()]

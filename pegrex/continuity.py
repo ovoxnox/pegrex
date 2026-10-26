@@ -37,7 +37,7 @@ def _top_level_functions(path: pathlib.Path) -> dict:
     extracting the latter would miss most real changes. Source is
     dedented: a method's text is indented in the original file, which
     would be a syntax error once isolated into its own standalone file."""
-    src = path.read_text()
+    src = path.read_text(encoding="utf-8")
     try:
         tree = ast.parse(src)
     except SyntaxError:
@@ -65,7 +65,7 @@ def _verify_function_patch(before_src: str, after_src: str) -> dict:
     paths = [p for _, p in fds]
     try:
         for (fd, p), src in zip(fds, (before_src, after_src)):
-            with os.fdopen(fd, "w") as f:
+            with os.fdopen(fd, "w", encoding="utf-8") as f:
                 f.write(src)
         return verify_patch(paths[0], paths[1])
     finally:

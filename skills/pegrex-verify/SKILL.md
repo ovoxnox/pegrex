@@ -25,3 +25,19 @@ description: Prove patches and diffs correct with verify_patch, semantic_diff, a
   source, rule-catalog, parser, and OSV snapshot identities. Offline OSV misses
   are UNKNOWN; SARIF suppressions require a reviewer justification and remain
   visible to audit rather than erasing the finding.
+
+## Proof-gated edits and independent checking
+- `apply_patch_gated` stages candidates, checks canonical equivalence certificates
+  through `pegrex.kernel`, enforces required invariants and security policy, runs
+  argv-only tests, and atomically applies only approved edits.
+- `repair_and_recheck` reruns the same analyzer in staging; the target finding
+  must decrease and no other finding identity may increase.
+- `EditAudit` preserves original/proposed source, diff, tests, proofs, and the
+  approval decision for both accepted and rejected attempts.
+- The minimal kernel accepts only bounded canonical contract-set equality proofs.
+  It does not execute counterexamples or trust the broad analyzer's verdict.
+
+## Analyzer negative controls
+- `standard_negative_controls()` deliberately weakens parser, solver, and rule
+  behavior. Require all controls to be killed; a bad baseline is UNKNOWN and a
+  surviving weakened analyzer is a failed control, not a passing test suite.

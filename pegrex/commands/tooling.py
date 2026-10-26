@@ -67,17 +67,17 @@ def _cmd_mcp(a) -> int:
 def _cmd_induce(a) -> int:
     """FULL grammar induction: examples in, grammar out (written to --out)."""
     from pegrex.induce import induce
-    pos = [l for l in pathlib.Path(a.positives).read_text().splitlines()
+    pos = [l for l in pathlib.Path(a.positives).read_text(encoding="utf-8").splitlines()
            if l.strip()]
-    neg = [l for l in pathlib.Path(a.negatives).read_text().splitlines()
+    neg = [l for l in pathlib.Path(a.negatives).read_text(encoding="utf-8").splitlines()
            if l.strip()] if a.negatives else []
-    seed = pathlib.Path(a.seed).read_text() if a.seed \
+    seed = pathlib.Path(a.seed).read_text(encoding="utf-8") if a.seed \
         else "START <- .+\n"
     best, score = induce(pos, neg, seed, rounds=a.rounds)
     print(f"score: {score[0]}/{len(pos)} pos, {score[1]}/{len(neg)} neg")
     print(best)
     if a.out:
-        pathlib.Path(a.out).write_text(best)
+        pathlib.Path(a.out).write_text(best, encoding="utf-8")
         print(f"wrote {a.out}")
     return 0
 
@@ -94,15 +94,15 @@ def _cmd_workrun(a) -> int:
 def _cmd_metaengine(a) -> int:
     """FULL meta-engine: examples -> grammar -> tags -> rule skeletons."""
     from pegrex.metaengine import build_system
-    pos = [l for l in pathlib.Path(a.positives).read_text().splitlines()
+    pos = [l for l in pathlib.Path(a.positives).read_text(encoding="utf-8").splitlines()
            if l.strip()]
-    neg = [l for l in pathlib.Path(a.negatives).read_text().splitlines()
+    neg = [l for l in pathlib.Path(a.negatives).read_text(encoding="utf-8").splitlines()
            if l.strip()] if a.negatives else []
     out = build_system(pos, neg, "START <- .+\n", domain=a.domain)
     print(json.dumps({k: out[k] for k in ("tags", "score")}, indent=1))
     print("rule skeletons:", len(out["rule_skeletons"]))
     if a.out:
-        pathlib.Path(a.out).write_text(json.dumps(out, indent=1))
+        pathlib.Path(a.out).write_text(json.dumps(out, indent=1), encoding="utf-8")
     return 0
 
 
@@ -133,7 +133,7 @@ def _cmd_explain(a) -> int:
 def _cmd_caps(a) -> int:
     import json as _json
     from pegrex.capabilities import infer_capabilities, to_sandbox_manifest
-    caps = infer_capabilities(pathlib.Path(a.file).read_text())
+    caps = infer_capabilities(pathlib.Path(a.file).read_text(encoding="utf-8"))
     print(_json.dumps({"capabilities": caps,
                        "sandbox": to_sandbox_manifest(caps)}, indent=1))
     return 0
@@ -184,28 +184,28 @@ def _cmd_compress(args):
 def _cmd_iac(args):
     from pegrex.iac import audit_policy, audit_terraform, can
     if args.file.endswith(".json"):
-        _emit_json({"findings": audit_policy(open(args.file).read())})
+        _emit_json({"findings": audit_policy(open(args.file, encoding="utf-8").read())})
     elif args.question:
         import json as _json
-        doc = _json.load(open(args.policy)) if args.policy else {}
+        doc = _json.load(open(args.policy, encoding="utf-8")) if args.policy else {}
         action, _, resource = args.question.partition(" on ")
         _emit_json({"decision": can(doc.get("Statement", []), action, resource)})
     else:
-        _emit_json({"findings": audit_terraform(open(args.file).read())})
+        _emit_json({"findings": audit_terraform(open(args.file, encoding="utf-8").read())})
 
 
 def _cmd_bounty(args):
     from pegrex.bounty import run
-    _emit_json(run(open(args.file).read(), args.sink))
+    _emit_json(run(open(args.file, encoding="utf-8").read(), args.sink))
 
 
 def _cmd_compliance(args):
     from pegrex.compliance import audit_gdpr, audit_soc2
-    out = {"gdpr": audit_gdpr(open(args.file).read())}
+    out = {"gdpr": audit_gdpr(open(args.file, encoding="utf-8").read())}
     if args.soc2:
         import json as _json
-        out["soc2"] = audit_soc2(open(args.file).read(),
-                                 _json.load(open(args.soc2)))
+        out["soc2"] = audit_soc2(open(args.file, encoding="utf-8").read(),
+                                 _json.load(open(args.soc2, encoding="utf-8")))
     _emit_json(out)
 
 
@@ -216,8 +216,8 @@ def _cmd_compile_nl(args):
 
 def _cmd_autopwn(args):
     from pegrex.autopwn import autopwn
-    _emit_json(autopwn(open(args.file).read(), args.sink,
-                       lambda fb: open(args.patch).read(),
+    _emit_json(autopwn(open(args.file, encoding="utf-8").read(), args.sink,
+                       lambda fb: open(args.patch, encoding="utf-8").read(),
                        max_rounds=args.rounds))
 
 
@@ -251,7 +251,7 @@ def _cmd_llmcegis(args):
     from pegrex.llmcegis import HTTProposer, repair
     proposer = (HTTProposer(endpoint=args.endpoint)
                 if args.proposer == "http" else "templates")
-    _emit_json(repair(open(args.file).read(), claim=args.claim,
+    _emit_json(repair(open(args.file, encoding="utf-8").read(), claim=args.claim,
                       proposer=proposer, max_rounds=args.rounds))
 
 

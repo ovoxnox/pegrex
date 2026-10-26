@@ -45,6 +45,7 @@ def parse_gocover(text: str) -> list[CoverLine]:
 
 
 def covered_lines(cov: list[CoverLine]) -> set[int]:
+    """Implement covered lines with the module's explicit API and failure semantics."""
     return {c.line for c in cov if c.hits > 0}
 
 

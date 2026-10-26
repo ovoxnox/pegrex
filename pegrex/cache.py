@@ -31,15 +31,17 @@ class AnalysisCache:
         return self.root / f"{content}-{config}.json"
 
     def get(self, source: str, analyzers: tuple[str, ...], **identity):
+        """Implement get with the module's explicit API and failure semantics."""
         p = self.key(source, analyzers, **identity)
         if p.exists():
-            return json.loads(p.read_text())
+            return json.loads(p.read_text(encoding="utf-8"))
         return None
 
     def put(self, source: str, analyzers: tuple[str, ...], payload: dict, **identity) -> None:
+        """Implement put with the module's explicit API and failure semantics."""
         path = self.key(source, analyzers, **identity)
         temporary = path.with_suffix(".tmp")
-        temporary.write_text(json.dumps(payload, sort_keys=True))
+        temporary.write_text(json.dumps(payload, sort_keys=True), encoding="utf-8")
         temporary.replace(path)
 
 
@@ -70,6 +72,7 @@ class IncrementalSummaryCache:
 
     def update(self, path: str, source: str, *, dependencies=(),
                version: str = "v1", configuration: dict | None = None) -> set[str]:
+        """Implement update with the module's explicit API and failure semantics."""
         path = str(path)
         document = {
             "digest": hashlib.sha256(source.encode("utf-8")).hexdigest(),
@@ -110,12 +113,14 @@ class IncrementalSummaryCache:
         return hashlib.sha256(encoded).hexdigest()
 
     def put(self, path: str, summary: dict) -> None:
+        """Implement put with the module's explicit API and failure semantics."""
         path = str(path)
         if path not in self._documents:
             raise KeyError(f"update {path!r} before storing its summary")
         self._summaries[path] = {"revision": self._revision(path), "summary": summary}
 
     def get(self, path: str) -> dict | None:
+        """Implement get with the module's explicit API and failure semantics."""
         path = str(path)
         entry = self._summaries.get(path)
         if entry is None or path not in self._documents:

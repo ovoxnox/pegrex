@@ -20,7 +20,7 @@ def repo_index(root: str, out: str = "repo.index.json") -> dict:
         if "__pycache__" in str(p) or ".vendor" in str(p):
             continue
         try:
-            src = p.read_text()
+            src = p.read_text(encoding="utf-8")
             parse, tags, mk = pipeline.python_frontend()
             body = parse(src)
             fns = pipeline.python_functions(src)
@@ -37,7 +37,7 @@ def repo_index(root: str, out: str = "repo.index.json") -> dict:
         except Exception:
             continue
     index = {"containers": containers}
-    pathlib.Path(out).write_text(json.dumps(index, indent=1))
+    pathlib.Path(out).write_text(json.dumps(index, indent=1), encoding="utf-8")
     return index
 
 
@@ -47,7 +47,7 @@ def verification_bundle(source_path: str, out: str | None = None) -> dict:
     import pipeline
     from pegrex.cfg import CFGBuilder
     from pegrex.paths import PathEnumerator, PathFormula
-    src = pathlib.Path(source_path).read_text()
+    src = pathlib.Path(source_path).read_text(encoding="utf-8")
     parse, tags, mk = pipeline.python_frontend()
     body = parse(src)
     cfg = CFGBuilder(tags).build(body)
@@ -68,5 +68,5 @@ def verification_bundle(source_path: str, out: str | None = None) -> dict:
               "paths": paths,
               "smt2": PathFormula([], {}, [c for p_ in paths for c in p_["constraints"]]).smt2()}
     if out:
-        pathlib.Path(out).write_text(json.dumps(bundle, indent=1))
+        pathlib.Path(out).write_text(json.dumps(bundle, indent=1), encoding="utf-8")
     return bundle

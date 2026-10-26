@@ -56,6 +56,7 @@ def engine_tools() -> list:
 
 
 def call_engine_tool(name: str, args: dict):
+    """Implement call engine tool with the module's explicit API and failure semantics."""
     sys.path.insert(0, ".")
     from pegrex import api
     if name == "engine_audit":
@@ -128,6 +129,7 @@ class MCPServer:
         self.router = router or MCPRouter()
 
     def handle(self, req: dict):
+        """Implement handle with the module's explicit API and failure semantics."""
         m = req.get("method")
         if m == "initialize":
             return {"protocolVersion": PROTOCOL_VERSION,
@@ -155,10 +157,11 @@ class MCPServer:
             if "taint" in uri:
                 f = pathlib.Path("pegrex/secrules_taint.json")
             return {"contents": [{"uri": uri, "mimeType": "application/json",
-                                  "text": f.read_text()[:8000]}]}
+                                  "text": f.read_text(encoding="utf-8")[:8000]}]}
         return None
 
     def serve(self) -> int:
+        """Implement serve with the module's explicit API and failure semantics."""
         for line in sys.stdin:
             line = line.strip()
             if not line:

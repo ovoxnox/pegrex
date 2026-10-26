@@ -45,6 +45,7 @@ class PathEnumeration:
 
     @property
     def verdict(self) -> str:
+        """Implement verdict with the module's explicit API and failure semantics."""
         return "ok" if self.complete else "unknown"
 
 
@@ -63,6 +64,7 @@ class PathEnumerator:
 
     def enumerate_bounded(self, entry: int = 0, *, max_paths: int | None = None,
                           timeout_ms: int | None = None) -> PathEnumeration:
+        """Implement enumerate bounded with the module's explicit API and failure semantics."""
         cap = self.max_paths if max_paths is None else max_paths
         timeout = self.timeout_ms if timeout_ms is None else timeout_ms
         deadline = time.monotonic() + timeout / 1000 if timeout is not None else None
@@ -72,6 +74,7 @@ class PathEnumerator:
         visited = 0
 
         def dfs(block: int, visits: dict, acc: tuple) -> None:
+            """Implement dfs with the module's explicit API and failure semantics."""
             nonlocal visited
             if unknowns:
                 return
@@ -106,6 +109,7 @@ class PathEnumerator:
         return PathEnumeration(paths if complete else [], complete, unknowns, visited)
 
     def enumerate(self, entry: int = 0) -> list[list[int]]:
+        """Implement enumerate with the module's explicit API and failure semantics."""
         result = self.enumerate_bounded(entry)
         if not result.complete:
             raise PathExplosion("; ".join(result.unknowns))

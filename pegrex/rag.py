@@ -58,15 +58,16 @@ def chunk_source(path: str, src: str, max_lines: int = 40) -> list[Chunk]:
 
 
 def build_index(paths) -> Index:
+    """Implement build index with the module's explicit API and failure semantics."""
     idx = Index()
     for p in paths:
         p = pathlib.Path(p)
         if p.is_dir():
             for f in sorted(p.rglob("*.py")):
                 if "__pycache__" not in str(f) and ".vendor" not in str(f):
-                    idx.chunks += chunk_source(str(f), f.read_text())
+                    idx.chunks += chunk_source(str(f), f.read_text(encoding="utf-8"))
         elif p.exists():
-            idx.chunks += chunk_source(str(p), p.read_text())
+            idx.chunks += chunk_source(str(p), p.read_text(encoding="utf-8"))
     for i, c in enumerate(idx.chunks):
         for tok in set(c.tokens):
             idx.inverted.setdefault(tok, set()).add(i)

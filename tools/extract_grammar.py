@@ -19,7 +19,7 @@ EXAMPLES = HERE / "examples"
 
 
 def extract(lua_path):
-    text = pathlib.Path(lua_path).read_text()
+    text = pathlib.Path(lua_path).read_text(encoding="utf-8")
     m = re.search(r"\[(=*)\[(.*?)\]\1\]", text, re.S)
     if not m:
         raise SystemExit(f"no long-bracket block in {lua_path}")
@@ -29,7 +29,7 @@ def extract(lua_path):
 def main(argv):
     if len(argv) >= 3:
         out = extract(argv[1])
-        pathlib.Path(argv[2]).write_text(out)
+        pathlib.Path(argv[2]).write_text(out, encoding="utf-8")
         print(f"wrote {argv[2]} ({len(out.splitlines())} lines)")
         return 0
     # --check: re-extract any upstream file placed in examples/upstream/
@@ -44,7 +44,7 @@ def main(argv):
             print(f"MISSING {gram.name}")
             bad += 1
             continue
-        if extract(lua) != gram.read_text():
+        if extract(lua) != gram.read_text(encoding="utf-8"):
             print(f"DIFFERS {gram.name}")
             bad += 1
         else:

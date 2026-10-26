@@ -30,7 +30,7 @@ CHECKS = [
 
 def analyze_pipeline(path: str) -> list:
     """YAML CI config -> security findings."""
-    src = pathlib.Path(path).read_text()
+    src = pathlib.Path(path).read_text(encoding="utf-8")
     out = []
     for cid, sev, msg, rx in CHECKS:
         for m in rx.finditer(src):

@@ -1,0 +1,39 @@
+{
+  "schema": "pegrex.self-analysis-generation.v1",
+  "source_root": "pegrex",
+  "steps": [
+    {
+      "name": "copy-generated-reports",
+      "status": "ok"
+    },
+    {
+      "name": "repository-memory-and-context",
+      "status": "ok"
+    },
+    {
+      "name": "rag-index-and-retrievals",
+      "status": "ok"
+    },
+    {
+      "name": "call-fact-and-unified-graphs",
+      "status": "ok"
+    },
+    {
+      "name": "digital-twin",
+      "status": "ok"
+    },
+    {
+      "name": "architecture-index",
+      "status": "ok"
+    },
+    {
+      "name": "supply-chain-evidence",
+      "status": "ok"
+    },
+    {
+      "name": "verification-bundles",
+      "status": "ok"
+    }
+  ],
+  "unknown_steps": []
+}

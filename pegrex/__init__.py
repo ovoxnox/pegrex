@@ -15,7 +15,8 @@ from .languages import (language_capabilities, capability_matrix, detect_languag
                         soundness_report)
 from .sessions import AnalysisSession, AnalysisTimeout
 
-__all__ = ["compile_grammar", "calcline", "prettyast", "GrammarError", "Node", "run", "Throw",
+__version__ = "1.1.0"
+__all__ = ["__version__","compile_grammar", "calcline", "prettyast", "GrammarError", "Node", "run", "Throw",
            "CoreEngine", "OperationResult", "OperationStatus", "PathContract",
            "SourceDocument", "Verdict", "get_engine", "language_capabilities",
            "capability_matrix", "detect_language", "frontend_manifest",

@@ -117,13 +117,16 @@ _RIGHT    = set()
 
 
 def parse_expr(text: str) -> Expr:
+    """Implement parse expr with the module's explicit API and failure semantics."""
     toks = tokenize(text)
     pos = [0]
 
     def peek():
+        """Implement peek with the module's explicit API and failure semantics."""
         return toks[pos[0]] if pos[0] < len(toks) else (None, None)
 
     def next_():
+        """Implement next with the module's explicit API and failure semantics."""
         if pos[0] >= len(toks):
             raise CondError("ir: unexpected end of condition")
         t = toks[pos[0]]
@@ -131,12 +134,14 @@ def parse_expr(text: str) -> Expr:
         return t
 
     def expect(kind, val=None):
+        """Implement expect with the module's explicit API and failure semantics."""
         k, v = next_()
         if k != kind or (val is not None and v != val):
             raise CondError(f"ir: expected {val or kind}, got {v!r}")
         return v
 
     def primary():
+        """Implement primary with the module's explicit API and failure semantics."""
         kind, val = next_()
         if kind == "id" and val == "not":
             return Expr("not", "bool", None, (expr(4),))
@@ -185,6 +190,7 @@ def parse_expr(text: str) -> Expr:
         raise CondError(f"ir: unexpected token {val!r}")
 
     def expr(min_prec):
+        """Implement expr with the module's explicit API and failure semantics."""
         left = primary()
         while True:
             k, v = peek()

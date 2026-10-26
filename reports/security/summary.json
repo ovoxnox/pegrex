@@ -1,0 +1,57 @@
+{
+  "active": 4,
+  "coverage": {
+    "languages": [
+      {
+        "audit": true,
+        "complete": 227,
+        "files": 227,
+        "language": "python",
+        "partial": 0,
+        "taint": true
+      }
+    ],
+    "status": "complete",
+    "totals": {
+      "complete": 227,
+      "files": 227,
+      "partial": 0,
+      "skipped_rules": 123633,
+      "undecided_rules": 0
+    }
+  },
+  "files": 227,
+  "finding_ids": [
+    {
+      "file": "pegrex/commands/verification.py",
+      "id": "exec-detected",
+      "line": 105,
+      "severity": "MEDIUM"
+    },
+    {
+      "file": "pegrex/commands/verification.py",
+      "id": "python_exec_rule-exec-used",
+      "line": 105,
+      "severity": "MEDIUM"
+    },
+    {
+      "file": "pegrex/roundtrip.py",
+      "id": "generic-api-key",
+      "line": 87,
+      "severity": "LOW"
+    },
+    {
+      "file": "pegrex/roundtrip.py",
+      "id": "generic-api-key",
+      "line": 88,
+      "severity": "LOW"
+    }
+  ],
+  "findings": 4,
+  "refreshed_files": [
+    "pegrex/sbom.py",
+    "pegrex/sca.py"
+  ],
+  "schema": "pegrex.self-audit-summary.v1",
+  "suppressed": 0
+}

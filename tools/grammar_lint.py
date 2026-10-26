@@ -26,7 +26,7 @@ TOKEN_ARROW = re.compile(r"<-\||<==|<--|<-")
 
 def lint(path):
     problems = []
-    lines = path.read_text().splitlines()
+    lines = path.read_text(encoding="utf-8").splitlines()
     for n, line in enumerate(lines, 1):
         code = _strip_strings_comments(line)
         # 1. backtick parity (ignore `` inside single/double quotes)

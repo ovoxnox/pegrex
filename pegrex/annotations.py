@@ -18,6 +18,7 @@ _TS_LANGS = {name for name, spec in LANGUAGES.items()
 
 
 def comment_prefix(lang: str) -> str:
+    """Implement comment prefix with the module's explicit API and failure semantics."""
     from .languages import normalize_language
     resolved = normalize_language(lang)
     if resolved is None or resolved not in COMMENT_PREFIX:
@@ -44,6 +45,7 @@ def annotations(src: str, lang: str):
 
 
 def language_of(path: str) -> str:
+    """Implement language of with the module's explicit API and failure semantics."""
     lang = detect_language(path)
     if lang is None:
         raise ValueError(f"annotations: unknown language for {path!r}")

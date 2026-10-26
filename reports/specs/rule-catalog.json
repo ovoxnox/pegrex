@@ -1,0 +1,87 @@
+{
+ "coverage": {
+  "pattern": {
+   "active": 655,
+   "catalog_version": "sha256:83784b3f7d540a9bbc27177928d66203efe4c8d7efbbe2b0834736a6bb3135ab",
+   "disabled": 27,
+   "disabled_rules": [
+    "attr-mutable-initializer",
+    "use-json-response",
+    "user-eval-format-string",
+    "user-eval",
+    "user-exec-format-string",
+    "user-exec",
+    "path-traversal-join",
+    "path-traversal-open",
+    "ssrf-injection-urllib",
+    "use-jsonify",
+    "open-never-closed",
+    "unspecified-open-encoding",
+    "use-sys-exit",
+    "file-object-redefined-before-close",
+    "useless-literal-set",
+    "useless-literal",
+    "dangerous-system-call-audit",
+    "dynamic-urllib-use-detected",
+    "non-literal-import",
+    "regex_dos",
+    "system-wildcard-detected",
+    "python.requests.best-practice.use-response-json-shortcut",
+    "global-autoescape-off",
+    "host-header-injection-python",
+    "DICT-ACCESS-UNGUARDED",
+    "PRINT-NOT-LOGGING",
+    "python_exec_rule-linux-command-wildcard-injection"
+   ],
+   "duplicates_removed": 12,
+   "inapplicable": 0,
+   "inapplicable_rules": [],
+   "provenance": [
+    {
+     "pack": "secrules.json",
+     "sha256": "13c500fea836a7e733c6fd1b55d1588dadab95c4f20994651cf17c9f83df0673",
+     "upstream": "semgrep-rules",
+     "version": "unspecified"
+    }
+   ],
+   "rejected": [
+    {
+     "id": "android.gitlab.kotlin_inject_rule-OgnlInjection",
+     "kind": "call",
+     "langs": [
+      "kotlin"
+     ],
+     "reason": "unsafe or oversized regular expression"
+    },
+    {
+     "id": "javascript_pathtraversal_rule-non-literal-fs-filename",
+     "kind": "call",
+     "langs": [
+      "typescript",
+      "javascript"
+     ],
+     "reason": "unsafe or oversized regular expression"
+    }
+   ]
+  },
+  "taint": {
+   "active": 86,
+   "catalog_version": "sha256:17a1d357036e67699de0fd0f0896931833a8b16d9e3bff76a43f21c9ca5796bb",
+   "disabled": 0,
+   "disabled_rules": [],
+   "duplicates_removed": 2,
+   "inapplicable": 0,
+   "inapplicable_rules": [],
+   "provenance": [
+    {
+     "pack": "secrules_taint.json",
+     "sha256": "5c543b942e5aacc5490e3b9740dcae40f8931720db0adeecba98a59f0a00518e",
+     "upstream": "semgrep-rules",
+     "version": "unspecified"
+    }
+   ]
+  }
+ },
+ "pattern_rules": 655,
+ "taint_rules": 86
+}

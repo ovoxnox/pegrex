@@ -28,11 +28,11 @@ class DifforacleError(ValueError):
     """Case outside the supported subset or unsafe construct — loud refusal."""
 
 
-# Safe expression evaluator: ast-walked, whitelist {+,-,*, ints, vars},
+# Safe expression evaluator: ast-walked, whitelist {+,-,*,//, ints, vars},
 # comparisons and boolean not.  No eval()/exec() anywhere.
 
 _BIN = {ast.Add: lambda a, b: a + b, ast.Sub: lambda a, b: a - b,
-        ast.Mult: lambda a, b: a * b}
+        ast.Mult: lambda a, b: a * b, ast.FloorDiv: lambda a, b: a // b}
 _CMP = {ast.Eq: lambda a, b: a == b, ast.NotEq: lambda a, b: a != b,
         ast.Lt: lambda a, b: a < b, ast.LtE: lambda a, b: a <= b,
         ast.Gt: lambda a, b: a > b, ast.GtE: lambda a, b: a >= b}
@@ -87,7 +87,7 @@ def _safe_eval_node(node, env: dict):
 
 def safe_eval(expr: str, env: dict):
     """Evaluate a restricted arithmetic/boolean expression. Whitelist:
-    + - * (unary -), int constants, variables, == != < <= > >=, not.
+    + - * // (unary -), int constants, variables, == != < <= > >=, not.
     Raises DifforacleError on anything else — no eval/exec, ever."""
     t = re.sub(r"(?<![<>=!])=(?!=)", "==", _unwrap(expr))  # sym Eq renders '='
     try:
@@ -277,7 +277,7 @@ def _compile(cc, case, workdir, timeout):
     """-> path to binary; raises DifforacleError naming the compiler error."""
     cpath = os.path.join(workdir, f"{case.get('name', 'f')}.c")
     bpath = os.path.join(workdir, case.get("name", "f"))
-    with open(cpath, "w") as fh:
+    with open(cpath, "w", encoding="utf-8") as fh:
         fh.write(_wrap_main(case))
     try:
         proc = subprocess.run([cc, "-O0", "-o", bpath, cpath],

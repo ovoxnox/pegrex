@@ -13,6 +13,7 @@ from __future__ import annotations
 import ast
 import inspect
 import sys
+import textwrap
 
 from .ir import lower_condition
 from .linsolve import LinearBackend, atoms_of
@@ -41,7 +42,7 @@ def _if_map(fn, source=None) -> dict:
         except (OSError, TypeError) as e:
             raise ValueError(
                 "concolic: no source available -- pass source=<str>") from e
-    tree = ast.parse(source)
+    tree = ast.parse(textwrap.dedent(source))
     out = {}
     for node in ast.walk(tree):
         if isinstance(node, (ast.If, ast.While)):
@@ -61,14 +62,16 @@ def trace_fn(fn, *args, source=None, lb=None, **kwargs) -> dict:
     events = []
 
     def tracer(frame, event, arg):
+        """Implement tracer with the module's explicit API and failure semantics."""
         if event == "line" and frame.f_code is fn.__code__:
             ln = frame.f_lineno
             if ln in ifs:
                 expr = ifs[ln]
                 try:
-                    truth = bool(eval(expr, {}, dict(frame.f_locals)))
+                    from .difforacle import safe_eval
+                    truth = bool(safe_eval(expr, dict(frame.f_locals)))
                 except Exception:
-                    truth = None # condition outside evaluable fragment
+                    truth = None # condition outside the side-effect-free fragment
                 events.append((ln, expr, truth))
         return tracer
 

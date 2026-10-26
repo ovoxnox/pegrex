@@ -140,6 +140,7 @@ def verify(proof, context: bytes = b"") -> bool:
 
 
 def claims() -> dict:
+    """Implement claims with the module's explicit API and failure semantics."""
     return {
         "proven": [
             "knowledge of the secret binding preimage (discrete-log "
@@ -167,7 +168,7 @@ def bind_evidence(bundle_dir, secret, key) -> dict:
     import json
     from .attest import canonical_json
     body = json.loads((evidence.pathlib.Path(bundle_dir) / "manifest.json")
-                      .read_text())["manifest"]
+                      .read_text(encoding="utf-8"))["manifest"]
     context = hashlib.sha256(canonical_json(body).encode()).digest()
     return {"ok": True, "bundle": v, "binding": generate_binding(secret),
             "proof": prove(secret, context=context)}

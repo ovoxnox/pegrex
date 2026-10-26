@@ -1,0 +1,1159 @@
+{
+ "plugins": [
+  {
+   "aliases": [
+    "c11"
+   ],
+   "capabilities": [
+    "audit",
+    "cognitive",
+    "contracts",
+    "parse",
+    "semantic-diff"
+   ],
+   "cfg": {
+    "adapter": "pipeline.c_frontend.TagSpec->CFGBuilder",
+    "supported_constructs": [
+     "C11 grammar subset",
+     "if/else",
+     "loops",
+     "return"
+    ]
+   },
+   "contracts": {
+    "features": [
+     "path-constraints",
+     "outcomes",
+     "entrypoint-selection",
+     "call-summary-expansion",
+     "cross-variant-equivalence"
+    ],
+    "handler": "c_frontend",
+    "mode": "pipeline",
+    "outcome_renderer": "c"
+   },
+   "error_policy": "raise; scanner converts parser failure to PEGREX-PARSER-UNKNOWN",
+   "expression_lowering": "integer constants; identifiers; comparisons",
+   "extensions": [
+    ".c",
+    ".h"
+   ],
+   "known_unsupported": [
+    "full C preprocessor semantics",
+    "pointer/alias proof",
+    "undefined-behavior model"
+   ],
+   "language": "c",
+   "maturity": "stable",
+   "normalizer": "c-peg->pegrex.Node",
+   "notes": "Contract extraction uses the bundled C grammar.",
+   "parser": {
+    "adapter": "c-peg",
+    "binding": null,
+    "implementation": "peg-grammar",
+    "parser_language": "c",
+    "version": "bundled c11.gram"
+   },
+   "security_rule_packs": [
+    "secrules.json"
+   ],
+   "source_coordinates": "python-char"
+  },
+  {
+   "aliases": [],
+   "capabilities": [
+    "zk-audit"
+   ],
+   "cfg": {
+    "adapter": "zk-audit",
+    "supported_constructs": [
+     "signals",
+     "constraints",
+     "templates in the documented subset"
+    ]
+   },
+   "contracts": {
+    "features": [
+     "under-constrained-signal-audit"
+    ],
+    "handler": null,
+    "mode": null,
+    "outcome_renderer": "strip-return"
+   },
+   "error_policy": "raise; unsupported circuits refuse",
+   "expression_lowering": "circuit-constraint subset",
+   "extensions": [
+    ".circom"
+   ],
+   "known_unsupported": [
+    "generic CST parsing",
+    "full Circom compiler semantics",
+    "functional-correctness proof"
+   ],
+   "language": "circom",
+   "maturity": "domain-specific",
+   "normalizer": "zk-subset",
+   "notes": "Circuit analysis is subset-based; generic CST parsing is not exposed.",
+   "parser": {
+    "adapter": "tree-sitter",
+    "binding": null,
+    "implementation": "domain-specific",
+    "parser_language": "circom",
+    "version": "bundled Circom subset"
+   },
+   "security_rule_packs": [],
+   "source_coordinates": "python-char"
+  },
+  {
+   "aliases": [],
+   "capabilities": [
+    "contracts",
+    "legacy-modernization",
+    "parse",
+    "semantic-diff"
+   ],
+   "cfg": {
+    "adapter": "cobolfront.native-contracts",
+    "supported_constructs": [
+     "paragraphs",
+     "PERFORM",
+     "conditions",
+     "arithmetic"
+    ]
+   },
+   "contracts": {
+    "features": [
+     "path-constraints",
+     "outcomes",
+     "cross-language-equivalence",
+     "legacy-modernization"
+    ],
+    "handler": "cobolfront.contracts",
+    "mode": "native",
+    "outcome_renderer": "strip-return"
+   },
+   "error_policy": "raise; scanner converts parser failure to PEGREX-PARSER-UNKNOWN",
+   "expression_lowering": "COBOL condition and arithmetic subset",
+   "extensions": [
+    ".cob",
+    ".cbl",
+    ".cobol"
+   ],
+   "known_unsupported": [
+    "full COPY preprocessor semantics",
+    "file I/O and runtime environment proof",
+    "security rule packs"
+   ],
+   "language": "cobol",
+   "maturity": "stable",
+   "normalizer": "cobol-native/mock->pegrex.Node",
+   "notes": "Native contract frontend plus offline tree-sitter mock.",
+   "parser": {
+    "adapter": "tree-sitter",
+    "binding": null,
+    "implementation": "native-mock",
+    "parser_language": "cobol",
+    "version": "bundled native parser/mock"
+   },
+   "security_rule_packs": [],
+   "source_coordinates": "utf8-byte-input->python-char-normalized"
+  },
+  {
+   "aliases": [
+    "c++"
+   ],
+   "capabilities": [
+    "audit",
+    "parse"
+   ],
+   "cfg": {
+    "adapter": null,
+    "supported_constructs": []
+   },
+   "contracts": {
+    "features": [],
+    "handler": null,
+    "mode": null,
+    "outcome_renderer": "strip-return"
+   },
+   "error_policy": "raise; scanner converts parser failure to PEGREX-PARSER-UNKNOWN",
+   "expression_lowering": "unsupported",
+   "extensions": [
+    ".cc",
+    ".cpp",
+    ".cxx",
+    ".hh",
+    ".hpp",
+    ".hxx"
+   ],
+   "known_unsupported": [
+    "C++ contract extraction",
+    "templates",
+    "CFG construction",
+    "expression lowering"
+   ],
+   "language": "cpp",
+   "maturity": "parse-only",
+   "normalizer": "tree-sitter.named->pegrex.Node",
+   "notes": "Parse/audit support only; distinct from C.",
+   "parser": {
+    "adapter": "tree-sitter",
+    "binding": null,
+    "implementation": "tree-sitter-language-pack",
+    "parser_language": "cpp",
+    "version": "optional tree-sitter-language-pack"
+   },
+   "security_rule_packs": [
+    "secrules.json"
+   ],
+   "source_coordinates": "utf8-byte-input->python-char-normalized"
+  },
+  {
+   "aliases": [],
+   "capabilities": [
+    "parse"
+   ],
+   "cfg": {
+    "adapter": null,
+    "supported_constructs": []
+   },
+   "contracts": {
+    "features": [],
+    "handler": null,
+    "mode": null,
+    "outcome_renderer": "strip-return"
+   },
+   "error_policy": "raise; scanner converts parser failure to PEGREX-PARSER-UNKNOWN",
+   "expression_lowering": "unsupported",
+   "extensions": [
+    ".cs"
+   ],
+   "known_unsupported": [
+    "contracts",
+    "CFG construction",
+    "expression lowering",
+    "security audit"
+   ],
+   "language": "csharp",
+   "maturity": "parse-only",
+   "normalizer": "tree-sitter.named->pegrex.Node",
+   "notes": "",
+   "parser": {
+    "adapter": "tree-sitter",
+    "binding": null,
+    "implementation": "tree-sitter-language-pack",
+    "parser_language": "csharp",
+    "version": "optional tree-sitter-language-pack"
+   },
+   "security_rule_packs": [],
+   "source_coordinates": "utf8-byte-input->python-char-normalized"
+  },
+  {
+   "aliases": [],
+   "capabilities": [
+    "contracts",
+    "legacy-modernization",
+    "parse",
+    "semantic-diff"
+   ],
+   "cfg": {
+    "adapter": "fortranfront.native-contracts",
+    "supported_constructs": [
+     "functions/subroutines",
+     "IF",
+     "DO",
+     "assignments"
+    ]
+   },
+   "contracts": {
+    "features": [
+     "path-constraints",
+     "outcomes",
+     "cross-language-equivalence",
+     "legacy-modernization"
+    ],
+    "handler": "fortranfront.contracts",
+    "mode": "native",
+    "outcome_renderer": "strip-return"
+   },
+   "error_policy": "raise; scanner converts parser failure to PEGREX-PARSER-UNKNOWN",
+   "expression_lowering": "Fortran condition and arithmetic subset",
+   "extensions": [
+    ".f",
+    ".for",
+    ".f90",
+    ".f95",
+    ".f03",
+    ".f08"
+   ],
+   "known_unsupported": [
+    "full COMMON/EQUIVALENCE memory model",
+    "I/O and intrinsics proof",
+    "security rule packs"
+   ],
+   "language": "fortran",
+   "maturity": "stable",
+   "normalizer": "fortran-native/mock->pegrex.Node",
+   "notes": "Native contract frontend plus offline tree-sitter mock.",
+   "parser": {
+    "adapter": "tree-sitter",
+    "binding": null,
+    "implementation": "native-mock",
+    "parser_language": "fortran",
+    "version": "bundled native parser/mock"
+   },
+   "security_rule_packs": [],
+   "source_coordinates": "utf8-byte-input->python-char-normalized"
+  },
+  {
+   "aliases": [],
+   "capabilities": [
+    "audit",
+    "callgraph",
+    "contracts",
+    "parse",
+    "semantic-diff",
+    "taint"
+   ],
+   "cfg": {
+    "adapter": "tree_sitter_bridge.TagSpec->CFGBuilder",
+    "supported_constructs": [
+     "if/else",
+     "for",
+     "return",
+     "break"
+    ]
+   },
+   "contracts": {
+    "features": [
+     "path-constraints",
+     "outcomes",
+     "entrypoint-selection"
+    ],
+    "handler": "go_frontend",
+    "mode": "tree-sitter",
+    "outcome_renderer": "strip-return"
+   },
+   "error_policy": "raise; scanner converts parser failure to PEGREX-PARSER-UNKNOWN",
+   "expression_lowering": "typed-ir; comparisons; boolean and/or; opaque bare variables",
+   "extensions": [
+    ".go"
+   ],
+   "known_unsupported": [
+    "goroutines and channel interleaving",
+    "defer/panic control flow",
+    "whole-program proof"
+   ],
+   "language": "go",
+   "maturity": "stable",
+   "normalizer": "tree-sitter.named->pegrex.Node",
+   "notes": "",
+   "parser": {
+    "adapter": "tree-sitter",
+    "binding": {
+     "attribute": "language",
+     "module": "tree_sitter_go"
+    },
+    "implementation": "tree-sitter",
+    "parser_language": "go",
+    "version": "tree-sitter-go>=0.25,<0.26"
+   },
+   "security_rule_packs": [
+    "secrules.json",
+    "secrules_taint.json"
+   ],
+   "source_coordinates": "utf8-byte-input->python-char-normalized"
+  },
+  {
+   "aliases": [],
+   "capabilities": [
+    "parse"
+   ],
+   "cfg": {
+    "adapter": null,
+    "supported_constructs": []
+   },
+   "contracts": {
+    "features": [],
+    "handler": null,
+    "mode": null,
+    "outcome_renderer": "strip-return"
+   },
+   "error_policy": "raise; scanner converts parser failure to PEGREX-PARSER-UNKNOWN",
+   "expression_lowering": "unsupported",
+   "extensions": [
+    ".java"
+   ],
+   "known_unsupported": [
+    "contracts",
+    "CFG construction",
+    "expression lowering",
+    "security audit"
+   ],
+   "language": "java",
+   "maturity": "parse-only",
+   "normalizer": "tree-sitter.named->pegrex.Node",
+   "notes": "",
+   "parser": {
+    "adapter": "tree-sitter",
+    "binding": null,
+    "implementation": "tree-sitter-language-pack",
+    "parser_language": "java",
+    "version": "optional tree-sitter-language-pack"
+   },
+   "security_rule_packs": [],
+   "source_coordinates": "utf8-byte-input->python-char-normalized"
+  },
+  {
+   "aliases": [
+    "js",
+    "jsx"
+   ],
+   "capabilities": [
+    "audit",
+    "callgraph",
+    "contracts",
+    "parse",
+    "semantic-diff",
+    "taint"
+   ],
+   "cfg": {
+    "adapter": "tree_sitter_bridge.TagSpec->CFGBuilder",
+    "supported_constructs": [
+     "if/else",
+     "while",
+     "for",
+     "return",
+     "break",
+     "continue",
+     "with"
+    ]
+   },
+   "contracts": {
+    "features": [
+     "path-constraints",
+     "outcomes",
+     "entrypoint-selection"
+    ],
+    "handler": "javascript_frontend",
+    "mode": "tree-sitter",
+    "outcome_renderer": "strip-return"
+   },
+   "error_policy": "raise; scanner converts parser failure to PEGREX-PARSER-UNKNOWN",
+   "expression_lowering": "typed-ir; comparisons; boolean and/or; opaque bare variables",
+   "extensions": [
+    ".js",
+    ".jsx",
+    ".mjs",
+    ".cjs"
+   ],
+   "known_unsupported": [
+    "async/event-loop semantics",
+    "prototype and dynamic-property semantics",
+    "exceptions as proof-covered control flow"
+   ],
+   "language": "javascript",
+   "maturity": "stable",
+   "normalizer": "tree-sitter.named->pegrex.Node",
+   "notes": "",
+   "parser": {
+    "adapter": "tree-sitter",
+    "binding": {
+     "attribute": "language",
+     "module": "tree_sitter_javascript"
+    },
+    "implementation": "tree-sitter",
+    "parser_language": "javascript",
+    "version": "tree-sitter-javascript>=0.25,<0.26"
+   },
+   "security_rule_packs": [
+    "secrules.json",
+    "secrules_taint.json"
+   ],
+   "source_coordinates": "utf8-byte-input->python-char-normalized"
+  },
+  {
+   "aliases": [],
+   "capabilities": [
+    "audit",
+    "contracts",
+    "parse",
+    "semantic-diff"
+   ],
+   "cfg": {
+    "adapter": "tree_sitter_bridge.TagSpec->CFGBuilder",
+    "supported_constructs": [
+     "if/else",
+     "while",
+     "for",
+     "return",
+     "break"
+    ]
+   },
+   "contracts": {
+    "features": [
+     "path-constraints",
+     "outcomes",
+     "entrypoint-selection"
+    ],
+    "handler": "julia_frontend",
+    "mode": "tree-sitter",
+    "outcome_renderer": "strip-return"
+   },
+   "error_policy": "raise; scanner converts parser failure to PEGREX-PARSER-UNKNOWN",
+   "expression_lowering": "typed-ir; comparisons; boolean and/or; opaque bare variables",
+   "extensions": [
+    ".jl"
+   ],
+   "known_unsupported": [
+    "multiple dispatch",
+    "metaprogramming",
+    "full numeric promotion semantics"
+   ],
+   "language": "julia",
+   "maturity": "stable",
+   "normalizer": "tree-sitter.named->pegrex.Node",
+   "notes": "",
+   "parser": {
+    "adapter": "tree-sitter",
+    "binding": {
+     "attribute": "language",
+     "module": "tree_sitter_julia"
+    },
+    "implementation": "tree-sitter",
+    "parser_language": "julia",
+    "version": "optional tree-sitter-julia/language-pack"
+   },
+   "security_rule_packs": [
+    "secrules.json"
+   ],
+   "source_coordinates": "utf8-byte-input->python-char-normalized"
+  },
+  {
+   "aliases": [],
+   "capabilities": [
+    "audit",
+    "contracts",
+    "parse",
+    "semantic-diff"
+   ],
+   "cfg": {
+    "adapter": "tree_sitter_bridge.TagSpec->CFGBuilder",
+    "supported_constructs": [
+     "if/else",
+     "while",
+     "for",
+     "return",
+     "break"
+    ]
+   },
+   "contracts": {
+    "features": [
+     "path-constraints",
+     "outcomes",
+     "entrypoint-selection"
+    ],
+    "handler": "kotlin_frontend",
+    "mode": "tree-sitter",
+    "outcome_renderer": "strip-return"
+   },
+   "error_policy": "raise; scanner converts parser failure to PEGREX-PARSER-UNKNOWN",
+   "expression_lowering": "typed-ir; comparisons; boolean and/or; opaque bare variables",
+   "extensions": [
+    ".kt",
+    ".kts"
+   ],
+   "known_unsupported": [
+    "coroutines",
+    "nullability/type-system proof",
+    "JVM interoperability semantics"
+   ],
+   "language": "kotlin",
+   "maturity": "stable",
+   "normalizer": "tree-sitter.named->pegrex.Node",
+   "notes": "",
+   "parser": {
+    "adapter": "tree-sitter",
+    "binding": {
+     "attribute": "language",
+     "module": "tree_sitter_kotlin"
+    },
+    "implementation": "tree-sitter",
+    "parser_language": "kotlin",
+    "version": "optional tree-sitter-kotlin/language-pack"
+   },
+   "security_rule_packs": [
+    "secrules.json"
+   ],
+   "source_coordinates": "utf8-byte-input->python-char-normalized"
+  },
+  {
+   "aliases": [],
+   "capabilities": [
+    "parse"
+   ],
+   "cfg": {
+    "adapter": null,
+    "supported_constructs": []
+   },
+   "contracts": {
+    "features": [],
+    "handler": null,
+    "mode": null,
+    "outcome_renderer": "strip-return"
+   },
+   "error_policy": "raise; scanner converts parser failure to PEGREX-PARSER-UNKNOWN",
+   "expression_lowering": "unsupported",
+   "extensions": [
+    ".lua"
+   ],
+   "known_unsupported": [
+    "public contract extraction",
+    "CFG construction",
+    "expression lowering",
+    "security audit"
+   ],
+   "language": "lua",
+   "maturity": "parse-only",
+   "normalizer": "tree-sitter.named->pegrex.Node",
+   "notes": "Parsing only in the public registry; service rendering helpers are not a complete CFG frontend.",
+   "parser": {
+    "adapter": "tree-sitter",
+    "binding": null,
+    "implementation": "tree-sitter-language-pack",
+    "parser_language": "lua",
+    "version": "optional tree-sitter-language-pack"
+   },
+   "security_rule_packs": [],
+   "source_coordinates": "utf8-byte-input->python-char-normalized"
+  },
+  {
+   "aliases": [],
+   "capabilities": [
+    "parse"
+   ],
+   "cfg": {
+    "adapter": null,
+    "supported_constructs": []
+   },
+   "contracts": {
+    "features": [],
+    "handler": null,
+    "mode": null,
+    "outcome_renderer": "strip-return"
+   },
+   "error_policy": "raise; scanner converts parser failure to PEGREX-PARSER-UNKNOWN",
+   "expression_lowering": "unsupported",
+   "extensions": [
+    ".php"
+   ],
+   "known_unsupported": [
+    "contracts",
+    "CFG construction",
+    "expression lowering",
+    "security audit"
+   ],
+   "language": "php",
+   "maturity": "parse-only",
+   "normalizer": "tree-sitter.named->pegrex.Node",
+   "notes": "",
+   "parser": {
+    "adapter": "tree-sitter",
+    "binding": null,
+    "implementation": "tree-sitter-language-pack",
+    "parser_language": "php",
+    "version": "optional tree-sitter-language-pack"
+   },
+   "security_rule_packs": [],
+   "source_coordinates": "utf8-byte-input->python-char-normalized"
+  },
+  {
+   "aliases": [
+    "py"
+   ],
+   "capabilities": [
+    "audit",
+    "callgraph",
+    "contracts",
+    "effects",
+    "parse",
+    "semantic-diff",
+    "summaries",
+    "taint"
+   ],
+   "cfg": {
+    "adapter": "tree_sitter_bridge.TagSpec->CFGBuilder",
+    "supported_constructs": [
+     "if/elif/else",
+     "while",
+     "for",
+     "try",
+     "return",
+     "break",
+     "continue",
+     "match",
+     "with"
+    ]
+   },
+   "contracts": {
+    "features": [
+     "path-constraints",
+     "outcomes",
+     "entrypoint-selection",
+     "call-summary-expansion",
+     "cross-variant-equivalence"
+    ],
+    "handler": "python_frontend",
+    "mode": "pipeline",
+    "outcome_renderer": "strip-return"
+   },
+   "error_policy": "raise; scanner converts parser failure to PEGREX-PARSER-UNKNOWN",
+   "expression_lowering": "typed-ir; comparisons; boolean and/or; opaque bare variables",
+   "extensions": [
+    ".py",
+    ".pyw"
+   ],
+   "known_unsupported": [
+    "unbounded loops require explicit unroll limits",
+    "no whole-program or field-sensitive proof"
+   ],
+   "language": "python",
+   "maturity": "stable",
+   "normalizer": "tree-sitter.named->pegrex.Node",
+   "notes": "",
+   "parser": {
+    "adapter": "tree-sitter",
+    "binding": {
+     "attribute": "language",
+     "module": "tree_sitter_python"
+    },
+    "implementation": "tree-sitter-or-stdlib",
+    "parser_language": "python",
+    "version": "tree-sitter-python>=0.25,<0.26; stdlib fallback"
+   },
+   "security_rule_packs": [
+    "secrules.json",
+    "secrules_taint.json"
+   ],
+   "source_coordinates": "utf8-byte-input->python-char-normalized"
+  },
+  {
+   "aliases": [],
+   "capabilities": [
+    "parse"
+   ],
+   "cfg": {
+    "adapter": null,
+    "supported_constructs": []
+   },
+   "contracts": {
+    "features": [],
+    "handler": null,
+    "mode": null,
+    "outcome_renderer": "strip-return"
+   },
+   "error_policy": "raise; scanner converts parser failure to PEGREX-PARSER-UNKNOWN",
+   "expression_lowering": "unsupported",
+   "extensions": [
+    ".rb"
+   ],
+   "known_unsupported": [
+    "contracts",
+    "CFG construction",
+    "expression lowering",
+    "security audit"
+   ],
+   "language": "ruby",
+   "maturity": "parse-only",
+   "normalizer": "tree-sitter.named->pegrex.Node",
+   "notes": "",
+   "parser": {
+    "adapter": "tree-sitter",
+    "binding": null,
+    "implementation": "tree-sitter-language-pack",
+    "parser_language": "ruby",
+    "version": "optional tree-sitter-language-pack"
+   },
+   "security_rule_packs": [],
+   "source_coordinates": "utf8-byte-input->python-char-normalized"
+  },
+  {
+   "aliases": [],
+   "capabilities": [
+    "audit",
+    "callgraph",
+    "contracts",
+    "parse",
+    "semantic-diff",
+    "taint"
+   ],
+   "cfg": {
+    "adapter": "tree_sitter_bridge.TagSpec->CFGBuilder",
+    "supported_constructs": [
+     "if/else",
+     "while",
+     "return",
+     "break",
+     "match",
+     "tail expressions"
+    ]
+   },
+   "contracts": {
+    "features": [
+     "path-constraints",
+     "outcomes",
+     "entrypoint-selection"
+    ],
+    "handler": "rust_frontend",
+    "mode": "tree-sitter",
+    "outcome_renderer": "strip-return"
+   },
+   "error_policy": "raise; scanner converts parser failure to PEGREX-PARSER-UNKNOWN",
+   "expression_lowering": "typed-ir; comparisons; boolean and/or; opaque bare variables",
+   "extensions": [
+    ".rs"
+   ],
+   "known_unsupported": [
+    "borrow/lifetime verification",
+    "unsafe concurrency semantics",
+    "macro expansion"
+   ],
+   "language": "rust",
+   "maturity": "stable",
+   "normalizer": "tree-sitter.named->pegrex.Node",
+   "notes": "",
+   "parser": {
+    "adapter": "tree-sitter",
+    "binding": {
+     "attribute": "language",
+     "module": "tree_sitter_rust"
+    },
+    "implementation": "tree-sitter",
+    "parser_language": "rust",
+    "version": "tree-sitter-rust>=0.24,<0.25"
+   },
+   "security_rule_packs": [
+    "secrules.json",
+    "secrules_taint.json"
+   ],
+   "source_coordinates": "utf8-byte-input->python-char-normalized"
+  },
+  {
+   "aliases": [],
+   "capabilities": [
+    "audit",
+    "contracts",
+    "parse",
+    "semantic-diff"
+   ],
+   "cfg": {
+    "adapter": "tree_sitter_bridge.TagSpec->CFGBuilder",
+    "supported_constructs": [
+     "if/else",
+     "while",
+     "for",
+     "return",
+     "break"
+    ]
+   },
+   "contracts": {
+    "features": [
+     "path-constraints",
+     "outcomes",
+     "entrypoint-selection"
+    ],
+    "handler": "solidity_frontend",
+    "mode": "tree-sitter",
+    "outcome_renderer": "strip-return"
+   },
+   "error_policy": "raise; scanner converts parser failure to PEGREX-PARSER-UNKNOWN",
+   "expression_lowering": "typed-ir; comparisons; boolean and/or; opaque bare variables",
+   "extensions": [
+    ".sol"
+   ],
+   "known_unsupported": [
+    "EVM cross-call and reentrancy semantics",
+    "blockchain environment proof",
+    "delegatecall storage semantics"
+   ],
+   "language": "solidity",
+   "maturity": "stable",
+   "normalizer": "tree-sitter.named->pegrex.Node",
+   "notes": "",
+   "parser": {
+    "adapter": "tree-sitter",
+    "binding": {
+     "attribute": "language",
+     "module": "tree_sitter_solidity"
+    },
+    "implementation": "tree-sitter",
+    "parser_language": "solidity",
+    "version": "optional tree-sitter-solidity/language-pack"
+   },
+   "security_rule_packs": [
+    "secrules.json"
+   ],
+   "source_coordinates": "utf8-byte-input->python-char-normalized"
+  },
+  {
+   "aliases": [],
+   "capabilities": [
+    "sql-relations"
+   ],
+   "cfg": {
+    "adapter": "sqlrel",
+    "supported_constructs": [
+     "SELECT subset",
+     "OR groups"
+    ]
+   },
+   "contracts": {
+    "features": [
+     "SQL/ORM-equivalence",
+     "sampled-equivalence-with-sample-size"
+    ],
+    "handler": null,
+    "mode": null,
+    "outcome_renderer": "strip-return"
+   },
+   "error_policy": "raise; unsupported queries refuse",
+   "expression_lowering": "relational predicates in the documented subset",
+   "extensions": [
+    ".sql"
+   ],
+   "known_unsupported": [
+    "generic CST parsing",
+    "unlisted SQL syntax",
+    "proof from sampling alone"
+   ],
+   "language": "sql",
+   "maturity": "domain-specific",
+   "normalizer": "sqlrel-subset",
+   "notes": "Only the documented SQL subset is analyzed; generic CST parsing is not exposed.",
+   "parser": {
+    "adapter": "tree-sitter",
+    "binding": null,
+    "implementation": "domain-specific",
+    "parser_language": "sql",
+    "version": "bundled SQL subset"
+   },
+   "security_rule_packs": [],
+   "source_coordinates": "python-char"
+  },
+  {
+   "aliases": [],
+   "capabilities": [
+    "audit",
+    "parse"
+   ],
+   "cfg": {
+    "adapter": null,
+    "supported_constructs": []
+   },
+   "contracts": {
+    "features": [],
+    "handler": null,
+    "mode": null,
+    "outcome_renderer": "strip-return"
+   },
+   "error_policy": "raise; scanner converts parser failure to PEGREX-PARSER-UNKNOWN",
+   "expression_lowering": "unsupported",
+   "extensions": [
+    ".tsx"
+   ],
+   "known_unsupported": [
+    "contracts",
+    "CFG construction",
+    "expression lowering",
+    "taint"
+   ],
+   "language": "tsx",
+   "maturity": "parse-only",
+   "normalizer": "tree-sitter.named->pegrex.Node",
+   "notes": "Parsing and audit only; no dedicated contract frontend.",
+   "parser": {
+    "adapter": "tree-sitter",
+    "binding": {
+     "attribute": "language_tsx",
+     "module": "tree_sitter_typescript"
+    },
+    "implementation": "tree-sitter",
+    "parser_language": "tsx",
+    "version": "optional tree-sitter-typescript/language-pack"
+   },
+   "security_rule_packs": [
+    "secrules.json"
+   ],
+   "source_coordinates": "utf8-byte-input->python-char-normalized"
+  },
+  {
+   "aliases": [
+    "ts"
+   ],
+   "capabilities": [
+    "audit",
+    "contracts",
+    "parse",
+    "semantic-diff"
+   ],
+   "cfg": {
+    "adapter": "tree_sitter_bridge.TagSpec->CFGBuilder",
+    "supported_constructs": [
+     "JavaScript CFG subset"
+    ]
+   },
+   "contracts": {
+    "features": [
+     "path-constraints",
+     "outcomes",
+     "entrypoint-selection"
+    ],
+    "handler": "typescript_frontend",
+    "mode": "tree-sitter",
+    "outcome_renderer": "strip-return"
+   },
+   "error_policy": "raise; scanner converts parser failure to PEGREX-PARSER-UNKNOWN",
+   "expression_lowering": "typed-ir; comparisons; boolean and/or; opaque bare variables",
+   "extensions": [
+    ".ts",
+    ".mts",
+    ".cts"
+   ],
+   "known_unsupported": [
+    "type-level verification",
+    "TSX syntax in the TypeScript parser",
+    "dedicated taint rules"
+   ],
+   "language": "typescript",
+   "maturity": "stable",
+   "normalizer": "tree-sitter.named->pegrex.Node",
+   "notes": "",
+   "parser": {
+    "adapter": "tree-sitter",
+    "binding": {
+     "attribute": "language_typescript",
+     "module": "tree_sitter_typescript"
+    },
+    "implementation": "tree-sitter",
+    "parser_language": "typescript",
+    "version": "optional tree-sitter-typescript/language-pack"
+   },
+   "security_rule_packs": [
+    "secrules.json"
+   ],
+   "source_coordinates": "utf8-byte-input->python-char-normalized"
+  },
+  {
+   "aliases": [],
+   "capabilities": [
+    "audit",
+    "parse"
+   ],
+   "cfg": {
+    "adapter": null,
+    "supported_constructs": []
+   },
+   "contracts": {
+    "features": [],
+    "handler": null,
+    "mode": null,
+    "outcome_renderer": "strip-return"
+   },
+   "error_policy": "raise; scanner converts parser failure to PEGREX-PARSER-UNKNOWN",
+   "expression_lowering": "unsupported",
+   "extensions": [
+    ".vy"
+   ],
+   "known_unsupported": [
+    "contracts",
+    "CFG construction",
+    "Solidity semantic reuse",
+    "taint"
+   ],
+   "language": "vyper",
+   "maturity": "parse-only",
+   "normalizer": "tree-sitter.named->pegrex.Node",
+   "notes": "Vyper is not routed through Solidity semantics.",
+   "parser": {
+    "adapter": "tree-sitter",
+    "binding": null,
+    "implementation": "tree-sitter-language-pack",
+    "parser_language": "vyper",
+    "version": "optional tree-sitter-language-pack"
+   },
+   "security_rule_packs": [
+    "secrules.json"
+   ],
+   "source_coordinates": "utf8-byte-input->python-char-normalized"
+  },
+  {
+   "aliases": [],
+   "capabilities": [
+    "contracts",
+    "parse",
+    "semantic-diff"
+   ],
+   "cfg": {
+    "adapter": "tree_sitter_bridge.TagSpec->CFGBuilder",
+    "supported_constructs": [
+     "if/else",
+     "while",
+     "for",
+     "return",
+     "break"
+    ]
+   },
+   "contracts": {
+    "features": [
+     "path-constraints",
+     "outcomes",
+     "entrypoint-selection"
+    ],
+    "handler": "zig_frontend",
+    "mode": "tree-sitter",
+    "outcome_renderer": "strip-return"
+   },
+   "error_policy": "raise; scanner converts parser failure to PEGREX-PARSER-UNKNOWN",
+   "expression_lowering": "typed-ir; comparisons; boolean and/or; opaque bare variables",
+   "extensions": [
+    ".zig"
+   ],
+   "known_unsupported": [
+    "comptime execution",
+    "error unions",
+    "security rule pack"
+   ],
+   "language": "zig",
+   "maturity": "stable",
+   "normalizer": "tree-sitter.named->pegrex.Node",
+   "notes": "",
+   "parser": {
+    "adapter": "tree-sitter",
+    "binding": {
+     "attribute": "language",
+     "module": "tree_sitter_zig"
+    },
+    "implementation": "tree-sitter",
+    "parser_language": "zig",
+    "version": "optional tree-sitter-zig/language-pack"
+   },
+   "security_rule_packs": [],
+   "source_coordinates": "utf8-byte-input->python-char-normalized"
+  }
+ ],
+ "policy": {
+  "completion": "pipeline or process completion alone is not an independent proof",
+  "contract_identity": "(constraints, outcome), including source and function identity where available",
+  "coordinates": "public source spans are zero-based, end-exclusive Python character offsets",
+  "counterexamples": "only confirmed witnesses justify refuted",
+  "incomplete_security_scan": "emit kind=unknown coverage findings; --fail-on-unknown turns them into exit 2",
+  "parser_availability": "does not imply contract, audit, or proof support",
+  "unsupported_analysis": "refuse or return unknown; never infer safety from missing evidence",
+  "verdicts": [
+   "proved",
+   "refuted",
+   "unknown"
+  ]
+ },
+ "schema": "pegrex.soundness.v1"
+}

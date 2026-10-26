@@ -1,0 +1,30 @@
+{
+  "analysis_scope": {
+    "coverage": "complete 781-test suite, pegrex source",
+    "persistent_contract_memory": "pegrex/core (4 files; budget UNKNOWNs retained)",
+    "rag_chunks": 1294,
+    "security_files": 227
+  },
+  "artifact_generator_packages": {
+    "pydantic": "2.11.4",
+    "setuptools": "80.9.0"
+  },
+  "credentials": "none",
+  "generated_on": "2026-10-26",
+  "network": "offline for self-analysis and OSV evidence",
+  "platform": "Linux-5.10.134-18.0.12.lifsea8.x86_64-x86_64-with-glibc2.36",
+  "python": "3.12.12",
+  "schema": "pegrex.self-analysis-provenance.v1",
+  "source_archive": {
+    "bytes": 1156648,
+    "name": "PegRex-1.1.0-production.zip",
+    "sha256": "8440b91cf991dcfa4559ee6aa27d0696ad461ada7a830dd59bc18ef1d5f285d5"
+  },
+  "source_manifest_entries": 514,
+  "source_manifest_sha256": "79b7d78e6eee3fb41a64d05a9cd0b4930e9a444222d647d80551f004d083edff",
+  "validation_environment": {
+    "note": "Exact CI/test dependency pins used for validation; artifact-generation imports may use registered stdlib fallbacks.",
+    "requirements_file": "provenance/requirements-ci.txt",
+    "sha256": "d540fbfabd884c99d1f629db96f39f94ba16356c43f7537c2fe3242db307b934"
+  }
+}

@@ -1,0 +1,20 @@
+# Exact CI environment for Python 3.12. Runtime extras remain in pyproject.toml.
+annotated-types==0.7.0
+iniconfig==2.3.1
+hypothesis==6.170.9
+packaging==25.0
+pluggy==1.7.0
+pydantic==2.11.4
+pydantic-core==2.33.2
+pygments==2.19.1
+pytest==9.1.1
+sortedcontainers==2.4.0
+tree-sitter==0.26.0
+tree-sitter-go==0.25.0
+tree-sitter-javascript==0.25.0
+tree-sitter-python==0.25.0
+tree-sitter-rust==0.24.2
+typing-extensions==4.13.2
+typing-inspection==0.4.0
+xxhash==4.0.2
+z3-solver==5.3.1.0

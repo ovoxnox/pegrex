@@ -50,7 +50,7 @@ def test_core_verdict_adapter_distinguishes_witness_from_unknown(tmp_path, monke
     assert unknown.verdict is Verdict.UNKNOWN
     assert unknown.status is OperationStatus.PARTIAL
     monkeypatch.setattr(semantics, "verify_patch", lambda *args: {
-        "verified": False, "counterexample": {"inputs": {"x": 1}}})
+        "verified": False, "counterexample": {"inputs": {"x": 1}, "confirmed": True}})
     assert get_engine().verify_patch(before, after).verdict is Verdict.REFUTED
     monkeypatch.setattr(semantics, "verify_patch", lambda *args: {
         "verified": True, "counterexample": None})

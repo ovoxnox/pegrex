@@ -49,13 +49,13 @@ def load_extension(path: str | pathlib.Path) -> Extension:
     Accepts either a manifest.json/catalog.json pair or a combined file with
     both 'manifest' and 'rules' keys."""
     p = pathlib.Path(path)
-    raw = json.loads(p.read_text())
+    raw = json.loads(p.read_text(encoding="utf-8"))
     if "manifest" in raw:    # combined file (our catalogs)
         manifest, rules = raw["manifest"], raw.get("rules", [])
     else:                    # manifest + rules.json side by side
         manifest = raw
         rp = p.with_name("rules.json")
-        rules = json.loads(rp.read_text())["rules"] if rp.exists() else []
+        rules = json.loads(rp.read_text(encoding="utf-8"))["rules"] if rp.exists() else []
     errors = validate_contract(manifest, [manifest_contract])
     if errors:
         raise ExtensionError("; ".join(str(e) for e in errors))
@@ -67,7 +67,7 @@ def wrap_catalog(catalog_path: str | pathlib.Path, bundle_id: str,
                  effect: str = "read-write") -> dict:
     """Promote a bare rules catalog (secrules.json shape) into a full
     extension manifest — the open/closed upgrade path for existing packs."""
-    cat = json.loads(pathlib.Path(catalog_path).read_text())
+    cat = json.loads(pathlib.Path(catalog_path).read_text(encoding="utf-8"))
     rules = cat.get("rules", [])
     return {
         "manifest": {

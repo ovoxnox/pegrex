@@ -931,10 +931,10 @@
     "regex"
    ],
    "severity": "LOW",
-   "message": "A gitleaks jwt-base64 was detected which attempts to identify hard-coded credentials. It is not recommended to store credentials in source-c",
+   "message": "A compact JWS/JWT-shaped token was detected; verify whether it is a hard-coded credential.",
    "match": {
     "kind": "file",
-    "text": "\\bZXlK(?:(?P<alg>aGJHY2lPaU)|(?P<apu>aGNIVWlPaU)|(?P<apv>aGNIWWlPaU)|(?P<aud>aGRXUWlPaU)|(?P<b64>aU5qUWlP)|(?P<crit>amNtbDBJanBi)|(?P<cty>amRIa2lPaU)|(?P<epk>bGNHc2lPbn)|(?P<enc>bGJtTWlPaU)|(?P<jku>cWEzVWlPaU)|(?P<jwk>cWQyc2lPb)|(?P<iss>cGMzTWlPaU)|(?P<iv>cGRpSTZJ)|(?P<kid>cmFXUWlP)|(?P<key_ops>clpYbGZiM0J6SWpwY)|(?P<kty>cmRIa2lPaUp)|(?P<nonce>dWIyNWpaU0k2)|(?P<p2c>d01tTWlP)|(?P<p2s>d01uTWlPaU)|(?P<ppt>d2NIUWlPaU)|(?P<sub>emRXSWlPaU)|(?P<svt>emRuUWlP)|(?P<tag>MFlXY2lPaU)|(?P<typ>MGVYQWlPaUp)|(?P<url>MWNtd2l)|(?P<use>MWMyVWlPaUp)|(?P<ver>MlpYSWlPaU)|(?P<version>MlpYSnphVzl1SWpv)|(?P<x>NElqb2)|(?P<x5c>NE5XTWlP)|(?P<x5t>NE5YUWlPaU)|(?P<x5ts256>NE5YUWpVekkxTmlJNkl)|(?P<x5u>NE5YVWlPaU)|(?P<zip>NmFYQWlPaU))[a-zA-Z0-9\\/\\\\_+\\-\\r\\n]{40,}={0,2}",
+    "text": "\\bZXlK[A-Za-z0-9_-]{8,2048}\\.[A-Za-z0-9_-]{8,2048}\\.[A-Za-z0-9_-]{8,4096}\\b",
     "confidence": "medium"
    }
   },
@@ -2503,7 +2503,9 @@
     "node_type": "call",
     "text": "(?:dict|list|set)\\s*\\(",
     "confidence": "high"
-   }
+   },
+   "disabled": true,
+   "disabled_reason": "Constructor matching alone does not establish a mutable-default vulnerability."
   },
   {
    "id": "empty-aes-key",
@@ -2587,7 +2589,9 @@
     "node_type": "call",
     "text": "(?:json\\.\\s*dumps)\\s*\\(",
     "confidence": "high"
-   }
+   },
+   "disabled": true,
+   "disabled_reason": "Django response style is not a security property and does not apply to non-Django code."
   },
   {
    "id": "use-onetoonefield",
@@ -2881,7 +2885,9 @@
     "node_type": "call",
     "text": "(?:eval|request\\.\\s*W|request\\.\\s*W\\.\\s*get)\\s*\\(",
     "confidence": "high"
-   }
+   },
+   "disabled": true,
+   "disabled_reason": "This converted pattern matches eval itself and does not establish user-controlled input or format-string semantics."
   },
   {
    "id": "user-eval",
@@ -2895,7 +2901,9 @@
     "node_type": "call",
     "text": "(?:eval|request\\.\\s*W|request\\.\\s*W\\.\\s*get)\\s*\\(",
     "confidence": "high"
-   }
+   },
+   "disabled": true,
+   "disabled_reason": "This converted pattern matches eval itself and does not establish user-controlled input; use eval-detected plus taint evidence."
   },
   {
    "id": "user-exec-format-string",
@@ -2909,7 +2917,9 @@
     "node_type": "call",
     "text": "(?:exec|request\\.\\s*W|request\\.\\s*W\\.\\s*get)\\s*\\(",
     "confidence": "high"
-   }
+   },
+   "disabled": true,
+   "disabled_reason": "This converted pattern matches exec itself and does not establish user-controlled input or format-string semantics."
   },
   {
    "id": "user-exec",
@@ -2923,7 +2933,9 @@
     "node_type": "call",
     "text": "(?:asyncio\\.\\s*get_running_loop|exec|request\\.\\s*W|request\\.\\s*W\\.\\s*get)\\s*\\(",
     "confidence": "high"
-   }
+   },
+   "disabled": true,
+   "disabled_reason": "This converted pattern matches exec itself and does not establish user-controlled input; use exec-detected plus taint evidence."
   },
   {
    "id": "command-injection-os-system",
@@ -2993,7 +3005,9 @@
     "node_type": "call",
     "text": "(?:open|os\\.\\s*path\\.\\s*join|request\\.\\s*W|request\\.\\s*W\\.\\s*get)\\s*\\(",
     "confidence": "high"
-   }
+   },
+   "disabled": true,
+   "disabled_reason": "open/join call presence is not path-traversal evidence; source-to-sink and workspace-confinement checks are required."
   },
   {
    "id": "path-traversal-open",
@@ -3007,7 +3021,9 @@
     "node_type": "call",
     "text": "(?:open|request\\.\\s*W|request\\.\\s*W\\.\\s*get)\\s*\\(",
     "confidence": "high"
-   }
+   },
+   "disabled": true,
+   "disabled_reason": "open call presence is not path-traversal evidence; source-to-sink and workspace-confinement checks are required."
   },
   {
    "id": "sql-injection-using-extra-where",
@@ -3091,7 +3107,9 @@
     "node_type": "call",
     "text": "(?:request\\.\\s*W|request\\.\\s*W\\.\\s*get|urllib\\.\\s*request\\.\\s*urlopen)\\s*\\(",
     "confidence": "high"
-   }
+   },
+   "disabled": true,
+   "disabled_reason": "urlopen alone does not establish request-controlled URLs; dynamic URL use is covered separately with explicit scheme validation."
   },
   {
    "id": "docker-arbitrary-container-run",
@@ -3119,7 +3137,9 @@
     "node_type": "call",
     "text": "(?:json\\.\\s*dumps)\\s*\\(",
     "confidence": "high"
-   }
+   },
+   "disabled": true,
+   "disabled_reason": "Flask response style is not a security property and does not apply to non-Flask code."
   },
   {
    "id": "insecure-deserialization",
@@ -3329,7 +3349,9 @@
     "node_type": "call",
     "text": "(?:ZipFile\\.\\s*open|io\\.\\s*open|open|tarfile\\.\\s*open|tempfile\\.\\s*NamedTemporaryFile|tempfile\\.\\s*SpooledTemporaryFile|tempfile\\.\\s*TemporaryFile)\\s*\\(",
     "confidence": "high"
-   }
+   },
+   "disabled": true,
+   "disabled_reason": "A bare open-call pattern cannot determine context-manager or close ownership; resource checks require control-flow evidence."
   },
   {
    "id": "arbitrary-sleep",
@@ -3357,7 +3379,9 @@
     "node_type": "call",
     "text": "(?:open)\\s*\\(",
     "confidence": "high"
-   }
+   },
+   "disabled": true,
+   "disabled_reason": "A bare open-call pattern cannot distinguish binary mode or encoding keywords; syntax-checked AST tests now enforce text encoding."
   },
   {
    "id": "python37-compatibility-os2-ok2",
@@ -3413,7 +3437,9 @@
     "node_type": "call",
     "text": "(?:exit)\\s*\\(",
     "confidence": "high"
-   }
+   },
+   "disabled": true,
+   "disabled_reason": "Process-exit style is not independently a security finding."
   },
   {
    "id": "file-object-redefined-before-close",
@@ -3427,7 +3453,9 @@
     "node_type": "call",
     "text": "(?:open)\\s*\\(",
     "confidence": "high"
-   }
+   },
+   "disabled": true,
+   "disabled_reason": "A bare open-call pattern cannot determine variable lifetime or close ownership."
   },
   {
    "id": "pytest-assert_match-after-path-patch",
@@ -3497,7 +3525,9 @@
     "node_type": "call",
     "text": "(?:set)\\s*\\(",
     "confidence": "high"
-   }
+   },
+   "disabled": true,
+   "disabled_reason": "The converted pattern lost the metavariable context required for this correctness check."
   },
   {
    "id": "useless-literal",
@@ -3511,7 +3541,9 @@
     "node_type": "call",
     "text": "(?:dict)\\s*\\(",
     "confidence": "high"
-   }
+   },
+   "disabled": true,
+   "disabled_reason": "The converted pattern lost the metavariable context required for this correctness check."
   },
   {
    "id": "dangerous-globals-use",
@@ -3693,7 +3725,9 @@
     "node_type": "call",
     "text": "(?:__import__|getattr|os\\.\\s*popen|os\\.\\s*popen2|os\\.\\s*popen3|os\\.\\s*popen4|os\\.\\s*system)\\s*\\(",
     "confidence": "high"
-   }
+   },
+   "disabled": true,
+   "disabled_reason": "Generic process-execution auditing duplicates the stricter argv/shell rules without establishing a defect."
   },
   {
    "id": "dangerous-testcapi-run-in-subinterp-audit",
@@ -3721,7 +3755,9 @@
     "node_type": "call",
     "text": "(?:OPENER\\.\\s*open|OPENER\\.\\s*retrieve|urllib\\.\\s*request\\.\\s*urlopen|urllib\\.\\s*request\\.\\s*urlretrieve|urllib\\.\\s*urlopen|urllib\\.\\s*urlretrieve)\\s*\\(",
     "confidence": "high"
-   }
+   },
+   "disabled": true,
+   "disabled_reason": "A urlopen call alone does not establish attacker control; endpoint scheme validation and taint evidence are required."
   },
   {
    "id": "eval-detected",
@@ -3733,7 +3769,7 @@
    "match": {
     "kind": "call",
     "node_type": "call",
-    "text": "(?:eval)\\s*\\(",
+    "text": "(?<![\\w.])eval\\s*\\(",
     "confidence": "high"
    }
   },
@@ -3747,7 +3783,7 @@
    "match": {
     "kind": "call",
     "node_type": "call",
-    "text": "(?:exec)\\s*\\(",
+    "text": "(?<![\\w.])exec\\s*\\(",
     "confidence": "high"
    }
   },
@@ -3777,7 +3813,9 @@
     "node_type": "call",
     "text": "(?:importlib\\.\\s*import_module)\\s*\\(",
     "confidence": "high"
-   }
+   },
+   "disabled": true,
+   "disabled_reason": "import_module alone does not establish untrusted input; explicit plugin loading is an operator trust boundary."
   },
   {
    "id": "python-reverse-shell",
@@ -3805,7 +3843,9 @@
     "node_type": "call",
     "text": "(?:re\\.\\s*compile)\\s*\\(",
     "confidence": "high"
-   }
+   },
+   "disabled": true,
+   "disabled_reason": "Calling re.compile does not establish an inefficient or attacker-controlled regular expression."
   },
   {
    "id": "subprocess-shell-true",
@@ -3832,7 +3872,9 @@
     "kind": "file",
     "text": "(tar|chmod|chown|rsync)(.*?)\\*",
     "confidence": "medium"
-   }
+   },
+   "disabled": true,
+   "disabled_reason": "Wildcard text alone does not establish a shell command or shell expansion."
   },
   {
    "id": "avoid-jsonpickle",
@@ -4238,7 +4280,9 @@
     "node_type": "call",
     "text": "(?:json\\.\\s*loads)\\s*\\(",
     "confidence": "high"
-   }
+   },
+   "disabled": true,
+   "disabled_reason": "A requests convenience preference is not a vulnerability and json.loads has other valid uses."
   },
   {
    "id": "delete-where-no-execute",
@@ -4565,7 +4609,9 @@
     "kind": "file",
     "text": "(?:BACKEND|OPTIONS|autoescape)",
     "confidence": "low"
-   }
+   },
+   "disabled": true,
+   "disabled_reason": "Framework keywords alone do not establish globally disabled Django autoescape."
   },
   {
    "id": "flask-cache-query-string",
@@ -4617,7 +4663,9 @@
     "kind": "file",
     "text": "(?:=\\~/\\.\\*http\\[s\\]\\*:///|flask\\\\\\.request\\\\\\.host|host)",
     "confidence": "low"
-   }
+   },
+   "disabled": true,
+   "disabled_reason": "The word host does not establish Flask request.host flowing into an HTTP request."
   },
   {
    "id": "is-function-without-parentheses",
@@ -4703,7 +4751,9 @@
     "node_type": "call",
     "text": "functions\\[\\w+\\]",
     "confidence": "high"
-   }
+   },
+   "disabled": true,
+   "disabled_reason": "Unguarded dictionary access is a reliability heuristic, not a security vulnerability without a trust-boundary path."
   },
   {
    "id": "GLOBAL-ARGS-COUPLING",
@@ -4737,7 +4787,9 @@
     "node_type": "call",
     "text": "print\\(",
     "confidence": "high"
-   }
+   },
+   "disabled": true,
+   "disabled_reason": "Output-channel preference is not independently a security finding."
   },
   {
    "id": "MAGIC-NUMBER",
@@ -8635,7 +8687,9 @@
     "node_type": "call",
     "text": "(?:os\\.\\s*X|subprocess\\.\\s*Popen)\\s*\\(",
     "confidence": "high"
-   }
+   },
+   "disabled": true,
+   "disabled_reason": "subprocess.Popen alone does not establish a wildcard or shell expansion; argv execution with shell=False is not a shell injection."
   },
   {
    "id": "python_exec_rule-os-popen2",

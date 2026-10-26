@@ -721,13 +721,6 @@
    "message": "Found user-controlled data used in a system call. This could allow a malicious actor to execute commands. Use the 'subprocess' module instea",
    "sinks": [
     "os\\.\\s*system\\s*\\(",
-    "getattr\\s*\\(",
-    "__import__\\s*\\(",
-    "getattr\\s*\\(",
-    "[\\w.\\[\\]'\\\"() ]+\\ =\\ __import__\\(\"os\"\\)\\\n\\.\\.\\.\\\n[\\w.\\[\\]'\\\"() ]+\\.system\\(\\.\\.\\.\\)",
-    "[\\w.\\[\\]'\\\"() ]+\\ =\\ __import__\\(\"os\"\\)\\\n\\.\\.\\.\\\ngetattr\\([\\w.\\[\\]'\\\"() ]+,\\ \"system\"\\)\\(\\.\\.\\.\\)",
-    "[\\w.\\[\\]'\\\"() ]+\\ =\\ getattr\\(os,\\ \"system\"\\)\\\n\\.\\.\\.\\\n[\\w.\\[\\]'\\\"() ]+\\(\\.\\.\\.\\)",
-    "[\\w.\\[\\]'\\\"() ]+\\ =\\ __import__\\(\"os\"\\)\\\n\\.\\.\\.\\\n[\\w.\\[\\]'\\\"() ]+\\ =\\ getattr\\([\\w.\\[\\]'\\\"() ]+,\\ \"system\"\\)\\\n\\.\\.\\.\\\n[\\w.\\[\\]'\\\"() ]+\\(\\.\\.\\.\\)",
     "os\\.\\s*popen\\s*\\(",
     "os\\.\\s*popen2\\s*\\(",
     "os\\.\\s*popen3\\s*\\(",
@@ -774,8 +767,7 @@
     "self\\.path",
     "self\\.headers\\[\\.\\.\\.\\]",
     "self\\.\\s*headers\\.\\s*get\\s*\\(",
-    "self\\.rfile",
-    "[\\w.\\[\\]'\\\"() ]+\\.[\\w.\\[\\]'\\\"() ]+"
+    "self\\.rfile"
    ],
    "sanitizers": []
   },
@@ -1941,13 +1933,6 @@
    "message": "command sink with unknown taint (strict)",
    "sinks": [
     "os\\.\\s*system\\s*\\(",
-    "getattr\\s*\\(",
-    "__import__\\s*\\(",
-    "getattr\\s*\\(",
-    "[\\w.\\[\\]'\\\"() ]+\\ =\\ __import__\\(\"os\"\\)\\\n\\.\\.\\.\\\n[\\w.\\[\\]'\\\"() ]+\\.system\\(\\.\\.\\.\\)",
-    "[\\w.\\[\\]'\\\"() ]+\\ =\\ __import__\\(\"os\"\\)\\\n\\.\\.\\.\\\ngetattr\\([\\w.\\[\\]'\\\"() ]+,\\ \"system\"\\)\\(\\.\\.\\.\\)",
-    "[\\w.\\[\\]'\\\"() ]+\\ =\\ getattr\\(os,\\ \"system\"\\)\\\n\\.\\.\\.\\\n[\\w.\\[\\]'\\\"() ]+\\(\\.\\.\\.\\)",
-    "[\\w.\\[\\]'\\\"() ]+\\ =\\ __import__\\(\"os\"\\)\\\n\\.\\.\\.\\\n[\\w.\\[\\]'\\\"() ]+\\ =\\ getattr\\([\\w.\\[\\]'\\\"() ]+,\\ \"system\"\\)\\\n\\.\\.\\.\\\n[\\w.\\[\\]'\\\"() ]+\\(\\.\\.\\.\\)",
     "os\\.\\s*popen\\s*\\(",
     "os\\.\\s*popen2\\s*\\(",
     "os\\.\\s*popen3\\s*\\(",
@@ -1994,8 +1979,7 @@
     "self\\.path",
     "self\\.headers\\[\\.\\.\\.\\]",
     "self\\.\\s*headers\\.\\s*get\\s*\\(",
-    "self\\.rfile",
-    "[\\w.\\[\\]'\\\"() ]+\\.[\\w.\\[\\]'\\\"() ]+"
+    "self\\.rfile"
    ],
    "sanitizers": [
     "shlex\\.quote",

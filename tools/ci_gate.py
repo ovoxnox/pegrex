@@ -109,7 +109,7 @@ def check_cognitive(files, fail_on_over, budget=COGNITIVE_BUDGET):
             import warnings
             with warnings.catch_warnings():
                 warnings.simplefilter("ignore", SyntaxWarning)
-                r = cognitive.cognitive_complexity(p.read_text(),
+                r = cognitive.cognitive_complexity(p.read_text(encoding="utf-8"),
                                                    budget=budget)
         except Exception as e:  # engine hiccup: unknown, never a crash
             unknown.append(f"{p.name}: analyzer error {e!r}")
@@ -143,7 +143,7 @@ def check_refinement(files):
     n_contracts = 0
     for p in files:
         try:
-            src = p.read_text()
+            src = p.read_text(encoding="utf-8")
             contracts = refine.parse_contracts(src)
             if not (contracts["requires"] or contracts["ensures"]):
                 continue

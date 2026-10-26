@@ -63,8 +63,8 @@ def verify_patch_incremental(before_path, after_path, claim: str = "equivalent",
         if not pathlib.Path(p).exists():
             raise IncverifyError(f"no such file: {p}")
     cache = cache if cache is not None else AnalysisCache(".pegrex-cache")
-    before_src = pathlib.Path(before_path).read_text()
-    after_src = pathlib.Path(after_path).read_text()
+    before_src = pathlib.Path(before_path).read_text(encoding="utf-8")
+    after_src = pathlib.Path(after_path).read_text(encoding="utf-8")
     before = _functions(_parse(before_src, str(before_path)), before_src)
     after = _functions(_parse(after_src, str(after_path)), after_src)
 
@@ -98,8 +98,8 @@ def verify_patch_incremental(before_path, after_path, claim: str = "equivalent",
         with tempfile.TemporaryDirectory() as td:
             fb = pathlib.Path(td) / f"before_{name}.py"
             fa = pathlib.Path(td) / f"after_{name}.py"
-            fb.write_text(b["src"] + "\n")
-            fa.write_text(a["src"] + "\n")
+            fb.write_text(b["src"] + "\n", encoding="utf-8")
+            fa.write_text(a["src"] + "\n", encoding="utf-8")
             v = verify_patch(str(fb), str(fa), claim)
         if v.get("verified"):
             per_function[name] = {"verdict": "engine", "verified": True}

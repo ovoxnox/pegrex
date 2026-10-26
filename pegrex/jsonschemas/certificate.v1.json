@@ -1,0 +1,46 @@
+{
+  "$id": "pegrex:pegrex.certificate.v1:schema",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": true,
+  "properties": {
+    "claim": {
+      "type": "string"
+    },
+    "counterexample": {
+      "type": [
+        "object",
+        "null"
+      ]
+    },
+    "evidence": {
+      "type": "object"
+    },
+    "schema": {
+      "const": "pegrex.certificate.v1"
+    },
+    "schema_version": {
+      "const": 1
+    },
+    "unknowns": {
+      "type": "array"
+    },
+    "verdict": {
+      "enum": [
+        "proved",
+        "refuted",
+        "unknown"
+      ],
+      "type": "string"
+    }
+  },
+  "required": [
+    "schema",
+    "schema_version",
+    "verdict",
+    "claim",
+    "evidence",
+    "unknowns"
+  ],
+  "title": "PegRex three-valued certificate",
+  "type": "object"
+}

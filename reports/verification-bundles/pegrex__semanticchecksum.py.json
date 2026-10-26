@@ -1,0 +1,14 @@
+{
+ "source_sha256": "70233feec6fd664d750928c830eeb28523db50b221153c680c9e7fc17b1d82ab",
+ "language": "python",
+ "entrypoint": "semanticchecksum",
+ "paths": [
+  {
+   "blocks": [
+    0
+   ],
+   "constraints": []
+  }
+ ],
+ "smt2": "(set-logic QF_NIA)\n\n\n(check-sat)\n"
+}

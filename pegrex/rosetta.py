@@ -33,7 +33,7 @@ def _load_spec(spec):
     source paths resolve against the spec file's directory."""
     if isinstance(spec, (str, pathlib.Path)):
         spec_path = pathlib.Path(spec)
-        return json.loads(spec_path.read_text()), spec_path.parent
+        return json.loads(spec_path.read_text(encoding="utf-8")), spec_path.parent
     if isinstance(spec, dict):
         return spec, pathlib.Path.cwd()
     raise RosettaError(f"rosetta: spec must be a dict or a path, got "
@@ -70,7 +70,7 @@ def _build_variant(variant, base_dir, unroll):
     src_path = pathlib.Path(variant["source"])
     if not src_path.is_absolute():
         src_path = base_dir / src_path
-    src = src_path.read_text()
+    src = src_path.read_text(encoding="utf-8")
     parse, tagspec, make_cond = pipeline.frontend_for(lang)
     try:
         body = parse(src)   # PREPROCESS

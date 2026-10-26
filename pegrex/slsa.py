@@ -11,6 +11,7 @@ class SigstoreUnavailableError(RuntimeError):
 
 
 def hash_materials(paths):
+    """Implement hash materials with the module's explicit API and failure semantics."""
     out = {}
     for p in paths:
         with open(p, "rb") as f:
@@ -52,6 +53,7 @@ def verify(attestation, key):
 
 
 def publish_sigstore(attestation, token=None):
+    """Implement publish sigstore with the module's explicit API and failure semantics."""
     if not token:
         raise SigstoreUnavailableError(
             "slsa: Sigstore/Rekor publish needs credentials and network -- "
@@ -62,6 +64,7 @@ def publish_sigstore(attestation, token=None):
 
 
 def slsa_level(attestation):
+    """Implement slsa level with the module's explicit API and failure semantics."""
     if not attestation.get("signature"):
         return "L0 (unsigned)"
     return "L2-equivalent (signed build provenance; hermeticity not claimed)"

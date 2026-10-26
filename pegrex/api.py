@@ -47,7 +47,7 @@ def spec(source: str, name: str, out_dir: str = "specs",
     rendered = mkspec.render_spec(ctx, facts, results, "full", name)
     out = pathlib.Path(out_dir)
     out.mkdir(parents=True, exist_ok=True)
-    (out / f"{name}.spec.json").write_text(_json.dumps(rendered, indent=1))
+    (out / f"{name}.spec.json").write_text(_json.dumps(rendered, indent=1), encoding="utf-8")
     return rendered
 
 
@@ -75,8 +75,8 @@ def coverage(path: str, lcov_path: str, lang: str = "python") -> dict:
     import pipeline
     from .coverage import (covered_lines, parse_lcov, path_coverage,
                            coverage_gaps)
-    src = pathlib.Path(path).read_text()
-    cov = list(parse_lcov(pathlib.Path(lcov_path).read_text()).values())
+    src = pathlib.Path(path).read_text(encoding="utf-8")
+    cov = list(parse_lcov(pathlib.Path(lcov_path).read_text(encoding="utf-8")).values())
     cov_lines = covered_lines(cov[0]) if cov else set()
     parse, tags, mk = pipeline.frontend_for(lang)
     cfg = CFGBuilder(tags).build(parse(src))
@@ -88,8 +88,8 @@ def coverage(path: str, lcov_path: str, lang: str = "python") -> dict:
 def gaps(source: str, lcov: str, lang: str = "python") -> list[dict]:
     """Coverage gaps with constraint context."""
     import pipeline
-    src = pathlib.Path(source).read_text()
-    cov = list(parse_lcov(pathlib.Path(lcov).read_text()).values())
+    src = pathlib.Path(source).read_text(encoding="utf-8")
+    cov = list(parse_lcov(pathlib.Path(lcov).read_text(encoding="utf-8")).values())
     cov_lines = __import__("pegrex.coverage", fromlist=["covered_lines"]
                            ).covered_lines(cov[0]) if cov else set()
     parse, tags, mk = pipeline.frontend_for(lang)
@@ -97,17 +97,22 @@ def gaps(source: str, lcov: str, lang: str = "python") -> list[dict]:
     return coverage_gaps(cfg, mk(src), cov_lines)
 
 
-def synthesize(source: str, lcov: str, fn_name: str | None = None) -> list:
-    """Synthesize pytest tests from coverage gaps."""
+def synthesize_tests_from_coverage(source: str, lcov: str,
+                                   fn_name: str | None = None) -> list:
+    """Synthesize pytest tests from coverage gaps without shadowing program synthesis."""
     from .coverage import covered_lines
     import pipeline
-    src = pathlib.Path(source).read_text()
-    cov = list(parse_lcov(pathlib.Path(lcov).read_text()).values())
+    src = pathlib.Path(source).read_text(encoding="utf-8")
+    cov = list(parse_lcov(pathlib.Path(lcov).read_text(encoding="utf-8")).values())
     cov_lines = covered_lines(cov[0]) if cov else set()
     parse, tags, mk = pipeline.frontend_for("python")
     cfg = CFGBuilder(tags).build(parse(src))
     return synthesize_tests(cfg, mk(src), cov_lines,
-                            fn_name or pathlib.Path(source).stem[:-3])
+                            fn_name or pathlib.Path(source).stem)
+
+
+# Explicit compatibility alias; ``synthesize`` remains the program-synthesis API.
+synthesize_from_coverage = synthesize_tests_from_coverage
 
 
 def call_graph(source: str, lang: str = "python") -> "CallGraph":
@@ -138,7 +143,7 @@ def budget_check(path: str, max_loc: int = 300,
                  max_function_lines: int = 40) -> Budget:
     """budget check(path, max_loc, max_function_lines): see module docstring."""
     b = Budget(max_loc=max_loc, max_function_lines=max_function_lines)
-    return b.check(path, pathlib.Path(path).read_text())
+    return b.check(path, pathlib.Path(path).read_text(encoding="utf-8"))
 
 
 def races(src: str) -> list[str]:

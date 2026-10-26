@@ -195,9 +195,9 @@ def render_spec(ctx, facts, view_results, template, name) -> dict:
         stub = TEMPLATES[template]
     elif template.endswith((".yaml", ".yml")):  # PyYAML templates, if installed
         import yaml
-        stub = yaml.safe_load(pathlib.Path(template).read_text())
+        stub = yaml.safe_load(pathlib.Path(template).read_text(encoding="utf-8"))
     else:
-        stub = json.loads(pathlib.Path(template).read_text())
+        stub = json.loads(pathlib.Path(template).read_text(encoding="utf-8"))
     spec = json.loads(json.dumps(stub))
     sha = hashlib.sha256(ctx.src.encode()).hexdigest()[:12] if ctx.src else "-"
     spec["meta"] |= {
@@ -299,7 +299,7 @@ def main(argv=None) -> int:
     except ImportError:
         pass
     out = pathlib.Path(a.out); out.mkdir(parents=True, exist_ok=True)
-    (out / f"{a.name}.spec.json").write_text(json.dumps(spec, indent=1))
+    (out / f"{a.name}.spec.json").write_text(json.dumps(spec, indent=1), encoding="utf-8")
     print(f"wrote {out / (a.name + '.spec.json')}  "
           f"({len(spec['tasks'])} tasks, {spec['meta']['finding_count']} findings)")
     return 0

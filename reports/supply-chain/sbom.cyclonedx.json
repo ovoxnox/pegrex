@@ -1,0 +1,406 @@
+{
+  "bomFormat": "CycloneDX",
+  "components": [
+    {
+      "bom-ref": "pkg:pypi/annotated-types@0.7.0",
+      "hashes": [],
+      "name": "annotated-types",
+      "purl": "pkg:pypi/annotated-types@0.7.0",
+      "type": "library",
+      "version": "0.7.0"
+    },
+    {
+      "bom-ref": "pkg:pypi/iniconfig@2.3.1",
+      "hashes": [],
+      "name": "iniconfig",
+      "purl": "pkg:pypi/iniconfig@2.3.1",
+      "type": "library",
+      "version": "2.3.1"
+    },
+    {
+      "bom-ref": "pkg:pypi/hypothesis@6.170.9",
+      "hashes": [],
+      "name": "hypothesis",
+      "purl": "pkg:pypi/hypothesis@6.170.9",
+      "type": "library",
+      "version": "6.170.9"
+    },
+    {
+      "bom-ref": "pkg:pypi/packaging@25.0",
+      "hashes": [],
+      "name": "packaging",
+      "purl": "pkg:pypi/packaging@25.0",
+      "type": "library",
+      "version": "25.0"
+    },
+    {
+      "bom-ref": "pkg:pypi/pluggy@1.7.0",
+      "hashes": [],
+      "name": "pluggy",
+      "purl": "pkg:pypi/pluggy@1.7.0",
+      "type": "library",
+      "version": "1.7.0"
+    },
+    {
+      "bom-ref": "pkg:pypi/pydantic@2.11.4",
+      "hashes": [],
+      "name": "pydantic",
+      "purl": "pkg:pypi/pydantic@2.11.4",
+      "type": "library",
+      "version": "2.11.4"
+    },
+    {
+      "bom-ref": "pkg:pypi/pydantic-core@2.33.2",
+      "hashes": [],
+      "name": "pydantic-core",
+      "purl": "pkg:pypi/pydantic-core@2.33.2",
+      "type": "library",
+      "version": "2.33.2"
+    },
+    {
+      "bom-ref": "pkg:pypi/pygments@2.19.1",
+      "hashes": [],
+      "name": "pygments",
+      "purl": "pkg:pypi/pygments@2.19.1",
+      "type": "library",
+      "version": "2.19.1"
+    },
+    {
+      "bom-ref": "pkg:pypi/pytest@9.1.1",
+      "hashes": [],
+      "name": "pytest",
+      "purl": "pkg:pypi/pytest@9.1.1",
+      "type": "library",
+      "version": "9.1.1"
+    },
+    {
+      "bom-ref": "pkg:pypi/sortedcontainers@2.4.0",
+      "hashes": [],
+      "name": "sortedcontainers",
+      "purl": "pkg:pypi/sortedcontainers@2.4.0",
+      "type": "library",
+      "version": "2.4.0"
+    },
+    {
+      "bom-ref": "pkg:pypi/tree-sitter@0.26.0",
+      "hashes": [],
+      "name": "tree-sitter",
+      "purl": "pkg:pypi/tree-sitter@0.26.0",
+      "type": "library",
+      "version": "0.26.0"
+    },
+    {
+      "bom-ref": "pkg:pypi/tree-sitter-go@0.25.0",
+      "hashes": [],
+      "name": "tree-sitter-go",
+      "purl": "pkg:pypi/tree-sitter-go@0.25.0",
+      "type": "library",
+      "version": "0.25.0"
+    },
+    {
+      "bom-ref": "pkg:pypi/tree-sitter-javascript@0.25.0",
+      "hashes": [],
+      "name": "tree-sitter-javascript",
+      "purl": "pkg:pypi/tree-sitter-javascript@0.25.0",
+      "type": "library",
+      "version": "0.25.0"
+    },
+    {
+      "bom-ref": "pkg:pypi/tree-sitter-python@0.25.0",
+      "hashes": [],
+      "name": "tree-sitter-python",
+      "purl": "pkg:pypi/tree-sitter-python@0.25.0",
+      "type": "library",
+      "version": "0.25.0"
+    },
+    {
+      "bom-ref": "pkg:pypi/tree-sitter-rust@0.24.2",
+      "hashes": [],
+      "name": "tree-sitter-rust",
+      "purl": "pkg:pypi/tree-sitter-rust@0.24.2",
+      "type": "library",
+      "version": "0.24.2"
+    },
+    {
+      "bom-ref": "pkg:pypi/typing-extensions@4.13.2",
+      "hashes": [],
+      "name": "typing-extensions",
+      "purl": "pkg:pypi/typing-extensions@4.13.2",
+      "type": "library",
+      "version": "4.13.2"
+    },
+    {
+      "bom-ref": "pkg:pypi/typing-inspection@0.4.0",
+      "hashes": [],
+      "name": "typing-inspection",
+      "purl": "pkg:pypi/typing-inspection@0.4.0",
+      "type": "library",
+      "version": "0.4.0"
+    },
+    {
+      "bom-ref": "pkg:pypi/xxhash@4.0.2",
+      "hashes": [],
+      "name": "xxhash",
+      "purl": "pkg:pypi/xxhash@4.0.2",
+      "type": "library",
+      "version": "4.0.2"
+    },
+    {
+      "bom-ref": "pkg:pypi/z3-solver@5.3.1.0",
+      "hashes": [],
+      "name": "z3-solver",
+      "purl": "pkg:pypi/z3-solver@5.3.1.0",
+      "type": "library",
+      "version": "5.3.1.0"
+    }
+  ],
+  "dependencies": [
+    {
+      "dependsOn": [],
+      "ref": "pkg:pypi/annotated-types@0.7.0"
+    },
+    {
+      "dependsOn": [],
+      "ref": "pkg:pypi/hypothesis@6.170.9"
+    },
+    {
+      "dependsOn": [],
+      "ref": "pkg:pypi/iniconfig@2.3.1"
+    },
+    {
+      "dependsOn": [],
+      "ref": "pkg:pypi/packaging@25.0"
+    },
+    {
+      "dependsOn": [],
+      "ref": "pkg:pypi/pluggy@1.7.0"
+    },
+    {
+      "dependsOn": [],
+      "ref": "pkg:pypi/pydantic-core@2.33.2"
+    },
+    {
+      "dependsOn": [],
+      "ref": "pkg:pypi/pydantic@2.11.4"
+    },
+    {
+      "dependsOn": [],
+      "ref": "pkg:pypi/pygments@2.19.1"
+    },
+    {
+      "dependsOn": [],
+      "ref": "pkg:pypi/pytest@9.1.1"
+    },
+    {
+      "dependsOn": [],
+      "ref": "pkg:pypi/sortedcontainers@2.4.0"
+    },
+    {
+      "dependsOn": [],
+      "ref": "pkg:pypi/tree-sitter-go@0.25.0"
+    },
+    {
+      "dependsOn": [],
+      "ref": "pkg:pypi/tree-sitter-javascript@0.25.0"
+    },
+    {
+      "dependsOn": [],
+      "ref": "pkg:pypi/tree-sitter-python@0.25.0"
+    },
+    {
+      "dependsOn": [],
+      "ref": "pkg:pypi/tree-sitter-rust@0.24.2"
+    },
+    {
+      "dependsOn": [],
+      "ref": "pkg:pypi/tree-sitter@0.26.0"
+    },
+    {
+      "dependsOn": [],
+      "ref": "pkg:pypi/typing-extensions@4.13.2"
+    },
+    {
+      "dependsOn": [],
+      "ref": "pkg:pypi/typing-inspection@0.4.0"
+    },
+    {
+      "dependsOn": [],
+      "ref": "pkg:pypi/xxhash@4.0.2"
+    },
+    {
+      "dependsOn": [],
+      "ref": "pkg:pypi/z3-solver@5.3.1.0"
+    }
+  ],
+  "metadata": {
+    "properties": [
+      {
+        "name": "pegrex:provenance",
+        "value": "{\"bytes\": 475, \"generator\": \"pegrex.sbom\", \"offline\": true, \"sha256\": \"d540fbfabd884c99d1f629db96f39f94ba16356c43f7537c2fe3242db307b934\", \"source\": \"/mnt/agents/output/pegrex_audit/source/pegrex/requirements-ci.txt\"}"
+      },
+      {
+        "name": "pegrex:unknown",
+        "value": "annotated-types: integrity hash missing"
+      },
+      {
+        "name": "pegrex:unknown",
+        "value": "annotated-types: license NOASSERTION"
+      },
+      {
+        "name": "pegrex:unknown",
+        "value": "hypothesis: integrity hash missing"
+      },
+      {
+        "name": "pegrex:unknown",
+        "value": "hypothesis: license NOASSERTION"
+      },
+      {
+        "name": "pegrex:unknown",
+        "value": "iniconfig: integrity hash missing"
+      },
+      {
+        "name": "pegrex:unknown",
+        "value": "iniconfig: license NOASSERTION"
+      },
+      {
+        "name": "pegrex:unknown",
+        "value": "packaging: integrity hash missing"
+      },
+      {
+        "name": "pegrex:unknown",
+        "value": "packaging: license NOASSERTION"
+      },
+      {
+        "name": "pegrex:unknown",
+        "value": "pluggy: integrity hash missing"
+      },
+      {
+        "name": "pegrex:unknown",
+        "value": "pluggy: license NOASSERTION"
+      },
+      {
+        "name": "pegrex:unknown",
+        "value": "pydantic-core: integrity hash missing"
+      },
+      {
+        "name": "pegrex:unknown",
+        "value": "pydantic-core: license NOASSERTION"
+      },
+      {
+        "name": "pegrex:unknown",
+        "value": "pydantic: integrity hash missing"
+      },
+      {
+        "name": "pegrex:unknown",
+        "value": "pydantic: license NOASSERTION"
+      },
+      {
+        "name": "pegrex:unknown",
+        "value": "pygments: integrity hash missing"
+      },
+      {
+        "name": "pegrex:unknown",
+        "value": "pygments: license NOASSERTION"
+      },
+      {
+        "name": "pegrex:unknown",
+        "value": "pytest: integrity hash missing"
+      },
+      {
+        "name": "pegrex:unknown",
+        "value": "pytest: license NOASSERTION"
+      },
+      {
+        "name": "pegrex:unknown",
+        "value": "sortedcontainers: integrity hash missing"
+      },
+      {
+        "name": "pegrex:unknown",
+        "value": "sortedcontainers: license NOASSERTION"
+      },
+      {
+        "name": "pegrex:unknown",
+        "value": "tree-sitter-go: integrity hash missing"
+      },
+      {
+        "name": "pegrex:unknown",
+        "value": "tree-sitter-go: license NOASSERTION"
+      },
+      {
+        "name": "pegrex:unknown",
+        "value": "tree-sitter-javascript: integrity hash missing"
+      },
+      {
+        "name": "pegrex:unknown",
+        "value": "tree-sitter-javascript: license NOASSERTION"
+      },
+      {
+        "name": "pegrex:unknown",
+        "value": "tree-sitter-python: integrity hash missing"
+      },
+      {
+        "name": "pegrex:unknown",
+        "value": "tree-sitter-python: license NOASSERTION"
+      },
+      {
+        "name": "pegrex:unknown",
+        "value": "tree-sitter-rust: integrity hash missing"
+      },
+      {
+        "name": "pegrex:unknown",
+        "value": "tree-sitter-rust: license NOASSERTION"
+      },
+      {
+        "name": "pegrex:unknown",
+        "value": "tree-sitter: integrity hash missing"
+      },
+      {
+        "name": "pegrex:unknown",
+        "value": "tree-sitter: license NOASSERTION"
+      },
+      {
+        "name": "pegrex:unknown",
+        "value": "typing-extensions: integrity hash missing"
+      },
+      {
+        "name": "pegrex:unknown",
+        "value": "typing-extensions: license NOASSERTION"
+      },
+      {
+        "name": "pegrex:unknown",
+        "value": "typing-inspection: integrity hash missing"
+      },
+      {
+        "name": "pegrex:unknown",
+        "value": "typing-inspection: license NOASSERTION"
+      },
+      {
+        "name": "pegrex:unknown",
+        "value": "xxhash: integrity hash missing"
+      },
+      {
+        "name": "pegrex:unknown",
+        "value": "xxhash: license NOASSERTION"
+      },
+      {
+        "name": "pegrex:unknown",
+        "value": "z3-solver: integrity hash missing"
+      },
+      {
+        "name": "pegrex:unknown",
+        "value": "z3-solver: license NOASSERTION"
+      }
+    ],
+    "tools": {
+      "components": [
+        {
+          "name": "PegRex",
+          "type": "application",
+          "version": "1.1.0"
+        }
+      ]
+    }
+  },
+  "specVersion": "1.5",
+  "version": 1
+}

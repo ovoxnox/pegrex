@@ -49,6 +49,7 @@ class Model:
                 e[0], e[1] = k, inc
 
     def feasible(self) -> bool:
+        """Implement feasible with the module's explicit API and failure semantics."""
         for lo, li, hi, hi_inc, neq in self.bounds.values():
             if lo is not None and hi is not None:
                 if lo > hi or (lo == hi and not (li and hi_inc)):
@@ -59,6 +60,7 @@ class Model:
 
 
 def learn(atoms) -> Model:
+    """Implement learn with the module's explicit API and failure semantics."""
     m = Model()
     for a in atoms:
         if (p := _parse_atom(str(a))):
@@ -126,12 +128,15 @@ class Backend:
     """The only surface specgen/idioms consume. Swap in z3 by subclassing."""
 
     def learn(self, atoms):
+        """Implement learn with the module's explicit API and failure semantics."""
         return learn(atoms)
 
     def entails(self, model, guard):
+        """Implement entails with the module's explicit API and failure semantics."""
         return entails(model, guard)
 
     def feasible(self, model):
+        """Implement feasible with the module's explicit API and failure semantics."""
         return model.feasible()
 
 
@@ -139,10 +144,12 @@ _default = Backend()
 
 
 def get_backend() -> Backend:
+    """Implement get backend with the module's explicit API and failure semantics."""
     return _default
 
 
 def set_backend(backend: Backend) -> None:
+    """Implement set backend with the module's explicit API and failure semantics."""
     global _default
     _default = backend
 
@@ -210,6 +217,7 @@ def _to_z3(z3, s):
                       r"([A-Za-z_]\w*|-?\d+)\s*\)$", s)
     if simple:
         def operand(text):
+            """Implement operand with the module's explicit API and failure semantics."""
             return z3.IntVal(int(text)) if text.lstrip("-").isdigit() else z3.Int(text)
         left, right = operand(simple.group(1)), operand(simple.group(3))
         ops = {"=": lambda a, b: a == b, "!=": lambda a, b: a != b,
@@ -223,9 +231,21 @@ def _to_z3(z3, s):
         atom = parse_atom(s)
     except LinearError as exc:
         raise ValueError(f"cannot translate: {s!r}") from exc
-    expr = sum((z3.Int(var) * z3.RationalVal(str(coeff))
+    def exact(value):
+        # Z3 5.x removed RationalVal from the Python API. Integer numerator
+        # and denominator division preserves the exact rational semantics on
+        # both older and newer supported releases.
+        """Implement exact with the module's explicit API and failure semantics."""
+        numerator = z3.IntVal(value.numerator)
+        if value.denominator == 1:
+            return numerator
+        # IntVal / IntVal is integer division in Z3 5.x; explicitly use a
+        # real numerator so 1/2 cannot silently collapse to zero.
+        return z3.RealVal(value.numerator) / value.denominator
+
+    expr = sum((z3.Int(var) * exact(coeff)
                 for var, coeff in atom.coeffs), z3.IntVal(0))
-    bound = z3.RationalVal(str(atom.k))
+    bound = exact(atom.k)
     ops = {"=": lambda a, b: a == b, "!=": lambda a, b: a != b,
            "<": lambda a, b: a < b, "<=": lambda a, b: a <= b,
            ">": lambda a, b: a > b, ">=": lambda a, b: a >= b}

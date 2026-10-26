@@ -47,12 +47,13 @@ CASES = [
 
 
 def run_case(case, verifier=None):
+    """Implement run case with the module's explicit API and failure semantics."""
     verifier = verifier or verify_patch
     tmp = tempfile.mkdtemp()
     a = os.path.join(tmp, "a.py")
     b = os.path.join(tmp, "b.py")
-    open(a, "w").write(case["before"])
-    open(b, "w").write(case["after"])
+    open(a, "w", encoding="utf-8").write(case["before"])
+    open(b, "w", encoding="utf-8").write(case["after"])
     try:
         out = verifier(a, b)
         return {"name": case["name"],
@@ -67,6 +68,7 @@ def run_case(case, verifier=None):
 
 
 def run_benchmark(verifier=None, cases=None) -> dict:
+    """Implement run benchmark with the module's explicit API and failure semantics."""
     results = [run_case(c, verifier) for c in (cases or CASES)]
     good = [r for r in results if r["expected"]]
     bad = [r for r in results if not r["expected"]]

@@ -25,3 +25,17 @@ description: Verify cross-language translations and refactors with certificates.
 `idioms` rules in a spec emit guard-checked rewrites (e.g. if/else -> ternary)
 as artifacts; m6 proves the emitted C compiles and runs identically.
 
+## Contract-preserving modernization and API round trips
+- `modernize_preserving_contracts` ports COBOL/Fortran to Python/Rust/Go and
+  independently reanalyzes the target. Require separate contract, numeric/overflow,
+  and data-layout evidence; never promote missing declarations to PROVED.
+- Plain Rust overflow remains build-profile UNKNOWN. Go wrap and Python unbounded
+  arithmetic are PROVED only within their declared numeric scopes. A source record
+  layout does not prove compatible target lowering.
+- `check_round_trip` separates generated-stub/static OpenAPI agreement from old/new
+  runtime observations. Require a case for every operation; static agreement alone
+  is UNKNOWN and a confirmed result mismatch is REFUTED.
+- Use `semantic_checksum` to compare normalized contracts, type/domain assumptions,
+  and effects without surface syntax. Require confirmed semantic evidence before
+  describing a checksum mismatch as a behavioral change.
+

@@ -11,6 +11,7 @@ Methods: initialize, authenticate, session/new, session/prompt,
 from __future__ import annotations
 
 import json
+from pathlib import Path
 import sys
 
 PROTOCOL_VERSION = 1
@@ -20,10 +21,22 @@ class AcpServer:
     """ACP server: engine tools exposed as agent-callable tools."""
 
     def __init__(self, root=".") -> None:
-        self.root = root
+        self.root = str(Path(root).resolve())
         self.sessions: dict[str, dict] = {}
         self._counter = 0
         self._rag = None
+
+    def _resolve(self, path: str) -> str:
+        """Resolve one workspace path without permitting traversal or symlink escape."""
+        candidate = Path(path)
+        if not candidate.is_absolute():
+            candidate = Path(self.root) / candidate
+        resolved = candidate.resolve()
+        try:
+            resolved.relative_to(self.root)
+        except ValueError as error:
+            raise ValueError(f"path escapes ACP workspace: {path!r}") from error
+        return str(resolved)
 
     # ── tool definitions
     def tools(self) -> list[dict]:
@@ -67,17 +80,17 @@ class AcpServer:
         ]
 
     def _read(self, path: str) -> str:
-        with open(path, encoding="utf-8", errors="replace") as fh:
+        with open(self._resolve(path), encoding="utf-8", errors="replace") as fh:
             return fh.read()
 
     def call_tool(self, name: str, args: dict):
         """call tool(name, args): see module docstring."""
         if not isinstance(args, dict):
             raise TypeError("arguments must be an object")
+        args = dict(args)
         for key in ("path", "source", "lcov"):
-            if key in args and (".." in str(args[key])):
-                raise ValueError(f"path traversal rejected: {key}")
-        sys.path.insert(0, self.root)
+            if key in args:
+                args[key] = self._resolve(str(args[key]))
         if name == "engine.audit":
             from tools.secaudit import audit
             return audit(args["path"])
@@ -176,11 +189,13 @@ class AcpServer:
 
 
 def main(root=".") -> int:
+    """Implement main with the module's explicit API and failure semantics."""
     server = AcpServer(root)
     for line in sys.stdin:
         line = line.strip()
         if not line:
             continue
+        req = None
         try:
             req = json.loads(line)
             resp = server.handle(req)
@@ -188,11 +203,13 @@ def main(root=".") -> int:
             resp = {"jsonrpc": "2.0",
                     "error": {"code": -32000, "message": repr(e)[:200]},
                     "id": req.get("id") if isinstance(req, dict) else None}
-        if resp is not None and isinstance(resp, dict) and "id" in (req or {}):
+        if (resp is not None and isinstance(resp, dict)
+                and (not isinstance(req, dict) or "id" in req)):
             out = dict(resp)
             out.setdefault("jsonrpc", "2.0")
-            out["id"] = req.get("id")
+            out["id"] = req.get("id") if isinstance(req, dict) else None
             print(json.dumps(out), flush=True)
+    return 0
 
 
 if __name__ == "__main__":

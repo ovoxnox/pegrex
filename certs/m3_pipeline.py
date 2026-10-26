@@ -1,7 +1,11 @@
-import pathlib, sys
-sys.path.insert(0, str(pathlib.Path(__file__).parent.parent))
 #!/usr/bin/env python
-"""End-to-end demo: grammar -> AST -> CFG -> path formulas -> SMT-LIB."""
+"""M3: grammar, AST, CFG, path formulas, and SMT-LIB compose end to end."""
+import pathlib
+import sys
+
+ROOT = pathlib.Path(__file__).resolve().parent.parent
+sys.path.insert(0, str(ROOT))
+
 from pegrex import compile_grammar, peg, prettyast
 from pegrex.peg import Node
 from pegrex.cfg import CFGBuilder, TagSpec
@@ -9,7 +13,7 @@ from pegrex.paths import PathEnumerator, linearize
 from pegrex.sym import V, Sym, Add, Lt, Gt, const
 
 # 1) parse with the PegRex grammar from the original project's README
-grammar = open("examples/json.gram").read()
+grammar = (ROOT / "examples" / "json.gram").read_text(encoding="utf-8")
 start, rules = compile_grammar(grammar)
 src = '[{"string":"some\\ntext", "boolean":true, "number":-1.5e+2, "null":null}]'
 ast, err, _ = peg.run(start, src, rules)

@@ -30,7 +30,7 @@ def certify_package(name: str, version: str, source_files: dict, key: str) -> di
     for fname, src in source_files.items():
         fd, path = tempfile.mkstemp(suffix=".py")
         try:
-            with os.fdopen(fd, "w") as f:
+            with os.fdopen(fd, "w", encoding="utf-8") as f:
                 f.write(src)
             report = mine(path)
         finally:
@@ -52,15 +52,17 @@ def verify_package(manifest: dict, key: str) -> dict:
 
 
 def load_registry(path) -> dict:
+    """Implement load registry with the module's explicit API and failure semantics."""
     p = pathlib.Path(path)
     if not p.exists():
         return {}
-    return json.loads(p.read_text())
+    return json.loads(p.read_text(encoding="utf-8"))
 
 
 def save_registry(path, registry: dict) -> None:
+    """Implement save registry with the module's explicit API and failure semantics."""
     pathlib.Path(path).write_text(
-        json.dumps(registry, indent=1, sort_keys=True) + "\n")
+        json.dumps(registry, indent=1, sort_keys=True) + "\n", encoding="utf-8")
 
 
 def find_regressions(old_manifest: dict, new_manifest: dict) -> list:

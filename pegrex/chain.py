@@ -25,7 +25,7 @@ from .strategies import sample_models
 
 def _sample_inputs(before_src, n=4):
     fd, p = tempfile.mkstemp(suffix=".py")
-    with os.fdopen(fd, "w") as f:
+    with os.fdopen(fd, "w", encoding="utf-8") as f:
         f.write(before_src)
     lb = LinearBackend()
     seen, out = set(), []
@@ -53,7 +53,7 @@ def _sample_inputs(before_src, n=4):
 
 def _load(src, name):
     fd, p = tempfile.mkstemp(suffix=".py")
-    with os.fdopen(fd, "w") as f:
+    with os.fdopen(fd, "w", encoding="utf-8") as f:
         f.write(src)
     spec = importlib.util.spec_from_file_location(name, p)
     mod = importlib.util.module_from_spec(spec)

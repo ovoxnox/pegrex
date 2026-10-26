@@ -1,0 +1,477 @@
+{
+ "schema": "pegrex.tools-api-manifest.v2",
+ "api_version": "2.0",
+ "tools": [
+  {
+   "name": "assurance.invalidate",
+   "summary": "Invalidate assurance claims from exact upstream hashes.",
+   "parameters": {
+    "type": "object",
+    "properties": {
+     "graph": {
+      "type": "object"
+     },
+     "upstream_changes": {
+      "type": "object"
+     }
+    },
+    "required": [
+     "graph",
+     "upstream_changes"
+    ],
+    "additionalProperties": false
+   },
+   "path_arguments": [],
+   "trust_claim": true,
+   "mutates_workspace": false
+  },
+  {
+   "name": "broker.verify",
+   "summary": "Verify the local action-evidence hash chain.",
+   "parameters": {
+    "type": "object",
+    "properties": {
+     "evidence": {
+      "type": "object"
+     }
+    },
+    "required": [
+     "evidence"
+    ],
+    "additionalProperties": false
+   },
+   "path_arguments": [],
+   "trust_claim": true,
+   "mutates_workspace": false
+  },
+  {
+   "name": "capsule.verify",
+   "summary": "Verify a research capsule without executing its recipe.",
+   "parameters": {
+    "type": "object",
+    "properties": {
+     "path": {
+      "type": "string"
+     }
+    },
+    "required": [
+     "path"
+    ],
+    "additionalProperties": false
+   },
+   "path_arguments": [
+    "path"
+   ],
+   "trust_claim": true,
+   "mutates_workspace": false
+  },
+  {
+   "name": "change_budget.summary",
+   "summary": "Summarize semantic changes across two repository roots.",
+   "parameters": {
+    "type": "object",
+    "properties": {
+     "before_root": {
+      "type": "string"
+     },
+     "after_root": {
+      "type": "string"
+     },
+     "budget": {
+      "type": "object"
+     }
+    },
+    "required": [
+     "before_root",
+     "after_root"
+    ],
+    "additionalProperties": false
+   },
+   "path_arguments": [
+    "before_root",
+    "after_root"
+   ],
+   "trust_claim": true,
+   "mutates_workspace": false
+  },
+  {
+   "name": "compliance_map.query",
+   "summary": "Query an executable compliance map without legal inference.",
+   "parameters": {
+    "type": "object",
+    "properties": {
+     "graph": {
+      "type": "object"
+     },
+     "classification": {
+      "type": "string"
+     },
+     "kind": {
+      "type": "string"
+     },
+     "max_results": {
+      "type": "integer",
+      "minimum": 0
+     }
+    },
+    "required": [
+     "graph"
+    ],
+    "additionalProperties": false
+   },
+   "path_arguments": [],
+   "trust_claim": false,
+   "mutates_workspace": false
+  },
+  {
+   "name": "core.audit",
+   "summary": "Run the registered source security audit.",
+   "parameters": {
+    "type": "object",
+    "properties": {
+     "path": {
+      "type": "string"
+     },
+     "language": {
+      "type": "string"
+     }
+    },
+    "required": [
+     "path"
+    ],
+    "additionalProperties": false
+   },
+   "path_arguments": [
+    "path"
+   ],
+   "trust_claim": false,
+   "mutates_workspace": false
+  },
+  {
+   "name": "core.call_graph",
+   "summary": "Build a source call graph.",
+   "parameters": {
+    "type": "object",
+    "properties": {
+     "source": {
+      "type": "string"
+     },
+     "language": {
+      "type": "string"
+     }
+    },
+    "required": [
+     "source"
+    ],
+    "additionalProperties": false
+   },
+   "path_arguments": [],
+   "trust_claim": false,
+   "mutates_workspace": false
+  },
+  {
+   "name": "core.capabilities",
+   "summary": "List registered language capabilities.",
+   "parameters": {
+    "type": "object",
+    "properties": {
+     "language": {
+      "type": "string"
+     }
+    },
+    "required": [],
+    "additionalProperties": false
+   },
+   "path_arguments": [],
+   "trust_claim": false,
+   "mutates_workspace": false
+  },
+  {
+   "name": "core.contracts",
+   "summary": "Extract typed path contracts from source.",
+   "parameters": {
+    "type": "object",
+    "properties": {
+     "source": {
+      "type": "string"
+     },
+     "language": {
+      "type": "string"
+     },
+     "path": {
+      "type": "string"
+     },
+     "entrypoint": {
+      "type": "string"
+     }
+    },
+    "required": [
+     "source",
+     "language"
+    ],
+    "additionalProperties": false
+   },
+   "path_arguments": [],
+   "trust_claim": true,
+   "mutates_workspace": false
+  },
+  {
+   "name": "core.contracts_file",
+   "summary": "Extract typed path contracts from a workspace file.",
+   "parameters": {
+    "type": "object",
+    "properties": {
+     "path": {
+      "type": "string"
+     },
+     "language": {
+      "type": "string"
+     }
+    },
+    "required": [
+     "path"
+    ],
+    "additionalProperties": false
+   },
+   "path_arguments": [
+    "path"
+   ],
+   "trust_claim": true,
+   "mutates_workspace": false
+  },
+  {
+   "name": "core.parse",
+   "summary": "Parse source with a registered frontend.",
+   "parameters": {
+    "type": "object",
+    "properties": {
+     "source": {
+      "type": "string"
+     },
+     "language": {
+      "type": "string"
+     },
+     "function_body": {
+      "type": "boolean"
+     },
+     "entrypoint": {
+      "type": "string"
+     }
+    },
+    "required": [
+     "source",
+     "language"
+    ],
+    "additionalProperties": false
+   },
+   "path_arguments": [],
+   "trust_claim": false,
+   "mutates_workspace": false
+  },
+  {
+   "name": "core.soundness",
+   "summary": "Return frontend and trust-policy metadata.",
+   "parameters": {
+    "type": "object",
+    "properties": {
+     "language": {
+      "type": "string"
+     }
+    },
+    "required": [],
+    "additionalProperties": false
+   },
+   "path_arguments": [],
+   "trust_claim": false,
+   "mutates_workspace": false
+  },
+  {
+   "name": "core.verify_patch",
+   "summary": "Check a semantic claim for two source files.",
+   "parameters": {
+    "type": "object",
+    "properties": {
+     "before_path": {
+      "type": "string"
+     },
+     "after_path": {
+      "type": "string"
+     },
+     "claim": {
+      "type": "string"
+     }
+    },
+    "required": [
+     "before_path",
+     "after_path"
+    ],
+    "additionalProperties": false
+   },
+   "path_arguments": [
+    "before_path",
+    "after_path"
+   ],
+   "trust_claim": true,
+   "mutates_workspace": false
+  },
+  {
+   "name": "impact.simulate",
+   "summary": "Simulate a patch only in an isolated staging copy.",
+   "parameters": {
+    "type": "object",
+    "properties": {
+     "root": {
+      "type": "string"
+     },
+     "proposed_changes": {
+      "type": "object"
+     },
+     "boundaries": {
+      "type": "object"
+     },
+     "api_specs": {
+      "type": "object"
+     }
+    },
+    "required": [
+     "root",
+     "proposed_changes"
+    ],
+    "additionalProperties": false
+   },
+   "path_arguments": [
+    "root"
+   ],
+   "trust_claim": false,
+   "mutates_workspace": false
+  },
+  {
+   "name": "release.create",
+   "summary": "Create proof-carrying repository release evidence.",
+   "parameters": {
+    "type": "object",
+    "properties": {
+     "root": {
+      "type": "string"
+     },
+     "subjects": {
+      "type": "array"
+     },
+     "builder_id": {
+      "type": "string"
+     },
+     "command_argv": {
+      "type": "array"
+     },
+     "build_type": {
+      "type": "string"
+     },
+     "previous_root": {
+      "type": "string"
+     },
+     "lockfile": {
+      "type": "string"
+     },
+     "materials": {
+      "type": "object"
+     },
+     "internal_parameters": {
+      "type": "object"
+     }
+    },
+    "required": [
+     "root",
+     "subjects",
+     "builder_id",
+     "command_argv",
+     "build_type"
+    ],
+    "additionalProperties": false
+   },
+   "path_arguments": [
+    "root",
+    "subjects",
+    "previous_root",
+    "lockfile",
+    "materials"
+   ],
+   "trust_claim": true,
+   "mutates_workspace": false
+  },
+  {
+   "name": "release.verify",
+   "summary": "Independently verify release evidence and upstream artifacts.",
+   "parameters": {
+    "type": "object",
+    "properties": {
+     "pack": {
+      "type": "object"
+     },
+     "root": {
+      "type": "string"
+     },
+     "previous_root": {
+      "type": "string"
+     },
+     "lockfile": {
+      "type": "string"
+     },
+     "subject_paths": {
+      "type": "array"
+     },
+     "material_paths": {
+      "type": "object"
+     }
+    },
+    "required": [
+     "pack",
+     "root"
+    ],
+    "additionalProperties": false
+   },
+   "path_arguments": [
+    "root",
+    "previous_root",
+    "lockfile",
+    "subject_paths",
+    "material_paths"
+   ],
+   "trust_claim": true,
+   "mutates_workspace": false
+  },
+  {
+   "name": "semantic_checksum.diff",
+   "summary": "Diff normalized cross-language semantic checksums.",
+   "parameters": {
+    "type": "object",
+    "properties": {
+     "before_path": {
+      "type": "string"
+     },
+     "after_path": {
+      "type": "string"
+     },
+     "type_assumptions": {
+      "type": "object"
+     },
+     "domain_assumptions": {
+      "type": "object"
+     }
+    },
+    "required": [
+     "before_path",
+     "after_path"
+    ],
+    "additionalProperties": false
+   },
+   "path_arguments": [
+    "before_path",
+    "after_path"
+   ],
+   "trust_claim": true,
+   "mutates_workspace": false
+  }
+ ],
+ "error_policy": "validation and implementation failures return status=error, verdict=unknown",
+ "workspace_policy": "declared paths must resolve inside the caller-selected workspace"
+}

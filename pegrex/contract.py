@@ -37,6 +37,7 @@ def _err(errors, path, msg):
 
 
 def require(spec: dict, field: str, path: str, errors) -> Any:
+    """Implement require with the module's explicit API and failure semantics."""
     v = spec.get(field)
     if _is_missing(v):
         _err(errors, f"{path}.{field}" if path else field, "required")
@@ -71,16 +72,19 @@ def require_list(spec: dict, field: str, path: str, errors,
 
 
 def check_semver(v: Any, path: str, errors) -> None:
+    """Implement check semver with the module's explicit API and failure semantics."""
     if not (isinstance(v, str) and SEMVER_RE.match(v)):
         _err(errors, path, f"must be semver (got {v!r})")
 
 
 def check_slug(v: Any, path: str, errors) -> None:
+    """Implement check slug with the module's explicit API and failure semantics."""
     if not (isinstance(v, str) and SLUG_RE.match(v)):
         _err(errors, path, "must be a safe slug")
 
 
 def check_positive_int(v: Any, path: str, errors) -> None:
+    """Implement check positive int with the module's explicit API and failure semantics."""
     if not (isinstance(v, int) and not isinstance(v, bool) and v > 0):
         _err(errors, path, "must be a positive integer")
 
@@ -117,6 +121,7 @@ Check = Callable[[dict, list], None]
 
 
 def validate_contract(spec: dict, checks: list[Check]) -> list[StructuralError]:
+    """Implement validate contract with the module's explicit API and failure semantics."""
     errors: list[StructuralError] = []
     for check in checks:
         check(spec, errors)

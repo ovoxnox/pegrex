@@ -27,7 +27,7 @@ def temp_source(src: str, suffix: str = ".py"):
             return api.contracts(path)
     """
     fd, path = tempfile.mkstemp(suffix=suffix)
-    with os.fdopen(fd, "w") as f:
+    with os.fdopen(fd, "w", encoding="utf-8") as f:
         f.write(src)
     try:
         yield path

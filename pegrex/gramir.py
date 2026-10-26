@@ -148,6 +148,18 @@ class GrammarErrorLookup(Exception):
     pass
 
 
+def _dsl_precedence(ir: IR) -> int:
+    if ir.kind == "node":
+        return _dsl_precedence(ir.args[0])
+    return {"alt": 1, "seq": 2, "not": 3, "and": 3,
+            "rep": 4, "func": 4, "fold": 4, "cmt": 4}.get(ir.kind, 5)
+
+
+def _dsl_group(ir: IR, minimum: int) -> str:
+    text = to_dsl(ir)
+    return f"({text})" if _dsl_precedence(ir) < minimum else text
+
+
 def to_dsl(ir: IR, indent: int = 0) -> str:
     """IR -> lpegrex DSL text fragment (round-trippable for the lifted set)."""
     k, a, v = ir.kind, ir.args, ir.value
@@ -167,9 +179,9 @@ def to_dsl(ir: IR, indent: int = 0) -> str:
     if k == "pos":
         return "{}"
     if k == "not":
-        return "!" + to_dsl(a[0])
+        return "!" + _dsl_group(a[0], 3)
     if k == "and":
-        return "&" + to_dsl(a[0])
+        return "&" + _dsl_group(a[0], 3)
     if k == "cap":
         return "{" + to_dsl(a[0]) + "}"
     if k == "cs":
@@ -179,12 +191,12 @@ def to_dsl(ir: IR, indent: int = 0) -> str:
     if k == "group":
         return "{:" + (v or "") + ": " + to_dsl(a[0]) + " :}"
     if k == "seq":
-        return " ".join(to_dsl(x) for x in a)
+        return " ".join(_dsl_group(x, 2) for x in a)
     if k == "alt":
         return " / ".join(to_dsl(x) for x in a)
     if k == "rep":
         lo, hi = v
-        inner = to_dsl(a[0])
+        inner = _dsl_group(a[0], 4)
         if lo == 0 and hi is None:
             return inner + "*"
         if lo == 1 and hi is None:
@@ -197,11 +209,11 @@ def to_dsl(ir: IR, indent: int = 0) -> str:
     if k == "node":
         return to_dsl(a[0])
     if k == "func":
-        return to_dsl(a[0]) + "->" + v
+        return _dsl_group(a[0], 4) + "->" + v
     if k == "fold":
-        return to_dsl(a[0]) + "~>" + v
+        return _dsl_group(a[0], 4) + "~>" + v
     if k == "cmt":
-        return to_dsl(a[0]) + "=>" + v
+        return _dsl_group(a[0], 4) + "=>" + v
     if k == "eqback":
         return "=" + v
     if k == "back":

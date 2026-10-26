@@ -128,7 +128,7 @@ def pack(source_path, out_dir, key, config=None, witnesses=None,
     (out / "contracts.json").write_bytes(contracts_bytes)
     signed = {"manifest": manifest, "signature": hmac_sign(manifest, key)}
     (out / "manifest.json").write_text(
-        json.dumps(signed, indent=1, sort_keys=True))
+        json.dumps(signed, indent=1, sort_keys=True), encoding="utf-8")
     return out
 
 
@@ -139,7 +139,7 @@ def verify(bundle_dir, key) -> dict:
     _require_xxhash()
     bd = pathlib.Path(bundle_dir)
     try:
-        mf = json.loads((bd / "manifest.json").read_text())
+        mf = json.loads((bd / "manifest.json").read_text(encoding="utf-8"))
     except Exception as e:
         return {"ok": False, "reason": f"unreadable bundle: {e!r}"}
     m, sig = mf.get("manifest"), mf.get("signature")
@@ -169,11 +169,11 @@ def replay(bundle_dir, key) -> dict:
     if not v["ok"]:
         return {"ok": False, "reason": v["reason"]}
     bd = pathlib.Path(bundle_dir)
-    m = json.loads((bd / "manifest.json").read_text())["manifest"]
+    m = json.loads((bd / "manifest.json").read_text(encoding="utf-8"))["manifest"]
     sp = pathlib.Path(m["source_path"])
     if not sp.exists():
         return {"ok": False, "reason": f"source missing: {sp}"}
-    old = json.loads((bd / "contracts.json").read_text())
+    old = json.loads((bd / "contracts.json").read_text(encoding="utf-8"))
     new = _rows_to_json(_run_analyzer(m["analyzer"], sp))
     diff = []
     if len(old) != len(new):

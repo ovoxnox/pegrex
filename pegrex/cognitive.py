@@ -301,6 +301,7 @@ def _cognitive_ts(src, lang, budget, with_plans, tree=None):
                 "zig": _re.compile(r"\band\b|\bor\b")}
 
     def toks_in(a, b):
+        """Implement toks in with the module's explicit API and failure semantics."""
         seg = src[a:b]
         rx = _BOOL_RX.get(lang)
         if rx is not None:
@@ -311,12 +312,14 @@ def _cognitive_ts(src, lang, budget, with_plans, tree=None):
     func_ranges = []
 
     def enclosing_name(pos):
+        """Implement enclosing name with the module's explicit API and failure semantics."""
         for nm, s0, e0 in func_ranges:
             if s0 <= pos < e0:
                 return nm
         return None
 
     def leaf_text(node):
+        """Implement leaf text with the module's explicit API and failure semantics."""
         if len(node.children) == 1 and isinstance(node.children[0], str):
             return node.children[0]
         for ch in node.children:
@@ -332,6 +335,7 @@ def _cognitive_ts(src, lang, budget, with_plans, tree=None):
         return None
 
     def walk(node, nesting, parent_tag=None):
+        """Implement walk with the module's explicit API and failure semantics."""
         tag = node.tag
         is_ctrl = tag in _IF | _LOOP | _CATCH | _MATCH
         if tag in _FUNC:
@@ -345,6 +349,7 @@ def _cognitive_ts(src, lang, budget, with_plans, tree=None):
         child_ctrl_spans = []
 
         def collect_ctrl(node2):
+            """Implement collect ctrl with the module's explicit API and failure semantics."""
             for ch2 in node2.children:
                 if isinstance(ch2, str):
                     continue
@@ -412,6 +417,7 @@ def _cognitive_ts(src, lang, budget, with_plans, tree=None):
 
 
 def cognitive_complexity(src, lang=None, budget=7, with_plans=True, *, tree=None):
+    """Implement cognitive complexity with the module's explicit API and failure semantics."""
     if lang is None or lang == "python":
         if tree is not None:
             return _cognitive_ts(src, "python", budget, with_plans, tree=tree)

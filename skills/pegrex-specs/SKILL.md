@@ -24,3 +24,30 @@ description: Generate AI-consumable spec schemas (multi-view analysis with prior
 - `verify` commands are the loop exit criteria: run them after each task.
 - Specs are deterministic (sorted keys) — diff two runs to see drift.
 
+## Contract-derived repository planning
+- `RepositoryMemory` persists stable API, invariant, dependency, architecture,
+  and limitation summaries with content-defined identities.
+- `SemanticDependencyGraph` maps modules, functions, contracts, and invariants;
+  use `dependencies()` and `impact()` for forward and reverse traversal.
+- `plan_changes` ranks candidates by benefit, reachable impact, uncertainty, and
+  proof effort. Invalid or missing inputs remain unranked UNKNOWN rows; a plan
+  never substitutes for verification or proof-gated application.
+- `compile_agent_context` compresses repository memory without silently dropping
+  UNKNOWN markers. LLM `propose_spec` output remains a conjecture until an
+  independent checker supplies proof or a confirmed counterexample; otherwise it
+  is UNKNOWN. A2A tasks must carry budget, deadline, evidence, cancellation, and
+  partial-result state.
+
+## Formal protocol evidence
+- `parse_protocol` strictly handles JSON, URL, CSV, INI, S-expressions, and
+  properties/configuration text. Duplicate keys, malformed escapes, inconsistent
+  rows, and trailing input remain UNKNOWN rather than permissively repaired.
+- A PROVED protocol result covers only documented well-formedness and the supported
+  declarative schema subset; it is not an application-security or semantic proof.
+
+## Semantic PR budgets
+- `summarize_semantic_change` separately accounts for public contracts, security
+  surface, dependencies, complexity, and UNKNOWN regions. Set explicit nonnegative
+  limits and retain every exceeded metric.
+- A complete change summary is not merge approval. Missing parser/flow/complexity
+  evidence stays an UNKNOWN region rather than a zero-change entry.

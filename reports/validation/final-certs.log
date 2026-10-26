@@ -1,0 +1,9 @@
+  m10_complex.py               OK
+  m3_pipeline.py               OK
+  m4_compose.py                OK
+  m5_transitive.py             OK
+  m6_emit.py                   OK
+  m7_closed_form.py            OK
+  m8_agent_spec.py             OK
+  m9_trifecta.py               OK
+CERTS: ALL GREEN

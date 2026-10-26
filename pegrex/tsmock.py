@@ -32,6 +32,7 @@ class MockNode:
 
     @property
     def text(self):
+        """Implement text with the module's explicit API and failure semantics."""
         return ""  # bridge uses src slices, not node text
 
     def __repr__(self):
@@ -52,6 +53,7 @@ class MockParser:
         self.language = language
 
     def parse(self, source_bytes):
+        """Implement parse with the module's explicit API and failure semantics."""
         src = source_bytes.decode("utf-8", errors="replace")
         if self.language == "cobol":
             root = _parse_cobol(src)

@@ -13,6 +13,7 @@ class LatencyTracker:
         self.deadline_misses = 0
 
     def record(self, ms, met_deadline):
+        """Implement record with the module's explicit API and failure semantics."""
         self.calls += 1
         self.sum_ms += ms
         if not met_deadline:
@@ -20,6 +21,7 @@ class LatencyTracker:
 
     @property
     def avg_ms(self):
+        """Implement avg ms with the module's explicit API and failure semantics."""
         return round(self.sum_ms / self.calls, 2) if self.calls else 0.0
 
 
@@ -31,6 +33,7 @@ def verify_or_refuse(before_path, after_path, deadline_ms, verifier=None,
     box = {}
 
     def target():
+        """Implement target with the module's explicit API and failure semantics."""
         try:
             box["result"] = check(before_path, after_path)
         except Exception as e:

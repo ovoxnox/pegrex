@@ -1,19 +1,19 @@
-# pegrex v1.0.0
+# PegRex v1.1.0
 
 
 ![](assets/report.png)
 
 
 **A self-contained symbolic-execution and syntactic-analysis engine** that
-turns source code in 22 languages into mathematical specifications for AI
-agents — and *refuses loudly* rather than guessing. Every claim is either
-proven by an executable certificate or reported with its counterexample.
+turns source code in 22 registered languages into mathematical specifications for AI
+agents — and *refuses loudly* rather than guessing. Every claim is PROVED,
+REFUTED by confirmed evidence, or explicitly UNKNOWN with its coverage gaps.
 
 `parse -> solve/prove -> abstract -> execute -> emit/verify -> repair -> serve`
 
 The canonical frontend registry owns every language ID, extension, parser and version, coordinate conversion, normalizer, error policy, CFG adapter, lowering level, contract feature set, security pack, maturity level, and known unsupported case. Parsing never implies contract or proof support.
 
-**PegRex** is a self-contained symbolic-execution and syntactic-analysis engine that turns source code into mathematical specifications for AI agents — **parse, solve, prove, abstract, execute, emit, verify, repair, serve** — where every claim is either proven; refuted with a concrete counterexample; or honestly reported as unknown. It exposes 22 language mappings, 68 CLI commands, 560 unit tests, and 16 agent skills — and audits itself in public via a regenerated SELF.md that CI refuses to let go stale.
+**PegRex** is a self-contained symbolic-execution and syntactic-analysis engine for AI agents — **parse, solve, prove, abstract, execute, emit, verify, repair, serve**. Version 1.1.0 adds a non-throwing CoreEngine dispatch boundary, a workspace-confined Tools API v2, structured CLI errors, stronger source and counterexample provenance, and production hardening for scanner, modernization, insurance, and certificate paths. The repository audits itself through fresh SELF/HEALTH evidence and machine-checkable finding dispositions.
 
 Run `python pegrex.py soundness` for the complete machine-readable plugin manifest and trust policy, or add `--language ID` for one frontend. The same report is available through `CoreEngine.soundness()` and the stdio service's `soundness` method. Native legacy and domain-specific analyzers are registered through the same manifest; the split `pegrex/lpegc/` compiler handles the bundled grammar-text formats.
 
@@ -22,14 +22,17 @@ Run `python pegrex.py soundness` for the complete machine-readable plugin manife
 
 **Defense in depth, each layer certified with negative controls that must refuse:**
 
-    · SAST core — 682 unique pattern rules + 86 unique taint rules over adjacency-indexed CFGs; exact-duplicate removal with upstream provenance; sequential directory audits; budget-aware triage; 768 active converted semgrep rules; SARIF 2.1.0/Code Scanning evidence with CWE/OWASP mappings and justified suppressions;
+    · SAST core — 655 active deduplicated pattern rules + 86 taint rules; exact-duplicate removal with upstream provenance; 27 context-insufficient conversions retained as disabled coverage records with reasons; sequential directory audits; SARIF 2.1.0/Code Scanning evidence with CWE/OWASP mappings and justified suppressions;
     · Taint, three-valued — every flow is safe, vulnerable, or UNKNOWN, with concrete source/sink evidence; never "no path found" as "verified.";
     · Reproducible scans — exact rule-catalog and source SHA-256 identities, installed parser versions, and explicit OSV snapshots; missing offline vulnerability data is UNKNOWN, never clean;
+    · Advanced dataflow — SSA value identities, CFG fixed-point taint with path-sensitive sanitizers, cross-module summaries with recursion widening, context-sensitive sinks, and secret-flow categories for logs, telemetry, URLs, process arguments, and network sinks;
+    · Deployment and organizational policy — declarative policy-as-code plus IAM, Kubernetes, Terraform-subset, and Dockerfile checks compared with application assumptions;
+    · Reproducible evidence and isolation — deterministic offline audit ZIP bundles with hashes/tool versions/configuration/coverage; resource-limited argv-only workers parse hostile source and grammars without executing source;
     · ZK auditing — under-constrained Circom detection; '<\--' without '===' and unconstrained outputs are named;
     · Autonomous bug bounty — discover the guard, solve a concrete payload by Fourier-Motzkin, delta-debug the minimal witness, repair under a payload-killed verifier (an unguarded sink post-fix is worse, never "fixed") — and the whole loop is policy-gated before execution by the agent safety harness (argv-only execution, canonical executable/path identities, default-deny, deny precedence, first refusal stops the plan);
     · Compliance as code — GDPR findings that name the flow; SOC2 control presence; legal deadlines without a base date are "not evaluable," never fake-future;
     · Infrastructure verification — Zelkova-style can (principal, action, resource) with explicit-deny precedence; wildcard-admin and public-bucket findings;
-    · Insurance oracle — premiums ordered by verified overflow risk, HMAC-signed, labelled a toy heuristic: honesty in the price tag;
+    · Insurance oracle — deterministic heuristic premiums only for proved bounded risk; UNKNOWN risk has no numeric premium; signed quotes require an explicit non-empty HMAC key;
     · Distribution trust — signed manifests, SLSA attestations; the Sigstore seam refuses offline rather than pretend publication.
 
 ## The (A)Schema & Specification Engine
@@ -48,6 +51,47 @@ Run `python pegrex.py soundness` for the complete machine-readable plugin manife
  -  **ir.py lower_condition():** *any condition → typed IR; loud CondError, never a silent regex guess*
  -  **linsolve.py:** *LinearBackend.learn/entails*
 
+
+## Core Engine and Tools API v2
+
+`CoreEngine.execute(operation, arguments)` is the production dispatch boundary. It returns an `OperationResult` for `parse`, `contracts`, `contracts_file`, `audit`, `call_graph`, `verify_patch`, `capabilities`, and `soundness`; invalid envelopes and implementation failures become structured `status: "error"`, `verdict: "unknown"` results. Direct historical methods retain their exception behavior.
+
+`pegrex.toolsapi` adds a lazy, manifest-driven API with JSON-shaped argument validation, workspace confinement (including symlink escapes), source SHA-256 provenance, and versioned evidence envelopes. It does not execute shell commands or mutate the real workspace.
+
+```python
+from pegrex.core import get_engine
+from pegrex.toolsapi import invoke, list_tools
+
+result = get_engine().execute("parse", {"source": "return 1", "language": "python"})
+manifest = list_tools()
+evidence = invoke("core.contracts_file", {"path": "example.py"}, workspace=".")
+```
+
+Equivalent CLI entry points:
+
+```
+python pegrex.py engine list
+python pegrex.py engine parse --input '{"source":"return 1","language":"python"}'
+python pegrex.py tools
+python pegrex.py tools --name core.contracts_file
+python pegrex.py tool core.contracts_file --workspace . --input '{"path":"example.py"}'
+```
+
+Operation errors exit 1. `--fail-on-unknown` exits 2 for UNKNOWN or partial evidence. A completed REFUTED analysis is not, by itself, a process failure.
+
+## Installation and validation
+
+```
+python -m pip install .
+python -m pip install -r requirements-ci.txt   # exact CI test environment
+python run_tests.py
+python tools/selfhost.py --check
+python tools/health_report.py --check
+python tools/build_skills.py --check
+python tools/grammar_lint.py examples/*.gram
+```
+
+Optional parser, solver, and evidence dependencies are declared in `pyproject.toml`. Missing capabilities remain explicit refusals; they are not replaced with silent semantic fallbacks.
 
 ## Library
 
@@ -71,7 +115,7 @@ Caches use content + parser/analyzer versions + normalized configuration. Immuta
 
 ```
 python pegrex.py index --out <out> <dir>   # repo arch index
-python pegrex.py audit FILE                # 768-rule audit; report-only by default
+python pegrex.py audit FILE                # deduplicated audit; report-only by default
 python pegrex.py audit FILE --fail-on high --fail-on-unknown  # opt-in CI gates
 python pegrex.py audit FILE --sarif --out results.sarif       # GitHub Code Scanning
 python pegrex.py spec --dir <PATH>         # AI spec schema (multi-opus)
@@ -80,7 +124,8 @@ python pegrex.py cognitive <file>          # cognitive complexity + refactor pla
 python pegrex.py rosetta <spec>  N-        # N-way cross-language equivalence (semantic diff)
 python pegrex.py modernize <file>          # legacy (COBOL/Fortran) -> target with equivalence certificate
 python pegrex.py roundtrip --print-cobol   # Python -> COBOL round-trip with contract identity
-python pegrex.py insure --verify <file>    # quote/verify a Solidity overflow-risk premium
+python pegrex.py insure <file> --key '<explicit-key>'  # signed bounded-risk quote
+python pegrex.py insure --verify <file>    # verify a signed quote
 python pegrex.py rules --json              # registry-selected rule catalog summary
 python pegrex.py soundness [--language ID] # frontend plugins, limits, and trust policy
 python pegrex.py osvscan LOCKFILE --offline --osv-snapshot osv.json  # reproducible OSV scan
@@ -126,6 +171,8 @@ python pegrex.py serve|acp|mcp|a2a|lsp     # protocol endpoints
 
 Unjustified directives do not suppress findings or CI gates. Shell actions in harness plans must use `{"tool":"shell","argv":["pytest","-q"]}`; raw command strings, shell operators, expansion, absolute/traversal/symlink paths, launchers, and Unicode lookalikes are refused. `osvscan --offline` uses only the supplied snapshot/cache, and missing entries produce `status: "unknown"`. Use `--snapshot-out FILE` to capture a complete online query set for later offline reproduction.
 
+There are no built-in demo HMAC secrets. `attest`, insurance quote generation, and invariant-market publish/import require explicit non-empty keys. `concolic` and certificate `check` commands intentionally execute operator-selected local code; they are explicit execution interfaces, not safe parsers for untrusted files. Loop-summary evidence and concolic branch observation use restricted, side-effect-free expression evaluation and never `eval`/`exec` the analyzed expression or loop source.
+
 ## The one rule
 
 Every engine surface follows the same discipline: **prove it, or refuse loudly**. 
@@ -138,8 +185,7 @@ that must refuse; `verify_patch` returns a counterexample, not a shrug.
 ```
 pegrex/        engine (pegrex/lpegc/ holds the LPegRex
                    compiler split: parser.py / compiler.py / diagnostics.py)
-                   (156 analyzed modules, stdlib+pydantic)
-tests/         99 unit-test modules (560 tests)
+tests/         historical, compatibility, adversarial, and hardening suites
 examples/      .gram formats + walkthroughs
 tools/         repo-facing scripts (secaudit, mkspec, ...)
 skills/        agent SKILL packs
@@ -262,6 +308,8 @@ Given a function, pegrex enumerates its path contracts —
 
 ## Status notes (honest)
 
-- **transpiler**: production for Multilingual targets (emitter + proof).
-- **codegen.emit_rust_stub**: the portable-data half by design.
-- **mini_llm**: the designed zero-dependency fallback; use `hybridrag` for retrieval.
+- **transpiler / modernize**: only independently verified Python emission is published as `code`; generated but unverified output is `candidate_code`. Unsupported targets, overflow, budget exhaustion, and incomplete path enumeration remain UNKNOWN with no production stub.
+- **language maturity**: registered analysis frontends are `stable`, `parse-only`, or `domain-specific`; stable does not mean complete language semantics. Run `soundness` for exact unsupported constructs, including async/concurrency, unsafe Rust, macros, reentrancy, and cross-call behavior.
+- **codegen.emit_rust_stub**: portable data/stub generation only; it is not a verified Rust translation certificate.
+- **mini_llm**: deterministic zero-dependency fallback; use `hybridrag` for retrieval. No model output is promoted to proof without independent verification.
+- **scanner catalog**: disabled conversions remain visible with `disabled_reason` and coverage provenance. They are not silently suppressed findings; active findings still require human triage, and HEALTH maintenance tasks are not confirmed vulnerabilities.

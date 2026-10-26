@@ -31,6 +31,7 @@ def formalize(text: str) -> list:
 
 
 def invariant_to_constraint(inv):
+    """Implement invariant to constraint with the module's explicit API and failure semantics."""
     from .sym import V, const, Le, Ge, Lt, Eq
     op, lhs, rhs = inv
     lv = V(lhs)

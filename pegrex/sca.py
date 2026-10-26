@@ -11,6 +11,7 @@ from __future__ import annotations
 import hashlib
 import json
 import pathlib
+import re
 import urllib.request
 
 CACHE = pathlib.Path(".pegrex-cache/osv.json")
@@ -31,7 +32,7 @@ def _cache(path=None) -> dict:
     if not path.exists():
         return {}
     try:
-        data = json.loads(path.read_text())
+        data = json.loads(path.read_text(encoding="utf-8"))
     except (OSError, json.JSONDecodeError) as exc:
         raise OSVDataUnavailable(f"invalid OSV cache {path}: {exc}") from exc
     return data.get("queries", data) if isinstance(data, dict) else {}
@@ -40,11 +41,12 @@ def _cache(path=None) -> dict:
 def _write_json(path: pathlib.Path, data: dict) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     temporary = path.with_name(path.name + ".tmp")
-    temporary.write_text(json.dumps(data, indent=1, sort_keys=True) + "\n")
+    temporary.write_text(json.dumps(data, indent=1, sort_keys=True) + "\n", encoding="utf-8")
     temporary.replace(path)
 
 
 def snapshot_provenance(path=None) -> dict:
+    """Implement snapshot provenance with the module's explicit API and failure semantics."""
     if path is None:
         return {"mode": "online", "id": "live-api",
                 "endpoint": "https://api.osv.dev/v1/query", "reproducible": False}
@@ -62,7 +64,7 @@ def snapshot_provenance(path=None) -> dict:
 
 
 def _snapshot_document(path) -> dict:
-    document = json.loads(pathlib.Path(path).read_text())
+    document = json.loads(pathlib.Path(path).read_text(encoding="utf-8"))
     if not isinstance(document, dict):
         raise OSVDataUnavailable("OSV snapshot must be a JSON object")
     return document
@@ -89,28 +91,52 @@ def _snapshot_vulns(document: dict, dep: dict, key: str) -> list:
 
 def inventory_from(path: str) -> list:
     """{name, version, ecosystem} from go.mod / Cargo.lock / package-lock.json."""
-    import re
     import json as _json
     p = pathlib.Path(path)
     out = []
     if p.name == "go.mod":
-        for ln in p.read_text().splitlines():
+        for ln in p.read_text(encoding="utf-8").splitlines():
             m = re.match(r"^\s*(?:require\s+)?([\w.~/-]+)\s+v([\w.+-]+)", ln)
             if m and not ln.strip().startswith(("module", "go ")):
                 out.append({"name": m.group(1), "version": m.group(2),
                             "ecosystem": "Go"})
     elif p.name == "Cargo.lock":
         for m in re.finditer(r'name = "([\w-]+)"\nversion = "([\w.+-]+)"',
-                             p.read_text()):
+                             p.read_text(encoding="utf-8")):
             out.append({"name": m.group(1), "version": m.group(2),
                         "ecosystem": "crates.io"})
     elif p.name == "package-lock.json":
-        data = _json.loads(p.read_text())
+        data = _json.loads(p.read_text(encoding="utf-8"))
         for name, meta in (data.get("packages") or {}).items():
             if name.startswith("node_modules/"):
                 out.append({"name": name[13:], "version": meta.get("version"),
                             "ecosystem": "npm"})
+    elif p.name.startswith("requirements") and p.suffix == ".txt":
+        for line in p.read_text(encoding="utf-8").splitlines():
+            match = re.fullmatch(r"([A-Za-z0-9_.-]+)==([A-Za-z0-9_.!+-]+)",
+                                 line.split("#", 1)[0].strip())
+            if match:
+                out.append({"name": match.group(1), "version": match.group(2),
+                            "ecosystem": "PyPI"})
     return out
+
+
+def _inventory_unknowns(path: pathlib.Path) -> list[dict]:
+    """Retain unsupported and unpinned inventory inputs as explicit UNKNOWNs."""
+    supported = {"go.mod", "Cargo.lock", "package-lock.json"}
+    if path.name in supported:
+        return []
+    if not (path.name.startswith("requirements") and path.suffix == ".txt"):
+        return [{"reason": f"unsupported dependency inventory: {path.name}"}]
+    unknowns = []
+    for number, line in enumerate(path.read_text(encoding="utf-8").splitlines(), 1):
+        requirement = line.split("#", 1)[0].strip()
+        if not requirement:
+            continue
+        if not re.fullmatch(r"[A-Za-z0-9_.-]+==[A-Za-z0-9_.!+-]+", requirement):
+            unknowns.append({"line": number, "requirement": requirement,
+                             "reason": "unpinned or unsupported requirements entry"})
+    return unknowns
 
 
 def osv_query(dep: dict, timeout: int = 15, *, offline: bool = False,
@@ -162,7 +188,7 @@ def scan(path: str, *, offline: bool = False, snapshot=None,
     else:
         osv_provenance = snapshot_provenance(provenance_path)
         osv_provenance["mode"] = "offline" if offline else "online"
-    vulns, unknowns, captured = [], [], {}
+    vulns, unknowns, captured = [], _inventory_unknowns(source), {}
     for dependency in deps:
         key = _dependency_key(dependency)
         try:

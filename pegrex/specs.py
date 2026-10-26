@@ -102,6 +102,7 @@ class AgentReport(BaseModel):
     postprocess: PostprocessSpec = Field(default_factory=PostprocessSpec)
 
     def to_agent_json(self) -> str:
+        """Implement to agent json with the module's explicit API and failure semantics."""
         return json.dumps(self.model_dump(), indent=1, sort_keys=True)
 
 
@@ -123,4 +124,5 @@ class AgentManifest(BaseModel):
     created_at: str = ""
 
     def to_agent_json(self) -> str:
+        """Implement to agent json with the module's explicit API and failure semantics."""
         return json.dumps(self.model_dump(), indent=1, sort_keys=True)

@@ -57,7 +57,7 @@ def _legal_texts(root):
 
 def _audit_file(root, path) -> list:
     rel = path.relative_to(root).as_posix()
-    src = path.read_text()
+    src = path.read_text(encoding="utf-8")
     findings = []
     # GDPR taint: unsupported statements refuse -> recorded finding
     try:
@@ -115,7 +115,7 @@ def _deadlines(root) -> list:
     rows = []
     for p in _legal_texts(root):
         try:
-            rep = ci_report(p.read_text())
+            rep = ci_report(p.read_text(encoding="utf-8"))
         except Exception as e:
             rows.append({"file": p.relative_to(root).as_posix(),
                          "status": "refused", "reason": str(e)[:120]})
@@ -195,7 +195,7 @@ def build_report(root, out_html, key, title="pegrex evidence report") -> dict:
     envelope = {"manifest": manifest, "signature": signature,
                 "manifest_sha256": manifest_sha256}
     html_text = _render_html(title, findings, by_category, envelope)
-    pathlib.Path(out_html).write_text(html_text)
+    pathlib.Path(out_html).write_text(html_text, encoding="utf-8")
     return {"out": str(out_html), "files": len(py_files),
             "findings": len(findings), "by_category": by_category,
             "deadlines": deadlines, "manifest_sha256": manifest_sha256,

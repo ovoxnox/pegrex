@@ -12,6 +12,7 @@ import hashlib
 def ast_fingerprint(node) -> str:
     """Stable structural hash of an AST subtree."""
     def rec(n):
+        """Implement rec with the module's explicit API and failure semantics."""
         if hasattr(n, "tag"):
             return "(" + n.tag + " " + " ".join(rec(c)
                                                 for c in n.children) + ")"

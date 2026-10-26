@@ -59,7 +59,9 @@ def test_insure_quotes_signed():
     low = insure.quote("contract S { function f(uint8 a) public pure "
                        "returns (uint8) { return a + 1; } }", key="k",
                        type_bits=8)
-    assert low["quote"]["tier"] == "low", low
+    assert low["quote"]["tier"] == "unknown", low
+    assert low["quote"]["premium"] is None
+    assert low["quote"]["unknowns"]
 
 
 def test_golfbench_broken_fixture():

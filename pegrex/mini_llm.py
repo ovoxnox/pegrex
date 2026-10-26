@@ -25,12 +25,14 @@ class NGramLM:
         return tuple(toks[max(0, i - self.n + 1):i]) or ("<s>",)
 
     def train(self, text: str) -> None:
+        """Implement train with the module's explicit API and failure semantics."""
         toks = token_stream(text).split()
         self.vocab |= set(toks)
         for i, t in enumerate(toks):
             self.counts.setdefault(self._ctx(toks, i), Counter())[t] += 1
 
     def next(self, ctx: list[str]) -> str:
+        """Implement next with the module's explicit API and failure semantics."""
         c = self.counts.get(tuple(ctx[-(self.n - 1):]) or ("<s>",), Counter())
         if not c:
             totals = Counter()
@@ -41,12 +43,14 @@ class NGramLM:
         return max(self.vocab, key=lambda v: (c[v] + self.alpha) / total)
 
     def generate(self, seed: str, length: int = 20) -> str:
+        """Implement generate with the module's explicit API and failure semantics."""
         toks = token_stream(seed).split() or ["<s>"]
         for _ in range(length):
             toks.append(self.next(toks))
         return " ".join(toks)
 
     def perplexity(self, text: str) -> float:
+        """Implement perplexity with the module's explicit API and failure semantics."""
         toks, logp, m = token_stream(text).split(), 0.0, 0
         for i, t in enumerate(toks):
             c = self.counts.get(self._ctx(toks, i), Counter())

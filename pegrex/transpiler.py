@@ -1,109 +1,133 @@
-"""transpiler.py -- cross-language transpiler certification at scale:
-A -> B with the bisimulation proof attached.  The pipeline API's product
-form: paste code, receive certified-equivalent code + the proof bundle."""
+"""Contract-guided transpilation with explicit candidate and proof states.
+
+Only independently verified Python emission is published as target code.
+Unsupported targets and unverified candidates remain UNKNOWN; the API never
+returns a compilable placeholder as if it were a translation.
+"""
 from __future__ import annotations
 
+import ast
 import json
-import pathlib
+import os
+from pathlib import Path
+import tempfile
 
 
-def _target_stub(fn: str, lang: str, paths: int) -> str:
-    """Minimal compilable stub in the target language."""
-    if lang in ("javascript", "typescript"):
-        return f"// pegrex-generated stub: verify against {paths} paths\n" \
-               f"function {fn}(n) {{ throw new Error('unverified stub'); }}\n"
-    if lang == "c":
-        return (f"/* pegrex-generated stub */\n"
-                f"int {fn}(int n) {{ return 0; /* verify {paths} paths */ }}\n")
-    return f"# pegrex-generated stub ({lang}): verify {paths} paths\n"
+def _proof_state(proof):
+    counterexample = (proof or {}).get("counterexample") or {}
+    if (proof or {}).get("verified") is True:
+        return "proved"
+    if counterexample.get("confirmed") is True:
+        return "refuted"
+    return "unknown"
 
 
 def transpile(source_path: str, target_lang: str,
               out_path: str | None = None) -> dict:
-    """Legacy bundle-shaped entry point -- a thin adapter over
-    transpile_certified (the one real implementation below).
-    Kept only for the pre-existing bundle shape (api.py re-exports this
-    name; certificate checks this exact shape): "paths" is still the
-    raw CFG path list, but "proof" is now transpile_certified's real
-    verify_patch result when the target is python, or an honestly-labeled
-    stub note otherwise -- never the old placeholder string that claimed
-    a bisimulation method without ever running one."""
+    """Return the historical bundle shape with production trust metadata.
+
+    ``target_stub`` is retained as a compatibility key, but it now contains
+    verified code or null. Bounded path enumeration fails closed on overflow.
+    """
     from pegrex.cfg import CFGBuilder
     from pegrex.paths import PathEnumerator
     from pegrex.languages import detect_language, get_contract_frontend
-    src = pathlib.Path(source_path).read_text(encoding="utf-8")
-    lang = detect_language(source_path)
-    if lang is None:
+
+    src = Path(source_path).read_text(encoding="utf-8")
+    language = detect_language(source_path)
+    if language is None:
         raise ValueError(f"transpiler: unknown source language for {source_path!r}")
-    parse, tags, mk = get_contract_frontend(lang)()
+    parse, tags, _ = get_contract_frontend(language)()
     body = parse(src)
     cfg = CFGBuilder(tags).build(body)
-    cfg_paths = PathEnumerator(cfg, unroll=2).enumerate()
-    fn_name = pathlib.Path(source_path).stem
-    out = transpile_certified(source_path, target=target_lang)
+    enumeration = PathEnumerator(
+        cfg, unroll=2, max_paths=10_000, timeout_ms=5_000).enumerate_bounded()
+    if not enumeration.complete:
+        raise RuntimeError("transpiler path enumeration incomplete: "
+                           + "; ".join(enumeration.unknowns))
+    result = transpile_certified(source_path, target=target_lang)
     bundle = {
-        "source": source_path, "target_lang": target_lang,
-        "paths": [[b for b in p] for p in cfg_paths],
-        "target_stub": out.get("code")
-                       or _target_stub(fn_name, target_lang, len(cfg_paths)),
-        "proof": out["proof"] if out.get("proof") is not None else {
-            "kind": "stub", "paths": len(cfg_paths),
-            "method": out.get("note", "portable-data stub; no proof run")},
+        "source": source_path,
+        "target_lang": target_lang,
+        "paths": [list(path) for path in enumeration.paths],
+        "target_stub": result.get("code"),
+        "candidate_code": result.get("candidate_code"),
+        "proof": result.get("proof") or {
+            "kind": "unknown",
+            "paths": len(enumeration.paths),
+            "method": "no supported verified emission path",
+        },
+        "status": result.get("status", "unknown"),
+        "unknowns": list(result.get("unknowns", [])),
     }
     if out_path:
-        pathlib.Path(out_path).write_text(json.dumps(bundle, indent=1))
+        Path(out_path).write_text(
+            json.dumps(bundle, indent=1, sort_keys=True), encoding="utf-8")
     return bundle
 
+
 def certified_python_transpile(src_path: str) -> dict:
-    """Python -> Python through the contract IR, with the equivalence proof
-    attached. Emission is not trusted: verify_patch certifies the output;
-    on refusal the bundle carries the counterexample instead of code."""
+    """Emit Python through the contract IR and independently reanalyze it.
+
+    The generated candidate remains available for diagnostics, but ``code`` is
+    populated only when the semantic verifier proves the requested equivalence.
+    """
     from . import api
     from .emitter import emit_python
     from .semantics import verify_patch
-    import tempfile, os
+
     contracts = api.contracts(src_path)
-    fn_name = None
-    import ast as _ast
-    tree = _ast.parse(open(src_path).read())
-    fns = [n.name for n in tree.body if isinstance(n, _ast.FunctionDef)]
-    if not fns:
+    source = Path(src_path).read_text(encoding="utf-8")
+    tree = ast.parse(source, filename=str(src_path))
+    functions = [node for node in tree.body if isinstance(node, ast.FunctionDef)]
+    if not functions:
         raise ValueError("transpiler: no function to transpile")
-    fn_name = fns[0]
-    sig_params = [a.arg for n in tree.body if isinstance(n, _ast.FunctionDef)
-                  for a in n.args.args]
-    code = emit_python(fn_name, sig_params, contracts)
-    fd, out_path = tempfile.mkstemp(suffix=".py")
-    with os.fdopen(fd, "w") as f:
-        f.write(code)
+    function = functions[0]
+    parameters = [argument.arg for argument in function.args.args]
+    candidate = emit_python(function.name, parameters, contracts)
+    descriptor, output = tempfile.mkstemp(suffix=".py")
     try:
-        proof = verify_patch(src_path, out_path)
+        with os.fdopen(descriptor, "w", encoding="utf-8") as stream:
+            stream.write(candidate)
+        proof = verify_patch(src_path, output)
     finally:
-        os.unlink(out_path)
-    return {"target": "python", "code": code, "proof": proof,
-            "verified": bool(proof.get("verified")),
-            "counterexample": proof.get("counterexample")}
+        if os.path.exists(output):
+            os.unlink(output)
+    status = _proof_state(proof)
+    unknowns = []
+    if status == "unknown":
+        unknowns.append((proof or {}).get("note")
+                        or "semantic verification did not prove equivalence")
+    return {
+        "target": "python",
+        "code": candidate if status == "proved" else None,
+        "candidate_code": candidate,
+        "proof": proof,
+        "status": status,
+        "verified": status == "proved",
+        "counterexample": (proof or {}).get("counterexample"),
+        "unknowns": unknowns,
+    }
 
 
 def transpile_certified(src_path: str, target: str = "python") -> dict:
-    """Unified entry point (production API; the legacy 3-arg
-    transpile(src, target, out_path) JSON emitter is unchanged above).
+    """Transpile only through a registered, independently checked emitter."""
+    from .languages import normalize_language
 
-    python  -> certified_python_transpile (real code + proof)
-    other   -> _target_stub (portable-data half, honest stub)"""
-    if target == "python":
+    normalized = normalize_language(target)
+    if normalized == "python":
         return certified_python_transpile(src_path)
-    fn = None
-    import ast as _ast
-    tree = _ast.parse(open(src_path).read())
-    for n in tree.body:
-        if isinstance(n, _ast.FunctionDef):
-            fn = n.name
-    if fn is None:
-        raise ValueError("transpiler: no function found")
-    from . import api
-    n_paths = len(api.contracts(src_path))
-    return {"target": target, "code": _target_stub(fn, target, n_paths),
-            "proof": None, "verified": False,
-            "counterexample": None,
-            "note": "stub: full emission is specced behind the gramir seam"}
+    reason = (f"no production verified emitter is registered for target {target!r}"
+              if normalized is None else
+              f"verified {normalized} emission is not implemented for this source path")
+    return {
+        "target": target,
+        "code": None,
+        "candidate_code": None,
+        "proof": None,
+        "status": "unknown",
+        "verified": False,
+        "counterexample": None,
+        "unknowns": [reason],
+        "note": reason,
+    }

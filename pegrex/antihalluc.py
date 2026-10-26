@@ -39,7 +39,7 @@ def compile_nl(text, src_path, fn_name=None):
                 "candidates": cands, "code": None, "certificate": None}
     # emit from the REAL contracts and verify the emission
     import ast
-    src = open(src_path).read()
+    src = open(src_path, encoding="utf-8").read()
     tree = ast.parse(src)
     fn = next((n for n in tree.body if isinstance(n, ast.FunctionDef)),
               None)
@@ -55,7 +55,7 @@ def compile_nl(text, src_path, fn_name=None):
         return {"verdict": "unknown", "reason": f"emission refused: {e}",
                 "code": None, "certificate": None}
     fd, out_path = tempfile.mkstemp(suffix=".py")
-    with os.fdopen(fd, "w") as f:
+    with os.fdopen(fd, "w", encoding="utf-8") as f:
         f.write(code)
     try:
         proof = verify_patch(src_path, out_path)

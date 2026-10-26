@@ -1,0 +1,794 @@
+{
+  "apis": {
+    "contracts.py::_observable_behavior": {
+      "api_identity": "1b8c4abbe1aa24370a6fee4f6dcabaf7bf0c676c56c919dcf40557d9c6b9a237",
+      "contracts": [
+        {
+          "constraint_identity": "sha256:c22352008ed7e9391b693f1b19102d965af192991e22744c3f63bc6f5f7294b6",
+          "constraints": [
+            "(not (not semantic))"
+          ],
+          "outcome": "(_canon_result(row.outcome), effects), row.function",
+          "schema": "pegrex.contract.v1",
+          "schema_version": 1
+        },
+        {
+          "constraint_identity": "sha256:3f78afe9d81031a19a56ccfebf061f34efb231b7b59fc77b704c0c51bcd5e44c",
+          "constraints": [
+            "(not semantic)"
+          ],
+          "outcome": "row.outcome, row.function",
+          "schema": "pegrex.contract.v1",
+          "schema_version": 1
+        }
+      ],
+      "dependencies": [
+        "_canon_result",
+        "sorted",
+        "tuple"
+      ],
+      "function": "_observable_behavior",
+      "function_sha256": "a77eb206d260ab956a4a3844975109b6945b1b6b445b25ddb401a3bf19285813",
+      "path": "contracts.py",
+      "source_sha256": "ef84ccafb0f9f7f9d362374beefb1222e16b711d1cfac0a28db6a7adc4554f87",
+      "status": "ok",
+      "unknowns": []
+    },
+    "contracts.py::as_legacy_pairs": {
+      "api_identity": "f9aeb242e019cfc104ce0cfadd41f1b63f569ff3089175cba319da0a61095bc2",
+      "contracts": [
+        {
+          "constraint_identity": "sha256:5fdbc1e76a031f3fefd31111f2399b0a2bd94b9c7131c91354a3afa4e5fa15a6",
+          "constraints": [],
+          "outcome": "[(frozenset(row.constraints), row.outcome) for row in contracts]",
+          "schema": "pegrex.contract.v1",
+          "schema_version": 1
+        }
+      ],
+      "dependencies": [
+        "frozenset"
+      ],
+      "function": "as_legacy_pairs",
+      "function_sha256": "cd03b0806ebf835fe2945ce24c7552ba3c8f2b1717e4528296b22bac8072054f",
+      "path": "contracts.py",
+      "source_sha256": "ef84ccafb0f9f7f9d362374beefb1222e16b711d1cfac0a28db6a7adc4554f87",
+      "status": "ok",
+      "unknowns": []
+    },
+    "contracts.py::canonicalize": {
+      "api_identity": "60522af77aeb76ed6bfec198cdecad0b6accf1d474664db759e223b440a81a19",
+      "contracts": [],
+      "dependencies": [
+        "contracts_from_pairs"
+      ],
+      "function": "canonicalize",
+      "function_sha256": "525c24a9aef68454c7c7f85823bafbc94c7237b7e820606882ffa361a8b9d696",
+      "path": "contracts.py",
+      "source_sha256": "ef84ccafb0f9f7f9d362374beefb1222e16b711d1cfac0a28db6a7adc4554f87",
+      "status": "unknown",
+      "unknowns": [
+        "AnalysisTimeout: contracts.py: analysis exceeded 1000ms"
+      ]
+    },
+    "contracts.py::subsume": {
+      "api_identity": "c474d4e04c26d5968ddc5dd783cd5cc47009791572d4e505d7c8d41405e4129b",
+      "contracts": [],
+      "dependencies": [
+        "__import__",
+        "_observable_behavior",
+        "any",
+        "append",
+        "extend",
+        "implies",
+        "len",
+        "next",
+        "set",
+        "sorted",
+        "str",
+        "to_dict"
+      ],
+      "function": "subsume",
+      "function_sha256": "3b2d01fc909211aafdf441a2497f6479bb3a9e2780517552d2d8a59b2ca9ea2f",
+      "path": "contracts.py",
+      "source_sha256": "ef84ccafb0f9f7f9d362374beefb1222e16b711d1cfac0a28db6a7adc4554f87",
+      "status": "unknown",
+      "unknowns": [
+        "AnalysisTimeout: contracts.py: analysis exceeded 1000ms"
+      ]
+    },
+    "engine.py::CoreEngine._node_count": {
+      "api_identity": "a79d615474eb77b745067cd5735e948977fff2f0c7c449251e2e4045483ada77",
+      "contracts": [],
+      "dependencies": [
+        "extend",
+        "hasattr",
+        "isinstance",
+        "pop"
+      ],
+      "function": "CoreEngine._node_count",
+      "function_sha256": "76cc3fb39a15f019a2b0b9ee5b3694152eee4dba924a05d04d712d0d3b08ffbc",
+      "path": "engine.py",
+      "source_sha256": "029b3a99235cb07868624b417169833b8b60d0e58c622d9b0c2088d4a7f0dcb0",
+      "status": "unknown",
+      "unknowns": [
+        "ValueError: no top-level function '_node_count' found"
+      ]
+    },
+    "engine.py::CoreEngine._node_dict": {
+      "api_identity": "eb6d146b7b2ef8f560f9d80730a927709ecbbbbfb0db1341593b3b6b5791ee03",
+      "contracts": [],
+      "dependencies": [
+        "_node_dict",
+        "hasattr",
+        "isinstance"
+      ],
+      "function": "CoreEngine._node_dict",
+      "function_sha256": "32469b8540682b72b61771878da18a01f83df2bc41911b0bbc3a698beb807fdf",
+      "path": "engine.py",
+      "source_sha256": "029b3a99235cb07868624b417169833b8b60d0e58c622d9b0c2088d4a7f0dcb0",
+      "status": "unknown",
+      "unknowns": [
+        "ValueError: no top-level function '_node_dict' found"
+      ]
+    },
+    "engine.py::CoreEngine.audit": {
+      "api_identity": "fde20820e44c62633a9fabbad92663259060df28c29774544a05d3abc33b9c9d",
+      "contracts": [],
+      "dependencies": [
+        "CapabilityError",
+        "OperationResult",
+        "get",
+        "language",
+        "len",
+        "run_audit",
+        "str",
+        "supports"
+      ],
+      "function": "CoreEngine.audit",
+      "function_sha256": "d9ac1caff934e07813b39dcdbeb08d1c51b18b4139274311d2dfb960d1d110a5",
+      "path": "engine.py",
+      "source_sha256": "029b3a99235cb07868624b417169833b8b60d0e58c622d9b0c2088d4a7f0dcb0",
+      "status": "unknown",
+      "unknowns": [
+        "ValueError: no top-level function 'audit' found"
+      ]
+    },
+    "engine.py::CoreEngine.call_graph": {
+      "api_identity": "9cbb95eeb037cc0d058717d67c41014399fd0ebc618cf6b9f932480aa03f1496",
+      "contracts": [],
+      "dependencies": [
+        "CapabilityError",
+        "OperationResult",
+        "build_call_graph",
+        "get_language",
+        "len",
+        "list",
+        "sorted",
+        "to_ascii",
+        "to_dot"
+      ],
+      "function": "CoreEngine.call_graph",
+      "function_sha256": "fe2868ea7bcc32c4ed22c2f6bc3ad218d0daa6dffd4b4835a43ebf696b32c60d",
+      "path": "engine.py",
+      "source_sha256": "029b3a99235cb07868624b417169833b8b60d0e58c622d9b0c2088d4a7f0dcb0",
+      "status": "unknown",
+      "unknowns": [
+        "ValueError: no top-level function 'call_graph' found"
+      ]
+    },
+    "engine.py::CoreEngine.capabilities": {
+      "api_identity": "597eaa0267d7740e88377c49ae24e49153ca70f3a88f66c4df95fe4313935b5a",
+      "contracts": [],
+      "dependencies": [
+        "capability_matrix",
+        "language_capabilities"
+      ],
+      "function": "CoreEngine.capabilities",
+      "function_sha256": "1f08932c470f22e3b41ae4aaaa06827eaf0328a574d8d6deb68091c6ff9bc35c",
+      "path": "engine.py",
+      "source_sha256": "029b3a99235cb07868624b417169833b8b60d0e58c622d9b0c2088d4a7f0dcb0",
+      "status": "unknown",
+      "unknowns": [
+        "ValueError: no top-level function 'capabilities' found"
+      ]
+    },
+    "engine.py::CoreEngine.contracts_file": {
+      "api_identity": "a46e7c3d2d331480d2c19e1e0e20f1da567efd03bdcf8310642533f27c0bcd26",
+      "contracts": [],
+      "dependencies": [
+        "extract_contracts",
+        "from_path"
+      ],
+      "function": "CoreEngine.contracts_file",
+      "function_sha256": "2869e669a9af20528b47dc25bbb218f6e2d6c602f5be50482d298abc72d2e23b",
+      "path": "engine.py",
+      "source_sha256": "029b3a99235cb07868624b417169833b8b60d0e58c622d9b0c2088d4a7f0dcb0",
+      "status": "unknown",
+      "unknowns": [
+        "AnalysisTimeout: engine.py: analysis exceeded 1000ms"
+      ]
+    },
+    "engine.py::CoreEngine.execute": {
+      "api_identity": "903b419cbc6fa204c1d5200af7050bbc35d13f0aeb9fec9092c6cee5b16806fa",
+      "contracts": [],
+      "dependencies": [
+        "OperationResult",
+        "ValueError",
+        "capabilities",
+        "get",
+        "isinstance",
+        "method",
+        "setdefault",
+        "str",
+        "type"
+      ],
+      "function": "CoreEngine.execute",
+      "function_sha256": "8d1972fccac909f3d1ee9426a55cd74b9890ba8da552e36094b10f8803a0bb23",
+      "path": "engine.py",
+      "source_sha256": "029b3a99235cb07868624b417169833b8b60d0e58c622d9b0c2088d4a7f0dcb0",
+      "status": "unknown",
+      "unknowns": [
+        "AnalysisTimeout: engine.py: analysis exceeded 1000ms"
+      ]
+    },
+    "engine.py::CoreEngine.extract_contracts": {
+      "api_identity": "11629acf3b94b72f01ca2e21138e5c9756e6d2c8e407d6ea267a494b8a82c7dd",
+      "contracts": [],
+      "dependencies": [
+        "CapabilityError",
+        "OperationResult",
+        "Path",
+        "PathContract",
+        "canonicalize",
+        "encode",
+        "extract_contract_pairs",
+        "get_language",
+        "hexdigest",
+        "len",
+        "sha256",
+        "to_dict"
+      ],
+      "function": "CoreEngine.extract_contracts",
+      "function_sha256": "a82998ac418e9618f7844a991a002847341598f3dbfd3e6be3ef6b13750f8749",
+      "path": "engine.py",
+      "source_sha256": "029b3a99235cb07868624b417169833b8b60d0e58c622d9b0c2088d4a7f0dcb0",
+      "status": "unknown",
+      "unknowns": [
+        "AnalysisTimeout: engine.py: analysis exceeded 1000ms"
+      ]
+    },
+    "engine.py::CoreEngine.language": {
+      "api_identity": "198c9b79df607d8f0220868a823798209facc1ffc35108c92bd9681af1580a96",
+      "contracts": [],
+      "dependencies": [
+        "ValueError",
+        "detect_language"
+      ],
+      "function": "CoreEngine.language",
+      "function_sha256": "e15b188dce9696d9db93565d3db9a1fde3ae8c3d70ed5cc8b01b8a23052534fc",
+      "path": "engine.py",
+      "source_sha256": "029b3a99235cb07868624b417169833b8b60d0e58c622d9b0c2088d4a7f0dcb0",
+      "status": "unknown",
+      "unknowns": [
+        "AnalysisTimeout: engine.py: analysis exceeded 1000ms"
+      ]
+    },
+    "engine.py::CoreEngine.operations": {
+      "api_identity": "3ce977ad36a96d66c08325d8f756b9a41bb548bef1996569d3b1a7706f7f9bb5",
+      "contracts": [],
+      "dependencies": [],
+      "function": "CoreEngine.operations",
+      "function_sha256": "20d76f8617acf862c3d21eb03ad3472a2eb477a21e17bf8af40e1378ded11351",
+      "path": "engine.py",
+      "source_sha256": "029b3a99235cb07868624b417169833b8b60d0e58c622d9b0c2088d4a7f0dcb0",
+      "status": "unknown",
+      "unknowns": [
+        "AnalysisTimeout: engine.py: analysis exceeded 1000ms"
+      ]
+    },
+    "engine.py::CoreEngine.parse": {
+      "api_identity": "22ae48342abd9791228684b80964057e60da5f879f610649563aae268da3f418",
+      "contracts": [],
+      "dependencies": [
+        "CapabilityError",
+        "OperationResult",
+        "SourceDocument",
+        "ValueError",
+        "_node_count",
+        "_node_dict",
+        "encode",
+        "get_contract_frontend",
+        "get_language",
+        "len",
+        "parse_source",
+        "parser"
+      ],
+      "function": "CoreEngine.parse",
+      "function_sha256": "3f9788f68cdebc804b2fa48b19893557eb44aa6f248c6206f8353a40455bf19f",
+      "path": "engine.py",
+      "source_sha256": "029b3a99235cb07868624b417169833b8b60d0e58c622d9b0c2088d4a7f0dcb0",
+      "status": "unknown",
+      "unknowns": [
+        "AnalysisTimeout: engine.py: analysis exceeded 1000ms"
+      ]
+    },
+    "engine.py::CoreEngine.soundness": {
+      "api_identity": "adad33b13238fb5f97cc1bdd566a26e6514de5b45407809dd0ab6771117bbdd8",
+      "contracts": [],
+      "dependencies": [
+        "OperationResult",
+        "len",
+        "normalize_language",
+        "soundness_report"
+      ],
+      "function": "CoreEngine.soundness",
+      "function_sha256": "34e2984e6ee78b05a261f93cd5a190a71f2ba62ace11d04bb7925344a50af665",
+      "path": "engine.py",
+      "source_sha256": "029b3a99235cb07868624b417169833b8b60d0e58c622d9b0c2088d4a7f0dcb0",
+      "status": "unknown",
+      "unknowns": [
+        "AnalysisTimeout: engine.py: analysis exceeded 1000ms"
+      ]
+    },
+    "engine.py::CoreEngine.verify_patch": {
+      "api_identity": "112d31382ef3590531a95c1248b358cb837b8d97ec7ce70a6d7fec9e0bf2c843",
+      "contracts": [],
+      "dependencies": [
+        "OperationResult",
+        "get",
+        "isinstance",
+        "list",
+        "str",
+        "verify_patch"
+      ],
+      "function": "CoreEngine.verify_patch",
+      "function_sha256": "1dc7c832c8bdb1a301268155af3abb96506538d7d12c01c308da3920c9660e7c",
+      "path": "engine.py",
+      "source_sha256": "029b3a99235cb07868624b417169833b8b60d0e58c622d9b0c2088d4a7f0dcb0",
+      "status": "unknown",
+      "unknowns": [
+        "AnalysisTimeout: engine.py: analysis exceeded 1000ms"
+      ]
+    },
+    "engine.py::get_engine": {
+      "api_identity": "74fd03f0bc38ef61f2f0226fbe5e1d27351d610929320301ce479dca09a3c45f",
+      "contracts": [],
+      "dependencies": [],
+      "function": "get_engine",
+      "function_sha256": "5aa467e3ee04a919d46dd02641a00e7900a25f1ada785ff4a998ffbc8fa740ec",
+      "path": "engine.py",
+      "source_sha256": "029b3a99235cb07868624b417169833b8b60d0e58c622d9b0c2088d4a7f0dcb0",
+      "status": "unknown",
+      "unknowns": [
+        "AnalysisTimeout: engine.py: analysis exceeded 1000ms"
+      ]
+    },
+    "models.py::OperationResult.to_dict": {
+      "api_identity": "b8d5599ef17be6f2364580bf4ad92564a3dc386b4cb051215ac0ea1836fafbff",
+      "contracts": [],
+      "dependencies": [
+        "isinstance",
+        "list",
+        "str"
+      ],
+      "function": "OperationResult.to_dict",
+      "function_sha256": "0796cc827c6ca9b7834f95c2557708647f22ed903138b0fa77a84f34e0307c62",
+      "path": "models.py",
+      "source_sha256": "0499f3572ee84cca331dcd679783fa3bd5bd7bf8a9a83d0efc39dd5c5a690e8b",
+      "status": "unknown",
+      "unknowns": [
+        "ValueError: no top-level function 'to_dict' found"
+      ]
+    },
+    "models.py::PathContract.create": {
+      "api_identity": "fecec9e87bc184bd777063eccb3fd37e62a6c1b324c28464cfa3b670010b20c4",
+      "contracts": [],
+      "dependencies": [
+        "cls",
+        "join",
+        "sorted",
+        "split",
+        "str",
+        "strip",
+        "tuple"
+      ],
+      "function": "PathContract.create",
+      "function_sha256": "910f072c546878d888d3b685c906c0bc52879a361ca64206a5f1182f3832ff18",
+      "path": "models.py",
+      "source_sha256": "0499f3572ee84cca331dcd679783fa3bd5bd7bf8a9a83d0efc39dd5c5a690e8b",
+      "status": "unknown",
+      "unknowns": [
+        "ValueError: no top-level function 'create' found"
+      ]
+    },
+    "models.py::PathContract.identity": {
+      "api_identity": "f44a79ecf7562e3b45371f46e0a172b0a220cfff3275689c5477464edd235406",
+      "contracts": [],
+      "dependencies": [
+        "join",
+        "sha256_json",
+        "sorted",
+        "split"
+      ],
+      "function": "PathContract.identity",
+      "function_sha256": "30513b46a415484210c6281727f4c67e8482a808f1a604839fccbc63dd74dd13",
+      "path": "models.py",
+      "source_sha256": "0499f3572ee84cca331dcd679783fa3bd5bd7bf8a9a83d0efc39dd5c5a690e8b",
+      "status": "unknown",
+      "unknowns": [
+        "ValueError: no top-level function 'identity' found"
+      ]
+    },
+    "models.py::PathContract.to_dict": {
+      "api_identity": "7cce1f6fc1ff7d32815d2c688f3a4dcd8aaf9e676f6d7d7934557fc1af0eaf53",
+      "contracts": [],
+      "dependencies": [
+        "dict",
+        "list"
+      ],
+      "function": "PathContract.to_dict",
+      "function_sha256": "506b796d96ee9e1b78e5b7ea8c238a223705aebafdb77135a362c432f6516a1f",
+      "path": "models.py",
+      "source_sha256": "0499f3572ee84cca331dcd679783fa3bd5bd7bf8a9a83d0efc39dd5c5a690e8b",
+      "status": "unknown",
+      "unknowns": [
+        "ValueError: no top-level function 'to_dict' found"
+      ]
+    },
+    "models.py::SourceDocument.__post_init__": {
+      "api_identity": "a59314d3f1d529f7af0acfc3bae6515c94d04687a6e441abd6fb123b65d6c8e3",
+      "contracts": [],
+      "dependencies": [
+        "ValueError",
+        "__setattr__",
+        "encode",
+        "hexdigest",
+        "lower",
+        "normalize_language",
+        "sha256"
+      ],
+      "function": "SourceDocument.__post_init__",
+      "function_sha256": "90ce6671021ae96a2c6ff60224ed5df9b18ed92c61e8164e38743b9660ce21c1",
+      "path": "models.py",
+      "source_sha256": "0499f3572ee84cca331dcd679783fa3bd5bd7bf8a9a83d0efc39dd5c5a690e8b",
+      "status": "unknown",
+      "unknowns": [
+        "ValueError: no top-level function '__post_init__' found"
+      ]
+    },
+    "models.py::SourceDocument.from_path": {
+      "api_identity": "6472b3f7af50e2a7a7bcfc539f4aab37392aa54acee5ccdfa46fe85ef326d520",
+      "contracts": [],
+      "dependencies": [
+        "Path",
+        "ValueError",
+        "cls",
+        "detect_language",
+        "read_text",
+        "resolve",
+        "str"
+      ],
+      "function": "SourceDocument.from_path",
+      "function_sha256": "60cb0d5ae42e0745895d0a1694bcec205b6d81558bfc6fab4a786b335afd041b",
+      "path": "models.py",
+      "source_sha256": "0499f3572ee84cca331dcd679783fa3bd5bd7bf8a9a83d0efc39dd5c5a690e8b",
+      "status": "unknown",
+      "unknowns": [
+        "ValueError: no top-level function 'from_path' found"
+      ]
+    },
+    "models.py::SourceDocument.line": {
+      "api_identity": "b7d54167dda32b40a9cf296847a7c5924454707bf1d7a047929d53d69d0a0655",
+      "contracts": [],
+      "dependencies": [
+        "count",
+        "slice"
+      ],
+      "function": "SourceDocument.line",
+      "function_sha256": "a936ed990cb4a5ad3abee6d2fa8193b1440e5b6d0712dd27d458cf59ed9777ee",
+      "path": "models.py",
+      "source_sha256": "0499f3572ee84cca331dcd679783fa3bd5bd7bf8a9a83d0efc39dd5c5a690e8b",
+      "status": "unknown",
+      "unknowns": [
+        "ValueError: no top-level function 'line' found"
+      ]
+    },
+    "models.py::SourceDocument.slice": {
+      "api_identity": "65cf210376ee84b3a2c6b7f128cbdc1cd0f7b4849c892939d37a3d8aff74864d",
+      "contracts": [],
+      "dependencies": [
+        "TypeError",
+        "ValueError",
+        "isinstance",
+        "len"
+      ],
+      "function": "SourceDocument.slice",
+      "function_sha256": "ca8096951d43e1ed3d6cc0e1889e2bda91bd3d69bfc6feed7c6a055a657132d3",
+      "path": "models.py",
+      "source_sha256": "0499f3572ee84cca331dcd679783fa3bd5bd7bf8a9a83d0efc39dd5c5a690e8b",
+      "status": "unknown",
+      "unknowns": [
+        "ValueError: no top-level function 'slice' found"
+      ]
+    },
+    "models.py::SourceDocument.to_dict": {
+      "api_identity": "f08c53c944d46b9446d2f87cc3d8a918f871c040630113bcca9db7ff455ea116",
+      "contracts": [],
+      "dependencies": [
+        "encode",
+        "len"
+      ],
+      "function": "SourceDocument.to_dict",
+      "function_sha256": "85013e806bf4165b417d7f321983bac0c260992bba44cf8295c0704b021f6e6d",
+      "path": "models.py",
+      "source_sha256": "0499f3572ee84cca331dcd679783fa3bd5bd7bf8a9a83d0efc39dd5c5a690e8b",
+      "status": "unknown",
+      "unknowns": [
+        "ValueError: no top-level function 'to_dict' found"
+      ]
+    },
+    "models.py::canonical_json": {
+      "api_identity": "4bfeebf5196ba8f8e74551ea40865164fc469a72f63ffc054a05694e23bfef66",
+      "contracts": [
+        {
+          "constraint_identity": "sha256:5fdbc1e76a031f3fefd31111f2399b0a2bd94b9c7131c91354a3afa4e5fa15a6",
+          "constraints": [],
+          "outcome": "json.dumps(value, sort_keys=True, separators=(\",\", \":\"),\n                      ensure_ascii=False, default=str)",
+          "schema": "pegrex.contract.v1",
+          "schema_version": 1
+        }
+      ],
+      "dependencies": [
+        "dumps"
+      ],
+      "function": "canonical_json",
+      "function_sha256": "7d11bd5d0deaca4d48cc25b790ad11495e30ade770d30930e1c33f50b08d311e",
+      "path": "models.py",
+      "source_sha256": "0499f3572ee84cca331dcd679783fa3bd5bd7bf8a9a83d0efc39dd5c5a690e8b",
+      "status": "ok",
+      "unknowns": []
+    },
+    "models.py::contracts_from_pairs": {
+      "api_identity": "c359b1abf0f0936dd030728ee642de2c6db4dfca5f7bc700d9bc3373f96c7c0c",
+      "contracts": [
+        {
+          "constraint_identity": "sha256:5fdbc1e76a031f3fefd31111f2399b0a2bd94b9c7131c91354a3afa4e5fa15a6",
+          "constraints": [],
+          "outcome": "sorted({row.identity: row for row in rows}.values(),\n                  key=lambda row: (row.constraints, row.outcome, row.identity))",
+          "schema": "pegrex.contract.v1",
+          "schema_version": 1
+        }
+      ],
+      "dependencies": [
+        "create",
+        "sorted",
+        "values"
+      ],
+      "function": "contracts_from_pairs",
+      "function_sha256": "142f0918a4cf8ebd226b5153d9295c0d96e4be2a6f69ae882853a01f7244f8f4",
+      "path": "models.py",
+      "source_sha256": "0499f3572ee84cca331dcd679783fa3bd5bd7bf8a9a83d0efc39dd5c5a690e8b",
+      "status": "ok",
+      "unknowns": []
+    },
+    "models.py::sha256_json": {
+      "api_identity": "7e80d5887d0b65e226df42270c8e9b356c94d26e5dc6d3b15047864df43d07b1",
+      "contracts": [
+        {
+          "constraint_identity": "sha256:5fdbc1e76a031f3fefd31111f2399b0a2bd94b9c7131c91354a3afa4e5fa15a6",
+          "constraints": [],
+          "outcome": "hashlib.sha256(canonical_json(value).encode(\"utf-8\")).hexdigest()",
+          "schema": "pegrex.contract.v1",
+          "schema_version": 1
+        }
+      ],
+      "dependencies": [
+        "canonical_json",
+        "encode",
+        "hexdigest",
+        "sha256"
+      ],
+      "function": "sha256_json",
+      "function_sha256": "ed195ba7ee38d41e56df2b8a8bbe9ae0a04b4641730b100b9bee96fe2acfbf69",
+      "path": "models.py",
+      "source_sha256": "0499f3572ee84cca331dcd679783fa3bd5bd7bf8a9a83d0efc39dd5c5a690e8b",
+      "status": "ok",
+      "unknowns": []
+    }
+  },
+  "architecture": {
+    "__init__.py": {
+      "allowed_imports": null,
+      "imports": [
+        "contracts",
+        "engine",
+        "models"
+      ],
+      "source_sha256": "5a6ef170f7fb4e524e9b4e887191e395b8573ac56fcd1e8857b30ba65bd757e0",
+      "violations": []
+    },
+    "contracts.py": {
+      "allowed_imports": null,
+      "imports": [
+        "__future__",
+        "collections.abc",
+        "models",
+        "semantics"
+      ],
+      "source_sha256": "ef84ccafb0f9f7f9d362374beefb1222e16b711d1cfac0a28db6a7adc4554f87",
+      "violations": []
+    },
+    "engine.py": {
+      "allowed_imports": null,
+      "imports": [
+        "__future__",
+        "callgraph",
+        "contracts",
+        "hashlib",
+        "models",
+        "pathlib",
+        "semantics",
+        "tools.secaudit",
+        "typing"
+      ],
+      "source_sha256": "029b3a99235cb07868624b417169833b8b60d0e58c622d9b0c2088d4a7f0dcb0",
+      "violations": []
+    },
+    "models.py": {
+      "allowed_imports": null,
+      "imports": [
+        "__future__",
+        "dataclasses",
+        "enum",
+        "hashlib",
+        "json",
+        "languages",
+        "pathlib",
+        "typing"
+      ],
+      "source_sha256": "0499f3572ee84cca331dcd679783fa3bd5bd7bf8a9a83d0efc39dd5c5a690e8b",
+      "violations": []
+    }
+  },
+  "boundaries": {},
+  "configuration": {},
+  "invariants": {
+    "contracts.py::_observable_behavior": [
+      {
+        "contract_identity": "71becd5cd205a81bc5f8467f1e39a95365c56ff79df24974afaeb946d50ca930",
+        "kind": "path-contract",
+        "status": "ok"
+      },
+      {
+        "contract_identity": "eba383ad6964968e469450ec4a38bdc1133a767294180d27392c0a94eda73844",
+        "kind": "path-contract",
+        "status": "ok"
+      }
+    ],
+    "contracts.py::as_legacy_pairs": [
+      {
+        "contract_identity": "ba89562d6e9811017594e911d669405d17d66f4b3e5e8e49b483abf3438f8267",
+        "kind": "path-contract",
+        "status": "ok"
+      }
+    ],
+    "contracts.py::canonicalize": [],
+    "contracts.py::subsume": [],
+    "engine.py::CoreEngine._node_count": [],
+    "engine.py::CoreEngine._node_dict": [],
+    "engine.py::CoreEngine.audit": [],
+    "engine.py::CoreEngine.call_graph": [],
+    "engine.py::CoreEngine.capabilities": [],
+    "engine.py::CoreEngine.contracts_file": [],
+    "engine.py::CoreEngine.execute": [],
+    "engine.py::CoreEngine.extract_contracts": [],
+    "engine.py::CoreEngine.language": [],
+    "engine.py::CoreEngine.operations": [],
+    "engine.py::CoreEngine.parse": [],
+    "engine.py::CoreEngine.soundness": [],
+    "engine.py::CoreEngine.verify_patch": [],
+    "engine.py::get_engine": [],
+    "models.py::OperationResult.to_dict": [],
+    "models.py::PathContract.create": [],
+    "models.py::PathContract.identity": [],
+    "models.py::PathContract.to_dict": [],
+    "models.py::SourceDocument.__post_init__": [],
+    "models.py::SourceDocument.from_path": [],
+    "models.py::SourceDocument.line": [],
+    "models.py::SourceDocument.slice": [],
+    "models.py::SourceDocument.to_dict": [],
+    "models.py::canonical_json": [
+      {
+        "contract_identity": "1c5f22e1aca7d409c84cc3b0ba8e478c8d2a1ef14567a8c600ea1f0d0742c17d",
+        "kind": "path-contract",
+        "status": "ok"
+      }
+    ],
+    "models.py::contracts_from_pairs": [
+      {
+        "contract_identity": "9f21b931ae3a1a292306c010fca187f0c792ca8475e724161f4d91de85198faf",
+        "kind": "path-contract",
+        "status": "ok"
+      }
+    ],
+    "models.py::sha256_json": [
+      {
+        "contract_identity": "4df8c6fb80c2c554e65e77352cfc5670e598e02d33ecc7b4a8081cbf0a73dbbb",
+        "kind": "path-contract",
+        "status": "ok"
+      }
+    ]
+  },
+  "limitations": [
+    "contracts.py: AnalysisTimeout: contracts.py: analysis exceeded 1000ms",
+    "contracts.py: AnalysisTimeout: engine.py: analysis exceeded 1000ms",
+    "contracts.py: ValueError: no top-level function '__post_init__' found",
+    "contracts.py: ValueError: no top-level function '_node_count' found",
+    "contracts.py: ValueError: no top-level function '_node_dict' found",
+    "contracts.py: ValueError: no top-level function 'audit' found",
+    "contracts.py: ValueError: no top-level function 'call_graph' found",
+    "contracts.py: ValueError: no top-level function 'capabilities' found",
+    "contracts.py: ValueError: no top-level function 'create' found",
+    "contracts.py: ValueError: no top-level function 'from_path' found",
+    "contracts.py: ValueError: no top-level function 'identity' found",
+    "contracts.py: ValueError: no top-level function 'line' found",
+    "contracts.py: ValueError: no top-level function 'slice' found",
+    "contracts.py: ValueError: no top-level function 'to_dict' found",
+    "contracts.py::canonicalize: AnalysisTimeout: contracts.py: analysis exceeded 1000ms",
+    "contracts.py::subsume: AnalysisTimeout: contracts.py: analysis exceeded 1000ms",
+    "engine.py: AnalysisTimeout: contracts.py: analysis exceeded 1000ms",
+    "engine.py: AnalysisTimeout: engine.py: analysis exceeded 1000ms",
+    "engine.py: ValueError: no top-level function '__post_init__' found",
+    "engine.py: ValueError: no top-level function '_node_count' found",
+    "engine.py: ValueError: no top-level function '_node_dict' found",
+    "engine.py: ValueError: no top-level function 'audit' found",
+    "engine.py: ValueError: no top-level function 'call_graph' found",
+    "engine.py: ValueError: no top-level function 'capabilities' found",
+    "engine.py: ValueError: no top-level function 'create' found",
+    "engine.py: ValueError: no top-level function 'from_path' found",
+    "engine.py: ValueError: no top-level function 'identity' found",
+    "engine.py: ValueError: no top-level function 'line' found",
+    "engine.py: ValueError: no top-level function 'slice' found",
+    "engine.py: ValueError: no top-level function 'to_dict' found",
+    "engine.py::CoreEngine._node_count: ValueError: no top-level function '_node_count' found",
+    "engine.py::CoreEngine._node_dict: ValueError: no top-level function '_node_dict' found",
+    "engine.py::CoreEngine.audit: ValueError: no top-level function 'audit' found",
+    "engine.py::CoreEngine.call_graph: ValueError: no top-level function 'call_graph' found",
+    "engine.py::CoreEngine.capabilities: ValueError: no top-level function 'capabilities' found",
+    "engine.py::CoreEngine.contracts_file: AnalysisTimeout: engine.py: analysis exceeded 1000ms",
+    "engine.py::CoreEngine.execute: AnalysisTimeout: engine.py: analysis exceeded 1000ms",
+    "engine.py::CoreEngine.extract_contracts: AnalysisTimeout: engine.py: analysis exceeded 1000ms",
+    "engine.py::CoreEngine.language: AnalysisTimeout: engine.py: analysis exceeded 1000ms",
+    "engine.py::CoreEngine.operations: AnalysisTimeout: engine.py: analysis exceeded 1000ms",
+    "engine.py::CoreEngine.parse: AnalysisTimeout: engine.py: analysis exceeded 1000ms",
+    "engine.py::CoreEngine.soundness: AnalysisTimeout: engine.py: analysis exceeded 1000ms",
+    "engine.py::CoreEngine.verify_patch: AnalysisTimeout: engine.py: analysis exceeded 1000ms",
+    "engine.py::get_engine: AnalysisTimeout: engine.py: analysis exceeded 1000ms",
+    "models.py: AnalysisTimeout: contracts.py: analysis exceeded 1000ms",
+    "models.py: AnalysisTimeout: engine.py: analysis exceeded 1000ms",
+    "models.py: ValueError: no top-level function '__post_init__' found",
+    "models.py: ValueError: no top-level function '_node_count' found",
+    "models.py: ValueError: no top-level function '_node_dict' found",
+    "models.py: ValueError: no top-level function 'audit' found",
+    "models.py: ValueError: no top-level function 'call_graph' found",
+    "models.py: ValueError: no top-level function 'capabilities' found",
+    "models.py: ValueError: no top-level function 'create' found",
+    "models.py: ValueError: no top-level function 'from_path' found",
+    "models.py: ValueError: no top-level function 'identity' found",
+    "models.py: ValueError: no top-level function 'line' found",
+    "models.py: ValueError: no top-level function 'slice' found",
+    "models.py: ValueError: no top-level function 'to_dict' found",
+    "models.py::OperationResult.to_dict: ValueError: no top-level function 'to_dict' found",
+    "models.py::PathContract.create: ValueError: no top-level function 'create' found",
+    "models.py::PathContract.identity: ValueError: no top-level function 'identity' found",
+    "models.py::PathContract.to_dict: ValueError: no top-level function 'to_dict' found",
+    "models.py::SourceDocument.__post_init__: ValueError: no top-level function '__post_init__' found",
+    "models.py::SourceDocument.from_path: ValueError: no top-level function 'from_path' found",
+    "models.py::SourceDocument.line: ValueError: no top-level function 'line' found",
+    "models.py::SourceDocument.slice: ValueError: no top-level function 'slice' found",
+    "models.py::SourceDocument.to_dict: ValueError: no top-level function 'to_dict' found"
+  ],
+  "memory_identity": "5382589197859cd3c06a7876acb9be7f700699f6bf28fcc677d162528ca68102",
+  "root_name": "core",
+  "schema": "pegrex.repository-memory.v1"
+}

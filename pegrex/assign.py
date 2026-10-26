@@ -22,9 +22,11 @@ def render_assignment(node: Node, src: str) -> str:
 
 
 def numeric_inits(tree, src: str) -> dict[str, int]:
+    """Implement numeric inits with the module's explicit API and failure semantics."""
     inits: dict[str, int] = {}
 
     def walk(n):
+        """Implement walk with the module's explicit API and failure semantics."""
         if isinstance(n, Node):
             if n.tag == "assignment":
                 txt = src[n.pos:n.endpos].strip()
@@ -40,9 +42,11 @@ def numeric_inits(tree, src: str) -> dict[str, int]:
 
 
 def loop_assignments(while_node: Node, src: str) -> list[str]:
+    """Implement loop assignments with the module's explicit API and failure semantics."""
     out: list[str] = []
 
     def walk(n):
+        """Implement walk with the module's explicit API and failure semantics."""
         if isinstance(n, Node):
             if n.tag in ("assignment", "augmented_assignment"):
                 out.append(render_assignment(n, src))

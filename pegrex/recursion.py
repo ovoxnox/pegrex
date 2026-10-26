@@ -24,6 +24,7 @@ def analyze_recursion(fn_name: str, body: Node, src: str) -> RecursionReport:
     """Self-call detection + base-case presence via path structure."""
     calls = []
     def walk(n):
+        """Implement walk with the module's explicit API and failure semantics."""
         if isinstance(n, Node):
             if n.tag == "call":
                 txt = src[n.pos:n.endpos]
@@ -38,6 +39,7 @@ def analyze_recursion(fn_name: str, body: Node, src: str) -> RecursionReport:
     # base case: a return path whose subtree contains no self-call
     has_base = False
     def find_returns(n, acc):
+        """Implement find returns with the module's explicit API and failure semantics."""
         if isinstance(n, Node):
             if n.tag == "return_statement":
                 acc.append(n)
@@ -51,6 +53,7 @@ def analyze_recursion(fn_name: str, body: Node, src: str) -> RecursionReport:
     for r in rets:
         subtree_calls = []
         def walk2(n):
+            """Implement walk2 with the module's explicit API and failure semantics."""
             if isinstance(n, Node):
                 if n.tag == "call" and fn_name + "(" in src[n.pos:n.endpos]:
                     subtree_calls.append(n)

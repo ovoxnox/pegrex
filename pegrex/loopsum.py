@@ -21,6 +21,23 @@ _DELTA = re.compile(r"^([A-Za-z_]\w*)\s*=\s*\1\s*([+-])\s*(\d+)$")
 _ACC = re.compile(r"^([A-Za-z_]\w*)\s*=\s*(?:\1\s*\+\s*([A-Za-z_]\w*)"
                   r"|([A-Za-z_]\w*)\s*\+\s*\1)$")
 _GUARD = re.compile(r"^([A-Za-z_]\w*)\s*(<=|<|>=|>)\s*([A-Za-z_]\w*|-?\d+)$")
+_EXPRESSION_NODES = {
+    ast.Constant, ast.Name, ast.Load, ast.BinOp, ast.UnaryOp, ast.Compare,
+    ast.Add, ast.Sub, ast.Mult, ast.FloorDiv, ast.USub, ast.UAdd, ast.Not,
+    ast.Eq, ast.NotEq, ast.Lt, ast.LtE, ast.Gt, ast.GtE,
+}
+
+
+def _validate_expression(node):
+    """Reject calls, attributes, containers, and other executable syntax."""
+    for part in ast.walk(node):
+        if type(part) not in _EXPRESSION_NODES:
+            raise LoopSumError(
+                f"expression {ast.unparse(node)!r} is outside the fragment: "
+                "side-effect-free expressions only")
+        if isinstance(part, ast.Constant) and (
+                not isinstance(part.value, int) or isinstance(part.value, bool)):
+            raise LoopSumError("only integer constants are supported in loop evidence")
 
 
 class LoopSumError(ValueError):
@@ -38,12 +55,20 @@ def _loop_parts(src: str, fn_name: str | None):
             f"expected exactly one function"
             + (f" named {fn_name!r}" if fn_name else "") + f", found {len(fns)}")
     fn = fns[0]
+    if (fn.decorator_list or fn.args.defaults or fn.args.kw_defaults or
+            fn.args.vararg or fn.args.kwarg or fn.args.kwonlyargs):
+        raise LoopSumError(f"{fn.name}: unsupported function signature or decorators")
     whiles = [s for s in fn.body if isinstance(s, ast.While)]
     if not whiles:
         raise LoopSumError(f"{fn.name}: no while loop to summarize")
     if len(whiles) > 1:
         raise LoopSumError(f"{fn.name}: multiple loops -- summarize one at a time")
     loop = whiles[0]
+    _validate_expression(loop.test)
+    tail = fn.body[fn.body.index(loop) + 1:]
+    if len(tail) != 1 or not isinstance(tail[0], ast.Return) or tail[0].value is None:
+        raise LoopSumError(f"{fn.name}: expected exactly one return after the loop")
+    _validate_expression(tail[0].value)
     guard = ast.unparse(loop.test)
     try:
         from .refine import _norm_constraint
@@ -65,6 +90,7 @@ def _loop_parts(src: str, fn_name: str | None):
     for s in loop.body:
         if isinstance(s, ast.Assign) and len(s.targets) == 1 and \
                 isinstance(s.targets[0], ast.Name):
+            _validate_expression(s.value)
             body.append(ast.unparse(s))
         else:
             raise LoopSumError(
@@ -106,47 +132,50 @@ def _cross_check(src: str, fn, invariant: list[str], samples,
     exactly the check that caught a wrong closed form standing unchallenged
     in m7 (Gauss factor of 2)."""
     import itertools
+    from .difforacle import safe_eval
     tree = ast.parse(src)
     fn_node = next(n for n in tree.body if isinstance(n, ast.FunctionDef)
                    and n.name == fn.name)
     loop = next(s for s in fn_node.body if isinstance(s, ast.While))
-    fn_indent = " " * fn_node.body[0].col_offset
-    loop_indent = " " * loop.body[0].col_offset
-    lines = src.splitlines()
-    # instrument body (insert at loop body start, reverse order keeps linenos)
-    inject = [f"{loop_indent}__steps += 1",
-              f"{loop_indent}if __steps > {step_cap}: raise _StepCap()"]
-    inject += [f"{loop_indent}assert _holds({inv!r}, locals()), {inv!r}"
-               for inv in invariant]
-    lines[loop.lineno:loop.lineno] = []  # placeholder, keep indexes stable
-    lines[loop.lineno - 1 + 1:loop.lineno - 1 + 1] = []
-    body_at = loop.body[0].lineno - 1
-    lines[body_at:body_at] = inject
-    loop_line = loop.lineno - 1
-    lines[loop_line:loop_line] = [f"{fn_indent}__steps = 0"]
-    instr_src = "\n".join(lines)
+    return_node = fn_node.body[-1]
 
-    ns: dict = {"_holds": _holds, "_StepCap": _StepCap}
-    exec(instr_src, ns)  # operator-supplied source, CLI-style
-    fn_obj = ns[fn.name]
+    def run_restricted(call):
+        """Interpret only the validated arithmetic fragment; never execute source."""
+        env = dict(call)
+        for statement in fn_node.body[:fn_node.body.index(loop)]:
+            env[statement.targets[0].id] = safe_eval(
+                ast.unparse(statement.value), env)
+        steps = 0
+        while safe_eval(ast.unparse(loop.test), env):
+            steps += 1
+            if steps > step_cap:
+                raise _StepCap()
+            for inv in invariant:
+                assert _holds(inv, env), inv
+            for statement in loop.body:
+                env[statement.targets[0].id] = safe_eval(
+                    ast.unparse(statement.value), env)
+        return safe_eval(ast.unparse(return_node.value), env)
+
     params = [a.arg for a in fn.args.args]
     checked = nonterminating = 0
     for combo in itertools.islice(itertools.product(*samples), 6):
         call = dict(zip(params, combo))
         try:
-            got = fn_obj(**call)
+            got = run_restricted(call)
         except _StepCap:
             nonterminating += 1
             continue
         if closed_expr and bound_var is not None and \
                 call.get(bound_var, 0) >= 0:
-            want = eval(closed_expr, {bound_var: call[bound_var]})
+            want = safe_eval(closed_expr, {bound_var: call[bound_var]})
             assert got == want, \
                 f"closed form {closed_expr!r} != {got} at {bound_var}={call[bound_var]}"
         checked += 1
     return [{"samples_checked": checked, "violations": 0,
              "nonterminating": nonterminating,
-             "closed_form_checked": closed_expr is not None}]
+             "closed_form_checked": closed_expr is not None,
+             "execution": "restricted-ast-interpreter"}]
 
 
 def _holds(inv: str, env: dict) -> bool:

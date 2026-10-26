@@ -130,6 +130,90 @@ def verify_patch(before_path: str, after_path: str, claim: str = "equivalent") -
                     "(opaque constraints or fragment limits)"}
 
 
+def explain_patch(before_path: str, after_path: str) -> dict:
+    """Explain changed path contracts and the reason for each behavioral delta.
+
+    Equivalence is PROVED only for identical canonical contracts. A concrete
+    confirmed witness REFUTES equivalence; a syntactic contract difference
+    without a witness remains UNKNOWN rather than an asserted behavior break.
+    """
+    diff = semantic_diff(before_path, after_path)
+    verification = verify_patch(before_path, after_path)
+    entries = diff["distinguishing"]
+    changes = []
+    effect_changes = []
+    effect_unknowns = []
+    try:
+        from .effects import infer_effects
+        from pathlib import Path
+        before_effects = infer_effects(Path(before_path).read_text(encoding="utf-8"))
+        after_effects = infer_effects(Path(after_path).read_text(encoding="utf-8"))
+        names = set(before_effects["functions"]) | set(after_effects["functions"])
+        for name in sorted(names):
+            def signature(report):
+                """Implement signature with the module's explicit API and failure semantics."""
+                return sorted((row["category"], row["action"], row["scope"])
+                              for row in report["functions"].get(name, {}).get("effects", []))
+            before_signature = signature(before_effects)
+            after_signature = signature(after_effects)
+            if before_signature != after_signature:
+                effect_changes.append({"function": name,
+                                       "before": before_signature,
+                                       "after": after_signature})
+    except (NotImplementedError, SyntaxError, UnicodeError) as exc:
+        effect_unknowns.append(f"effect comparison unavailable: {exc}")
+    for entry in entries:
+        opposite_side = "after" if entry["only_in"] == "before" else "before"
+        counterpart = next((other for other in entries
+                            if other["only_in"] == opposite_side
+                            and other["constraints"] == entry["constraints"]), None)
+        if counterpart is not None:
+            kind = "return-relation"
+            reason = "the same path constraints now produce a different observable result"
+        else:
+            counterpart = next((other for other in entries
+                                if other["only_in"] == opposite_side
+                                and other["result"] == entry["result"]), None)
+            if counterpart is not None:
+                kind = "path-domain"
+                reason = "the input domain for an observable result changed"
+            else:
+                kind = "contract-set"
+                reason = "a path/outcome pair was added or removed without a one-to-one canonical match"
+        changes.append({**entry, "kind": kind, "reason": reason,
+                        "action": "removed" if entry["only_in"] == "before" else "added"})
+    changes.extend({"only_in": "effects", "kind": "effects", "action": "changed",
+                    "reason": "explicit side-effect signature changed", **change}
+                   for change in effect_changes)
+    if verification["verified"] and not effect_changes and not effect_unknowns:
+        verdict = "proved"
+        preserving = True
+        summary = "No observable path-contract or explicit-effect change detected; patch equivalence is proved."
+    elif effect_changes or verification.get("counterexample"):
+        verdict = "refuted"
+        preserving = False
+        summary = (f"Patch equivalence is refuted by "
+                   f"{'explicit effect evidence' if effect_changes else 'a confirmed input'} "
+                   f"on {len(changes)} changed contract/effect row(s).")
+    else:
+        verdict = "unknown"
+        preserving = None
+        summary = (("Return contracts are unchanged, but explicit-effect comparison is incomplete."
+                    if diff["identical"] and effect_unknowns else
+                    f"Canonical contracts differ on {len(changes)} row(s), but no "
+                    "confirmed distinguishing input was found."))
+    return {
+        "schema": "pegrex.patch-explanation.v1",
+        "verdict": verdict,
+        "behavior_preserving": preserving,
+        "summary": summary,
+        "changes": changes,
+        "counterexample": verification.get("counterexample"),
+        "unknowns": effect_unknowns + ([] if verdict != "unknown" else [
+            verification.get("note", "patch equivalence could not be decided")]),
+    }
+
+
 def _eval_atom(txt, vals):
     """atom text @ valuation -> True/False; None when unevaluable (opaque)."""
     try:

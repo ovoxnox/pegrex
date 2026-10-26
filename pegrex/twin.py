@@ -52,7 +52,7 @@ def build(root):
             if lang is None or lang == "cobol" or lang == "fortran":
                 continue
             path = os.path.join(dirpath, n)
-            src = open(path).read()
+            src = open(path, encoding="utf-8").read()
             g = build_call_graph(src, lang=lang)
             got = {n: i for n, i in g.functions.items() if n}
             if got:
@@ -129,7 +129,7 @@ def cognitive_report(twin, budget=7):
         if path in seen:
             continue
         seen.add(path)
-        rep = cognitive_complexity(open(path).read(), budget=budget)
+        rep = cognitive_complexity(open(path, encoding="utf-8").read(), budget=budget)
         if rep.get("verdict") != "ok":
             out.append({"file": path, "verdict": "unknown",
                         "reason": rep.get("reason")})

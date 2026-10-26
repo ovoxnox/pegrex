@@ -24,6 +24,7 @@ class Pattern:
     id: str | None = None
 
     def compiled(self) -> "re.Pattern[str] | None":
+        """Implement compiled with the module's explicit API and failure semantics."""
         return re.compile(self.text) if isinstance(self.text, str) else None
 
 
@@ -77,6 +78,7 @@ def scan(tree, rules: list[Pattern], src: str | None = None
     """DFS(tree) × rules. Yields (node, rule, captures) per hit."""
 
     def walk(n):
+        """Implement walk with the module's explicit API and failure semantics."""
         yield n
         for c in getattr(n, "children", []) or []:
             if _tag(c) is not None:

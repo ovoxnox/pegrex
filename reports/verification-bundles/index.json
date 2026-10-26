@@ -1,0 +1,29 @@
+[
+  {
+    "error": "IndexError: list index out of range",
+    "source": "pegrex/difforacle.py",
+    "status": "unknown"
+  },
+  {
+    "error": "IndexError: list index out of range",
+    "source": "pegrex/loopsum.py",
+    "status": "unknown"
+  },
+  {
+    "error": "IndexError: list index out of range",
+    "source": "pegrex/constraints.py",
+    "status": "unknown"
+  },
+  {
+    "artifact": "pegrex__semanticchecksum.py.json",
+    "paths": 1,
+    "source": "pegrex/semanticchecksum.py",
+    "status": "ok"
+  },
+  {
+    "artifact": "pegrex__core__contracts.py.json",
+    "paths": 1,
+    "source": "pegrex/core/contracts.py",
+    "status": "ok"
+  }
+]

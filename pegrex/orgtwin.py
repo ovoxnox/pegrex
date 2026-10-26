@@ -23,7 +23,7 @@ def org_report(root, controls=(), budget=7, team_of=None):
         row = teams.setdefault(team, {"functions": 0, "over_budget": [],
                                       "compliance": [], "unknown": []})
         row["functions"] += 1
-        src = open(path).read()
+        src = open(path, encoding="utf-8").read()
         rep = cognitive_complexity(src, budget=budget)
         if rep.get("verdict") != "ok":
             row["unknown"].append(fn)
@@ -44,8 +44,10 @@ def org_report(root, controls=(), budget=7, team_of=None):
 
 
 def who_is_at_risk(report):
+    """Implement who is at risk with the module's explicit API and failure semantics."""
     return sorted(t for t, r in report["teams"].items() if r["at_risk"])
 
 
 def who_is_unknown(report):
+    """Implement who is unknown with the module's explicit API and failure semantics."""
     return {t: r["unknown"] for t, r in report["teams"].items() if r["unknown"]}

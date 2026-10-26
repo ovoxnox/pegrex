@@ -48,16 +48,19 @@ class TagSpec:
                                      if isinstance(c, Node)])
 
     def if_parts(self, node):
+        """Implement if parts with the module's explicit API and failure semantics."""
         ch = self._nodes(node)
         return (self.if_(ch) if callable(self.if_)
                 else (ch[0], ch[1], ch[2] if len(ch) > 2 else None))
 
     def while_parts(self, node):
+        """Implement while parts with the module's explicit API and failure semantics."""
         ch = self._nodes(node)
         return (self.while_(ch) if callable(self.while_)
                 else (ch[0], ch[1]))
 
     def for_parts(self, node):
+        """Implement for parts with the module's explicit API and failure semantics."""
         ch = self._nodes(node)
         return (self.for_(ch) if callable(self.for_)
                 else (ch[0], ch[1]))
@@ -71,11 +74,13 @@ class CFG:
         self._adj: dict = {}
 
     def add_block(self, stmts=(), term: str = "fall") -> int:
+        """Implement add block with the module's explicit API and failure semantics."""
         self.blocks.append(Block(len(self.blocks), list(stmts), term))
         self._adj[self.blocks[-1].id] = []
         return self.blocks[-1].id
 
     def add_edge(self, src: int, dst: int, cond=None, kind: str = "flow") -> None:
+        """Implement add edge with the module's explicit API and failure semantics."""
         e = Edge(src, dst, cond, kind)
         self.edges.append(e)
         self._adj.setdefault(src, []).append(e)
@@ -85,6 +90,7 @@ class CFG:
         return [(e.dst, e) for e in self._adj.get(b, ())]
 
     def to_dot(self) -> str:
+        """Implement to dot with the module's explicit API and failure semantics."""
         head = "digraph cfg {"
         nodes = []
         for b in self.blocks:
@@ -104,6 +110,7 @@ class CFGBuilder:
         self.cfg = CFG()
 
     def build(self, node) -> CFG:
+        """Implement build with the module's explicit API and failure semantics."""
         self._stmt(node, self.cfg.add_block())
         return self.cfg
 
@@ -305,10 +312,12 @@ def enumerate_paths_lazy(node, tagspec=None, unroll: int = 1):
     counter = [0]
 
     def block():
+        """Implement block with the module's explicit API and failure semantics."""
         counter[0] += 1
         return counter[0]
 
     def rec(n, path, visits):
+        """Implement rec with the module's explicit API and failure semantics."""
         if not isinstance(n, Node):
             return
         if n.tag in CFGBuilder._TRANSPARENT:

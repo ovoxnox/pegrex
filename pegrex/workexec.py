@@ -40,7 +40,7 @@ def _run_step(step: str, kind: str, target: str):
         return {"findings": len(audit(target))}
     if kind == "slm":
         from .mini_llm import NGramLM
-        src = pathlib.Path(target).read_text()
+        src = pathlib.Path(target).read_text(encoding="utf-8")
         lm = NGramLM(n=3)
         lm.train(src)
         return {"perplexity": round(lm.perplexity(src[:200]), 2)}

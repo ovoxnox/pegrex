@@ -21,6 +21,7 @@ def _line_starts(source: str) -> list[int]:
 
 def _span(source: str, node: ast.AST, starts: list[int]) -> tuple[int, int]:
     def offset(line_number: int, byte_column: int) -> int:
+        """Implement offset with the module's explicit API and failure semantics."""
         idx = max(0, min(line_number - 1, max(0, len(starts) - 2)))
         line_start = starts[idx]
         line_end = starts[idx + 1] if idx + 1 < len(starts) else len(source)
@@ -101,11 +102,13 @@ def _convert(source: str, node: ast.AST, starts: list[int]) -> Node:
 
 
 def parse_module(source: str) -> Node:
+    """Implement parse module with the module's explicit API and failure semantics."""
     tree = ast.parse(source)
     return _convert(source, tree, _line_starts(source))
 
 
 def parse_function_body(source: str, name: str | None = None) -> Node:
+    """Implement parse function body with the module's explicit API and failure semantics."""
     root = parse_module(source)
     for child in root.children:
         if isinstance(child, Node) and child.tag == "function_definition":

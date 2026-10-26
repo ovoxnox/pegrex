@@ -1,66 +1,57 @@
-# HEALTH.md - pegrex engine health check
+# HEALTH.md - PegRex engine health check
 
-Regenerate the machine-readable findings with `python pegrex.py health pegrex`; regenerate the cognitive and contract self-audit with `python tools/selfhost.py`. These are analyzer tasks to triage, not confirmed vulnerabilities.
+Regenerate findings with `python pegrex.py health pegrex`, then update exact task dispositions and run `python tools/health_report.py`. Regenerate cognitive/contract evidence with `python tools/selfhost.py`. These are triaged analyzer tasks, not a count of confirmed vulnerabilities.
 
-## summary
+## Summary
 
 | metric | value |
 |---|---|
-| engine files analyzed | 1 |
-| total tasks | 1804 |
-| high severity | 212 |
-| medium severity | 1275 |
-| low severity | 317 |
-| engine LOC | 18696 |
-| modules with contracts | 57 |
-| modules where contracts unknown | 99 |
+| engine files analyzed | 227 |
+| total tasks | 779 |
+| high severity | 0 |
+| medium severity | 558 |
+| low severity | 221 |
+| undispositioned tasks | 0 |
+| report SHA-256 | `2d7438cbc0b06cd1358c9861dd0fffa1c31013fbe3786142d1883176cec81274` |
 
-## tasks by opus
+See `docs/SELF.md` for current engine LOC, cognitive hotspots, contract extraction, and explicit UNKNOWN modules.
 
-| opus | tasks | severities |
+## Tasks by analyzer view
+
+| view | tasks | dispositions |
 |---|---|---|
-| architecture | 167 | MEDIUM 14, LOW 153 |
-| documentation | 149 | LOW 149 |
-| refactor | 105 | MEDIUM 105 |
-| security | 721 | HIGH 212, MEDIUM 494, LOW 15 |
-| testing | 662 | MEDIUM 662 |
+| architecture | 240 | function-structure-backlog: 220, module-structure-backlog: 20 |
+| refactor | 193 | function-structure-backlog: 190, intentional-process-state: 3 |
+| security | 3 | generated-stub-secret-pattern: 1, operator-code-execution: 2 |
+| testing | 343 | test-evidence-backlog: 343 |
 
-## high-severity security findings (top 15 of 212)
+## Dispositions
 
-| id | title | location |
-|---|---|---|
-| T01 | [acp.py] [open-never-closed] file object opened without corresponding close | 70 |
-| T02 | [acp.py] [useless-literal-set] `$X` is uselessly assigned twice inside the creation of the set | 104, 108 |
-| T03 | [acp.py] [use-json-response] Use JsonResponse instead | 156, 195 |
-| T04 | [acp.py] [use-jsonify] flask.jsonify() is a Flask helper method which handles the correct  settings for returning JSON from Flask routes | 156, 195 |
-| T05 | [antihalluc.py] [open-never-closed] file object opened without corresponding close | 42, 58 |
-| T06 | [api.py] [use-json-response] Use JsonResponse instead | 50 |
-| T07 | [api.py] [use-jsonify] flask.jsonify() is a Flask helper method which handles the correct  settings for returning JSON from Flask routes | 50 |
-| T08 | [api.py] [useless-literal-set] `$X` is uselessly assigned twice inside the creation of the set | 69, 80, 94, 106, 117, 120, 121 |
-| T09 | [api.py] [dangerous-system-call] Found user-controlled data used in a system call. This could allow a malicious actor to execute commands. Use the 'subprocess' module instea | 93 |
-| T10 | [api.py] [dangerous-system-call-audit] Found dynamic content used in a system call. This is dangerous if external data can reach this function call because it allows a malicious a | 93 |
-| T11 | [api.py] [strict-cmd-injection] command sink with unknown taint (strict) | 93 |
-| T12 | [attest.py] [use-json-response] Use JsonResponse instead | 19 |
-| T13 | [attest.py] [use-jsonify] flask.jsonify() is a Flask helper method which handles the correct  settings for returning JSON from Flask routes | 19 |
-| T14 | [autopilot.py] [use-json-response] Use JsonResponse instead | 153, 156 |
-| T15 | [autopilot.py] [use-jsonify] flask.jsonify() is a Flask helper method which handles the correct  settings for returning JSON from Flask routes | 153, 156 |
+Every current task ID is assigned to a policy below. `maintenance-open` is explicit non-defect maintenance evidence, not a claim of completed remediation. `accepted-design` records intentional process-local configuration or memoization. `accepted-risk` is a documented operator trust boundary. `false-positive` records why the pattern is not a defect in its actual context.
 
-## cognitive hotspots
+| policy | status | tasks | rationale | evidence |
+|---|---|---|---|---|
+| function-structure-backlog | maintenance-open | 410 | Long-function and helper-extraction recommendations remain explicit maintenance work. They are not confirmed defects and must not be conflated with vulnerabilities. | docs/ARCHITECTURE.md<br>docs/PUBLIC_CONTRACTS.md<br>python run_tests.py |
+| generated-stub-secret-pattern | false-positive | 1 | The scanner matches adjacent old/new client dictionary keys, not a credential value. Both expressions select the same generated Go client stub; no API key or secret is present. | pegrex/roundtrip.py:87-88<br>tests/test_roundtrip.py<br>No credentials, secrets, or external services are used by this code path |
+| intentional-process-state | accepted-design | 3 | The solver backend selector, compiled grammar cache, and validated ZK group cache are intentional process-local configuration or memoization. Their behavior and thread-safety boundaries are covered without changing public contracts. | pegrex/smt.py:get_backend/set_backend<br>pegrex/work.py:_rules<br>pegrex/zkproof.py:_ensure_group<br>tests/test_work.py<br>tests/test_zkproof.py |
+| module-structure-backlog | maintenance-open | 20 | Module-size thresholds identify candidates for future contract-preserving decomposition. Size alone is not a correctness or security defect; broad restructuring is intentionally deferred. | docs/ARCHITECTURE.md<br>docs/PUBLIC_CONTRACTS.md<br>python run_tests.py |
+| operator-code-execution | accepted-risk | 2 | The concolic CLI intentionally loads and executes the operator-selected source before tracing it. This is an explicit code-execution interface, not a passive audit path; untrusted input requires an external isolated sandbox. | README.md:Intentional code execution boundaries<br>docs/PUBLIC_CONTRACTS.md<br>pegrex/commands/verification.py:_cmd_concolic<br>tests/test_production_hardening.py |
+| test-evidence-backlog | maintenance-open | 343 | Static reference analysis found no direct test reference for these functions. This is a test-evidence gap, not proof that runtime coverage or indirect regression coverage is absent. | python run_tests.py<br>tests/ (direct and indirect regressions)<br>specs/pegrex_health.spec.json (static untested-function tasks) |
 
-See `docs/SELF.md` for the current per-module cognitive hotspots, contract-extraction refusals, and refactor-plan counts.
+## Residual security-pattern tasks
 
-## remediation order
+| id | disposition | severity | location |
+|---|---|---|---|
+| T01 | operator-code-execution | MEDIUM | [commands/verification.py] [exec-detected] Detected the use of exec(). exec() can be dangerous if used to evaluate dynamic content. If this content can be input from outside the progr |
+| T02 | operator-code-execution | MEDIUM | [commands/verification.py] [python_exec_rule-exec-used] The application was found calling the `exec` function with a non-literal variable. If the
+variable comes from user-supplied input, an advers |
+| T559 | generated-stub-secret-pattern | LOW | [roundtrip.py] [generic-api-key] A gitleaks generic-api-key was detected which attempts to identify hard-coded credentials.  It is not recommended to store credentials in so |
 
-1. Triage the 212 high-severity security findings above and in the machine-readable spec; verify each before fixing or annotating it.
-2. Testing coverage: 662 MEDIUM tasks, prioritizing modules with extracted contracts.
-3. Documentation: 149 LOW tasks; hotspots first.
-4. Refactor: 105 MEDIUM maintainability tasks; coordinate them with the cognitive hotspots in `SELF.md`.
-5. Architecture: 167 tasks from the structure analyzer.
+## Gates
 
-## gates (run before any remediation lands)
+- `python run_tests.py`
+- `python tools/selfhost.py --check`
+- `python tools/health_report.py --check`
+- `python tools/build_skills.py --check`
 
-- `python run_tests.py` (560 tests)
-- `python tools/selfhost.py --check` (complete self-audit freshness)
-- `python tools/build_skills.py --check` (reproducible, duplicate-free skill archive)
-
-Full machine-readable spec: `specs/pegrex_health.spec.json` (1804 tasks).
+Machine-readable findings: `specs/pegrex_health.spec.json` (779 tasks). Exact dispositions: `specs/pegrex_health.dispositions.json`.
