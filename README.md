@@ -15,7 +15,25 @@ The canonical frontend registry owns every language ID, extension, parser and ve
 
 **PegRex** is a self-contained symbolic-execution and syntactic-analysis engine for AI agents — **parse, solve, prove, abstract, execute, emit, verify, repair, serve**. Version 1.1.0 adds a non-throwing CoreEngine dispatch boundary, a workspace-confined Tools API v2, structured CLI errors, stronger source and counterexample provenance, and production hardening for scanner, modernization, insurance, and certificate paths. The repository audits itself through fresh SELF/HEALTH evidence and machine-checkable finding dispositions.
 
-Run `python pegrex.py soundness` for the complete machine-readable plugin manifest and trust policy, or add `--language ID` for one frontend. The same report is available through `CoreEngine.soundness()` and the stdio service's `soundness` method. Native legacy and domain-specific analyzers are registered through the same manifest; the split `pegrex/lpegc/` compiler handles the bundled grammar-text formats.
+Run `python pegrex.py soundness` for the complete machine-readable plugin manifest and trust policy, or add `--language ID` for one frontend. The same report is available through `CoreEngine.soundness()` and the stdio service's `soundness` method. Native legacy and domain-specific analyzers are registered through the same manifest; the split `pegrex/lpegc/` compiler handles the bundled grammar-text formats. 
+
+It speaks fifteen-plus languages, exposes sixty-five commands, 331 unit tests, 17 agent skills — and audits itself in public via a regenerated SELF.md that CI refuses to let go stale.
+
+**Tree-sitter frontends (full CST → contracts)**
+ - Nine bindings: Python, Go, Rust, Julia, Kotlin, Zig, Solidity, Vyper, JavaScript, TypeScript, AssemblyScript. 
+ - The bridge's language map also routes lua and c (those resolve via the tree_sitter_language_pack when installed 
+
+**Native legacy frontends (certified, no grammar needed)** hand-built parsers producing the same contract tuples as every other language, with machine-checked cross-language equivalence (a COBOL absval and a Fortran absval verify as identical). An offline tree-sitter mock layer makes these parse through the standard bridge too.
+
+ - COBOL (.cob/.cbl/.cobol)
+ - Fortran (.f90/.f95/.f03/.f08)
+
+**Domain-specific languages**
+ - SQL (SELECT subset with OR groups — SQL↔ORM equivalence checking)
+ - Circom (ZK circuits — under-constrained signal auditing)
+
+**Grammar-text formats (the LPegRex .gram compiler)**
+ - JSON, C11, CSV, URL, INI, S-expressions, Go-subset, MIR, MLIR, Vyper-subset, agent grammars — compiled by the split pegrex/lpegc/ compiler into executable pattern trees.
 
 
 ## The Security Engine
