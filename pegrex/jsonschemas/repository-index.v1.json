@@ -1,0 +1,50 @@
+{
+  "$id": "pegrex:pegrex.repository-index.v1:schema",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": true,
+  "properties": {
+    "analyzer_version": {},
+    "entries": {},
+    "files": {
+      "type": "integer"
+    },
+    "functions": {
+      "type": "integer"
+    },
+    "indexed": {
+      "type": "integer"
+    },
+    "last_scan": {},
+    "schema": {
+      "const": "pegrex.repository-index.v1"
+    },
+    "shared_ast_entries": {
+      "type": "integer"
+    },
+    "skipped": {
+      "type": "integer"
+    },
+    "unknown": {
+      "type": "integer"
+    },
+    "unknowns": {
+      "type": "array"
+    }
+  },
+  "required": [
+    "analyzer_version",
+    "entries",
+    "files",
+    "functions",
+    "indexed",
+    "last_scan",
+    "schema",
+    "shared_ast_entries",
+    "skipped",
+    "unknown",
+    "unknowns"
+  ],
+  "title": "PegRex public result: pegrex.repository-index.v1",
+  "type": "object",
+  "x-peg-rex-validation-level": "inferred-top-level"
+}

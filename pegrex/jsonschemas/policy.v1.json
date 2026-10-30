@@ -1,0 +1,40 @@
+{
+  "$id": "pegrex:pegrex.policy.v1:schema",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": true,
+  "properties": {
+    "coverage_complete": {
+      "type": "boolean"
+    },
+    "failures": {
+      "type": "array"
+    },
+    "passed": {
+      "type": "boolean"
+    },
+    "policy_id": {
+      "type": "string"
+    },
+    "schema": {
+      "const": "pegrex.policy.v1"
+    },
+    "unknown_count": {
+      "minimum": 0,
+      "type": "integer"
+    },
+    "violations": {
+      "type": "array"
+    }
+  },
+  "required": [
+    "schema",
+    "policy_id",
+    "passed",
+    "violations",
+    "unknown_count",
+    "coverage_complete",
+    "failures"
+  ],
+  "title": "Organization policy evaluation",
+  "type": "object"
+}

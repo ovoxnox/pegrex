@@ -1,0 +1,67 @@
+{
+  "$id": "pegrex:pegrex.finite-domain-proof.v1:schema",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": true,
+  "properties": {
+    "after_nodes": {
+      "minimum": 0,
+      "type": "integer"
+    },
+    "after_result": {},
+    "assignments_checked": {
+      "minimum": 0,
+      "type": "integer"
+    },
+    "before_nodes": {
+      "minimum": 0,
+      "type": "integer"
+    },
+    "before_result": {},
+    "checked": {
+      "type": "boolean"
+    },
+    "checker": {
+      "type": "string"
+    },
+    "claim": {
+      "const": "finite-domain-equivalent"
+    },
+    "counterexample": {
+      "type": [
+        "object",
+        "null"
+      ]
+    },
+    "details": {
+      "type": "object"
+    },
+    "proof_sha256": {
+      "pattern": "^[0-9a-f]{64}$",
+      "type": "string"
+    },
+    "reason": {
+      "type": "string"
+    },
+    "schema": {
+      "const": "pegrex.finite-domain-proof.v1"
+    },
+    "total_assignments": {
+      "minimum": 0,
+      "type": "integer"
+    },
+    "verdict": {
+      "enum": [
+        "proved",
+        "refuted",
+        "unknown"
+      ]
+    }
+  },
+  "required": [
+    "schema",
+    "checked",
+    "verdict"
+  ],
+  "title": "Finite-domain proof checker result",
+  "type": "object"
+}

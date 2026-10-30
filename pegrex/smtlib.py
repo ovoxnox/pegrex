@@ -50,6 +50,8 @@ def crosscheck_smtlib(export) -> dict:
         import z3
         solver = z3.Solver()
         solver.add(z3.parse_smt2_string(export["script"]))
+        from .performance import record_solver_call
+        record_solver_call("z3-smtlib")
         result = solver.check()
         verdict = "sat" if result == z3.sat else "unsat" if result == z3.unsat else "unknown"
         return {"verdict": verdict, "solver": "z3", "unknowns": [] if verdict != "unknown" else [str(result)]}

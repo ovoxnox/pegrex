@@ -1,0 +1,49 @@
+{
+  "$id": "pegrex:pegrex.security-research-capsule.v1:schema",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": true,
+  "properties": {
+    "artifact_sha256": {},
+    "artifacts": {},
+    "artifacts_verified": {
+      "type": "integer"
+    },
+    "capsule_identity": {},
+    "finding_id": {},
+    "path": {
+      "type": "string"
+    },
+    "proof_status": {},
+    "sandbox_recipe_sha256": {},
+    "schema": {
+      "const": "pegrex.security-research-capsule.v1"
+    },
+    "schema_version": {
+      "type": "integer"
+    },
+    "source_minimized": {
+      "type": "boolean"
+    },
+    "status": {
+      "type": "string"
+    },
+    "unknowns": {
+      "items": {
+        "type": "string"
+      },
+      "type": "array"
+    },
+    "verdict": {
+      "type": "string"
+    },
+    "verified": {
+      "type": "boolean"
+    }
+  },
+  "required": [
+    "schema"
+  ],
+  "title": "PegRex public result: pegrex.security-research-capsule.v1",
+  "type": "object",
+  "x-peg-rex-validation-level": "inferred-top-level"
+}

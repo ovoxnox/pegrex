@@ -1,0 +1,76 @@
+{
+  "$id": "pegrex:pegrex.bounded-model-check.v1:schema",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": true,
+  "properties": {
+    "bound": {
+      "additionalProperties": true,
+      "properties": {
+        "max_depth": {
+          "minimum": 0,
+          "type": "integer"
+        },
+        "max_states": {
+          "minimum": 0,
+          "type": "integer"
+        },
+        "reached": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "max_depth",
+        "max_states",
+        "reached"
+      ],
+      "type": "object"
+    },
+    "complete": {
+      "type": "boolean"
+    },
+    "counterexample": {
+      "type": [
+        "object",
+        "null"
+      ]
+    },
+    "explored_states": {
+      "minimum": 0,
+      "type": "integer"
+    },
+    "holds": {
+      "type": [
+        "boolean",
+        "null"
+      ]
+    },
+    "schema": {
+      "const": "pegrex.bounded-model-check.v1"
+    },
+    "unknowns": {
+      "items": {
+        "type": "string"
+      },
+      "type": "array"
+    },
+    "verdict": {
+      "enum": [
+        "proved",
+        "refuted",
+        "unknown"
+      ]
+    }
+  },
+  "required": [
+    "schema",
+    "verdict",
+    "holds",
+    "complete",
+    "bound",
+    "explored_states",
+    "counterexample",
+    "unknowns"
+  ],
+  "title": "Bounded model-check result",
+  "type": "object"
+}

@@ -26,6 +26,13 @@ def test_structured_shell_argv_is_the_authorized_identity():
     allowed = harness.check_action({"tool": "shell", "argv": ["pytest", "-q"]},
                                    harness.default_policy())
     assert allowed["verdict"] == "allowed" and allowed["argv"] == ["pytest", "-q"]
+    # Arbitrary pytest options and explicit test targets can load additional
+    # repository-controlled code, so they need a narrower caller-supplied rule.
+    for argv in (["pytest", "-q", "tests/test_anything.py"],
+                 ["pytest", "--override-ini", "addopts=--capture=no"],
+                 ["pytest", "-p", "some_plugin"]):
+        assert harness.check_action({"tool": "shell", "argv": argv},
+                                    harness.default_policy())["verdict"] == "refused"
     assert harness.check_action({"tool": "shell", "argv": ["pytest;"]},
                                 harness.default_policy())["verdict"] == "refused"
     assert harness.check_action({"tool": "shell", "argv": ["git", "push"]},
@@ -43,6 +50,7 @@ def test_missing_z3_is_unknown_not_discarded_atom_success(monkeypatch):
 
 
 def test_z3_multi_variable_contradiction_is_decided():
+    pytest.importorskip("z3", reason="solver-backed feasibility is optional")
     assert auto_feasible(["(x < y)", "(y < x)"]) is False
 
 
@@ -126,3 +134,11 @@ def test_path_policy_refuses_absolute_traversal_confusable_and_symlinks(tmp_path
     allowed = harness.check_action({"tool": "write", "path": "src/app.py"},
                                    policy, base_dir=tmp_path)
     assert allowed["verdict"] == "allowed" and allowed["path"] == "src/app.py"
+
+
+def test_malformed_actions_and_policies_fail_closed():
+    assert harness.check_action(None, harness.default_policy())["verdict"] == "refused"
+    assert harness.check_action({"tool": "read"}, [{"tool": "read"}])["verdict"] == "refused"
+    assert harness.check_action({"tool": "read"}, None)["verdict"] == "refused"
+    assert harness.check_action({"tool": "read"}, [{"effect": [], "tool": "read"}])["verdict"] == "refused"
+    assert harness.check_action({"tool": "read"}, [{"effect": "allow", "tool": "read", "argv": 1}])["verdict"] == "refused"

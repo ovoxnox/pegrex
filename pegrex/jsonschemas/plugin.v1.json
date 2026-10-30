@@ -1,0 +1,28 @@
+{
+  "$id": "pegrex:pegrex.plugin.v1:schema",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": true,
+  "properties": {
+    "errors": {
+      "type": "array"
+    },
+    "passed": {
+      "type": "boolean"
+    },
+    "schema": {
+      "const": "pegrex.plugin.v1"
+    },
+    "tests": {
+      "minimum": 0,
+      "type": "integer"
+    }
+  },
+  "required": [
+    "schema",
+    "passed",
+    "tests",
+    "errors"
+  ],
+  "title": "Plugin SDK conformance result",
+  "type": "object"
+}

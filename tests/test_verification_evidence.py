@@ -52,6 +52,11 @@ def _certificate():
 
 def test_solver_free_replay_checks_proof_and_optional_source_identities():
     result = replay_certificate(_certificate(), before_source="x", after_source=b"x")
+    assert not result["replayed"]
+    assert "independent-proof-checker" in result["reason"]
+    contract_identity = _certificate()
+    contract_identity["claim"] = "contract-set-identical"
+    result = replay_certificate(contract_identity, before_source="x", after_source=b"x")
     assert result["replayed"] and result["solver_used"] is False
     import copy
     forged = copy.deepcopy(_certificate()); forged["evidence"]["after_contracts"][0]["outcome"] = "y"
@@ -62,7 +67,12 @@ def test_solver_free_replay_checks_proof_and_optional_source_identities():
 def test_smtlib_export_and_independent_z3_crosscheck():
     exported = export_smtlib(["(2*x + y <= 4)", "(x >= 1)"])
     assert exported["status"] == "complete" and "(set-logic QF_LIA)" in exported["script"]
-    assert crosscheck_smtlib(exported)["verdict"] == "sat"
+    crosscheck = crosscheck_smtlib(exported)
+    import importlib.util
+    if importlib.util.find_spec("z3") is None:
+        assert crosscheck["verdict"] == "unknown"
+    else:
+        assert crosscheck["verdict"] == "sat"
     unknown = export_smtlib(["opaque(x)"])
     assert unknown["status"] == "unknown" and not unknown["script"]
 

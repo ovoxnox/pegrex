@@ -1,0 +1,53 @@
+{
+  "$id": "pegrex:pegrex.security-regression-memory.v1:schema",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": true,
+  "properties": {
+    "entries": {
+      "items": {
+        "additionalProperties": true,
+        "properties": {
+          "fixture": {
+            "additionalProperties": true,
+            "type": "object"
+          },
+          "review_required": {
+            "type": "boolean"
+          },
+          "rule_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "rule_id",
+          "fixture"
+        ],
+        "type": "object"
+      },
+      "type": "array"
+    },
+    "schema": {
+      "const": "pegrex.security-regression-memory.v1"
+    },
+    "schema_version": {
+      "const": 1
+    },
+    "status": {
+      "type": "string"
+    },
+    "unknowns": {
+      "items": {
+        "type": "string"
+      },
+      "type": "array"
+    }
+  },
+  "required": [
+    "schema",
+    "entries",
+    "status",
+    "unknowns"
+  ],
+  "title": "Security regression memory result",
+  "type": "object"
+}

@@ -1,0 +1,54 @@
+{
+  "$id": "pegrex:pegrex.contract-modernization.v1:schema",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": true,
+  "properties": {
+    "code": {
+      "type": "null"
+    },
+    "contract_evidence": {
+      "additionalProperties": true,
+      "properties": {
+        "proof": {},
+        "verdict": {}
+      },
+      "required": [
+        "proof",
+        "verdict"
+      ],
+      "type": "object"
+    },
+    "counterexample": {},
+    "function": {},
+    "layout_evidence": {},
+    "numeric_evidence": {},
+    "schema": {
+      "const": "pegrex.contract-modernization.v1"
+    },
+    "schema_version": {
+      "type": "integer"
+    },
+    "target": {},
+    "unknowns": {
+      "type": "array"
+    },
+    "verdict": {
+      "type": "string"
+    },
+    "verified": {
+      "type": "boolean"
+    }
+  },
+  "required": [
+    "code",
+    "schema",
+    "schema_version",
+    "target",
+    "unknowns",
+    "verdict",
+    "verified"
+  ],
+  "title": "PegRex public result: pegrex.contract-modernization.v1",
+  "type": "object",
+  "x-peg-rex-validation-level": "inferred-top-level"
+}

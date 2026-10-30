@@ -1,0 +1,30 @@
+{
+  "$id": "pegrex:pegrex.repository-immune.v1:schema",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": true,
+  "properties": {
+    "files": {
+      "type": "integer"
+    },
+    "findings": {},
+    "root_fingerprint": {},
+    "rules_configured": {},
+    "schema": {
+      "const": "pegrex.repository-immune.v1"
+    },
+    "status": {},
+    "unknowns": {}
+  },
+  "required": [
+    "files",
+    "findings",
+    "root_fingerprint",
+    "rules_configured",
+    "schema",
+    "status",
+    "unknowns"
+  ],
+  "title": "PegRex public result: pegrex.repository-immune.v1",
+  "type": "object",
+  "x-peg-rex-validation-level": "inferred-top-level"
+}

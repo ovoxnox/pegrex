@@ -1,0 +1,46 @@
+{
+  "$id": "pegrex:pegrex.repair-recheck.v1:schema",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": true,
+  "properties": {
+    "after": {},
+    "applied": {
+      "type": "boolean"
+    },
+    "audit_attempt_id": {},
+    "baseline": {},
+    "before": {},
+    "patch": {},
+    "policy": {},
+    "rounds": {
+      "type": "integer"
+    },
+    "schema": {
+      "const": "pegrex.repair-recheck.v1"
+    },
+    "status": {
+      "type": "string"
+    },
+    "trail": {
+      "type": "array"
+    },
+    "unchanged": {
+      "type": "boolean"
+    },
+    "unknowns": {
+      "items": {
+        "type": "string"
+      },
+      "type": "array"
+    }
+  },
+  "required": [
+    "applied",
+    "schema",
+    "status",
+    "trail"
+  ],
+  "title": "PegRex public result: pegrex.repair-recheck.v1",
+  "type": "object",
+  "x-peg-rex-validation-level": "inferred-top-level"
+}

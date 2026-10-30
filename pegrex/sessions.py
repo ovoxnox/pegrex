@@ -13,14 +13,20 @@ import time
 from typing import Any
 
 from .cache import AnalysisCache
+from .limits import (DEFAULT_ANALYSIS_TIMEOUT_MS, MAX_SOURCE_BYTES,
+                     MAX_AST_NODES, MAX_ANALYSIS_OUTPUT_BYTES, MAX_ANALYSIS_PATHS)
 from .languages import get_language, normalize_language, parse_source
 from .peg import Node
 
-SESSION_VERSION = "shared-analysis-v1"
+SESSION_VERSION = "shared-analysis-v2"
 
 
 class AnalysisTimeout(TimeoutError):
     """A per-file analysis deadline expired; callers must report UNKNOWN."""
+
+
+class AnalysisResourceLimit(ValueError):
+    """A hard analysis input, tree, or output budget was exceeded."""
 
 
 def _tree_data(value):
@@ -52,19 +58,61 @@ class AnalysisSession:
 
     def __init__(self, source: str, language: str = "python", *, path: str | None = None,
                  configuration: dict | None = None, cache: AnalysisCache | None = None,
-                 timeout_ms: int | None = None, max_paths: int = 10_000,
-                 tree_cache: dict | None = None) -> None:
+                 timeout_ms: int | None = None,
+                 max_paths: int | None = None,
+                 tree_cache: dict | None = None,
+                 max_source_bytes: int | None = None,
+                 max_ast_nodes: int | None = None,
+                 max_output_bytes: int | None = None,
+                 max_solver_calls: int | None = None,
+                 mode: str | None = None) -> None:
         normalized = normalize_language(language)
         if normalized is None:
             raise ValueError(f"unsupported analysis language {language!r}")
+        if not isinstance(source, str):
+            raise TypeError("source must be text")
+        from .performance import audit_mode
+        if mode is not None:
+            profile = audit_mode(mode)
+            mode_limits = {"timeout_ms": int(profile.max_seconds * 1000),
+                           "max_paths": profile.max_paths,
+                           "max_source_bytes": min(MAX_SOURCE_BYTES, 1_000_000) if mode == "fast" else MAX_SOURCE_BYTES,
+                           "max_ast_nodes": 20_000 if mode == "fast" else 250_000,
+                           "max_output_bytes": 1_000_000 if mode == "fast" else 8_000_000,
+                           "max_solver_calls": profile.max_solver_calls}
+            supplied = {"timeout_ms": timeout_ms, "max_paths": max_paths,
+                        "max_source_bytes": max_source_bytes, "max_ast_nodes": max_ast_nodes,
+                        "max_output_bytes": max_output_bytes, "max_solver_calls": max_solver_calls}
+            limits = {key: min(value, mode_limits[key]) if value is not None else mode_limits[key]
+                      for key, value in supplied.items()}
+        else:
+            limits = {"timeout_ms": DEFAULT_ANALYSIS_TIMEOUT_MS if timeout_ms is None else timeout_ms,
+                      "max_paths": MAX_ANALYSIS_PATHS if max_paths is None else max_paths,
+                      "max_source_bytes": MAX_SOURCE_BYTES if max_source_bytes is None else max_source_bytes,
+                      "max_ast_nodes": MAX_AST_NODES if max_ast_nodes is None else max_ast_nodes,
+                      "max_output_bytes": MAX_ANALYSIS_OUTPUT_BYTES if max_output_bytes is None else max_output_bytes,
+                      "max_solver_calls": 5_000 if max_solver_calls is None else max_solver_calls}
+        if limits["timeout_ms"] is not None and limits["timeout_ms"] < 0:
+            raise ValueError("analysis timeout must be non-negative")
+        if any(limits[key] < 1 for key in ("max_paths", "max_source_bytes", "max_ast_nodes", "max_output_bytes", "max_solver_calls")):
+            raise ValueError("analysis resource limits must be positive")
         self.source = source
+        self.mode = mode or "default"
+        self.max_source_bytes = limits["max_source_bytes"]
+        self.max_ast_nodes = limits["max_ast_nodes"]
+        self.max_output_bytes = limits["max_output_bytes"]
+        self.max_solver_calls = limits["max_solver_calls"]
+        self._input_error = None
+        if len(source.encode("utf-8")) > self.max_source_bytes:
+            self._input_error = AnalysisResourceLimit(
+                f"source exceeds input budget of {self.max_source_bytes} bytes")
         self.language = normalized
         self.path = path
         self.configuration = dict(configuration or {})
         self.cache = cache
         self.tree_cache = tree_cache
-        self.timeout_ms = timeout_ms
-        self.max_paths = max_paths
+        self.timeout_ms = limits["timeout_ms"]
+        self.max_paths = limits["max_paths"]
         self.digest = hashlib.sha256(source.encode("utf-8")).hexdigest()
         self._deadline = (time.monotonic() + timeout_ms / 1000
                           if timeout_ms is not None else None)
@@ -78,6 +126,8 @@ class AnalysisSession:
         return get_language(self.language)
 
     def _check_deadline(self) -> None:
+        if self._input_error is not None:
+            raise self._input_error
         if self._deadline is not None and time.monotonic() > self._deadline:
             raise AnalysisTimeout(
                 f"{self.path or '<source>'}: analysis exceeded {self.timeout_ms}ms")
@@ -86,7 +136,12 @@ class AnalysisSession:
         return {"session": SESSION_VERSION, "parser": self.spec.parser_version}
 
     def _config(self) -> dict:
-        return {"language": self.language, "max_paths": self.max_paths,
+        return {"language": self.language, "mode": self.mode,
+                "timeout_ms": self.timeout_ms, "max_paths": self.max_paths,
+                "max_source_bytes": self.max_source_bytes,
+                "max_ast_nodes": self.max_ast_nodes,
+                "max_output_bytes": self.max_output_bytes,
+                "max_solver_calls": self.max_solver_calls,
                 **self.configuration}
 
     def _persistent(self, analyzers: tuple[str, ...], producer):
@@ -107,27 +162,36 @@ class AnalysisSession:
 
     @property
     def tree(self):
-        """The sole normalized parse for this source/configuration session.
-
-        An optional repository-owned tree cache shares the immutable-by-
-        convention normalized tree across sessions with identical content,
-        parser identity, and configuration. Paths never enter its identity.
-        """
+        """Return the normalized parse tree after enforcing node limits."""
         self._check_deadline()
         if "tree" not in self._values:
             identity = json.dumps(self._config(), sort_keys=True, separators=(",", ":"),
                                   default=str)
             key = (self.digest, self.spec.parser, self.spec.parser_version,
                    self.spec.parse_adapter, identity)
-            if self.tree_cache is not None and key in self.tree_cache:
-                self._values["tree"] = self.tree_cache[key]
+            cached = self.tree_cache.get(key) if self.tree_cache is not None else None
+            if cached is not None:
+                tree = cached
             else:
                 data = self._persistent(
                     ("parse", self.spec.parser, self.spec.parse_adapter),
                     lambda: _tree_data(parse_source(self.language, self.source)))
-                self._values["tree"] = _tree_value(data)
-                if self.tree_cache is not None:
-                    self.tree_cache[key] = self._values["tree"]
+                tree = _tree_value(data)
+            nodes = 0
+            pending = [tree]
+            while pending:
+                current = pending.pop()
+                if isinstance(current, Node):
+                    nodes += 1
+                    if nodes > self.max_ast_nodes:
+                        raise AnalysisResourceLimit(
+                            f"syntax tree exceeds node budget of {self.max_ast_nodes}")
+                    pending.extend(current.children)
+                elif isinstance(current, list):
+                    pending.extend(current)
+            self._values["tree"] = tree
+            if self.tree_cache is not None and cached is None:
+                self.tree_cache[key] = tree
         return self._values["tree"]
 
     def cfg(self, entrypoint: str | None = None):
@@ -219,27 +283,77 @@ class AnalysisSession:
         return self._values[key]
 
     def analyze(self, analyzers=("contracts", "call_graph", "complexity", "security")) -> dict:
-        """Run selected consumers and expose per-analyzer resource UNKNOWNs."""
+        """Run selected consumers with shared budgets and per-stage profiling."""
+        from .performance import AnalysisProfile, SolverBudgetExceeded, analysis_scope
+        profile = AnalysisProfile()
         results = {}
-        for name in analyzers:
-            try:
-                value = self.contracts() if name == "contracts" else getattr(self, name)
-                if name == "contracts":
-                    value = [[sorted(map(str, guards)), outcome] for guards, outcome in value]
-                elif name == "call_graph":
-                    value = {"functions": {key: {"line": row["line"],
-                                                 "calls": sorted(row["calls"])}
-                                           for key, row in value.functions.items()},
-                             "edges": sorted(map(list, value.edges))}
-                results[name] = {"status": "ok", "data": value}
-            except AnalysisTimeout as exc:
-                results[name] = {"status": "unknown", "reason": str(exc),
-                                 "resource": "per-file-timeout"}
-            except Exception as exc:
-                from .paths import PathExplosion
-                if not isinstance(exc, PathExplosion):
-                    raise
-                results[name] = {"status": "unknown", "reason": str(exc),
-                                 "resource": "path-count-cap"}
-        return {"schema": "pegrex.analysis-session.v1", "language": self.language,
-                "source_sha256": self.digest, "results": results}
+        with analysis_scope(profile, max_solver_calls=self.max_solver_calls) as solver_budget:
+            for name in analyzers:
+                try:
+                    profile.count("analyzer_calls")
+                    def execute():
+                        return self.contracts() if name == "contracts" else getattr(self, name)
+                    value = profile.measure(name, execute)
+                    if name == "contracts":
+                        value = [[sorted(map(str, guards)), outcome] for guards, outcome in value]
+                        profile.count("contract_paths", len(value))
+                    elif name == "call_graph":
+                        value = {"functions": {key: {"line": row["line"],
+                                                     "calls": sorted(row["calls"])}
+                                               for key, row in value.functions.items()},
+                                 "edges": sorted(map(list, value.edges))}
+                        profile.count("call_graph_edges", len(value["edges"]))
+                    elif name == "security" and isinstance(value, list):
+                        profile.count("security_findings", len(value))
+                    if isinstance(value, dict):
+                        solver_calls = value.get("solver_calls")
+                        if isinstance(solver_calls, int) and solver_calls >= 0:
+                            profile.count("solver_calls_reported_by_analyzer", solver_calls)
+                    results[name] = {"status": "ok", "data": value}
+                except SolverBudgetExceeded as exc:
+                    results[name] = {"status": "unknown", "reason": str(exc),
+                                     "resource": "solver-call-cap"}
+                except AnalysisResourceLimit as exc:
+                    results[name] = {"status": "unknown", "reason": str(exc),
+                                     "resource": "input-or-analysis-size-cap"}
+                except AnalysisTimeout as exc:
+                    results[name] = {"status": "unknown", "reason": str(exc),
+                                     "resource": "per-file-timeout"}
+                except Exception as exc:
+                    from .paths import PathExplosion
+                    if isinstance(exc, (RecursionError, MemoryError)):
+                        results[name] = {"status": "unknown", "reason": "analysis resource exhaustion",
+                                         "resource": "runtime-resource-limit"}
+                        continue
+                    if not isinstance(exc, PathExplosion):
+                        raise
+                    results[name] = {"status": "unknown", "reason": str(exc),
+                                     "resource": "path-count-cap"}
+        report = {"schema": "pegrex.analysis-session.v1", "language": self.language,
+                  "mode": self.mode, "source_sha256": self.digest,
+                  "resource_limits": {"timeout_ms": self.timeout_ms, "max_paths": self.max_paths,
+                                      "max_source_bytes": self.max_source_bytes,
+                                      "max_ast_nodes": self.max_ast_nodes,
+                                      "max_output_bytes": self.max_output_bytes,
+                                      "max_solver_calls": self.max_solver_calls},
+                  "profile": profile.snapshot(),
+                  "solver_budget": {"max_calls": self.max_solver_calls, "calls": solver_budget["calls"]},
+                  "results": results}
+        try:
+            encoded_size = len(json.dumps(report, ensure_ascii=False, separators=(",", ":")).encode("utf-8"))
+        except (TypeError, ValueError, RecursionError):
+            return {"schema": "pegrex.analysis-session.v1", "language": self.language,
+                    "mode": self.mode, "source_sha256": self.digest,
+                    "resource_limits": report["resource_limits"],
+                    "results": {name: {"status": "unknown", "resource": "output-serialization",
+                                        "reason": "analysis result could not be safely serialized"}
+                                for name in analyzers}}
+        if encoded_size > self.max_output_bytes:
+            return {"schema": "pegrex.analysis-session.v1", "language": self.language,
+                    "mode": self.mode, "source_sha256": self.digest,
+                    "resource_limits": report["resource_limits"],
+                    "results": {name: {"status": "unknown", "resource": "output-size-cap",
+                                        "reason": f"analysis report exceeds {self.max_output_bytes} bytes"}
+                                for name in analyzers}}
+        return report
+

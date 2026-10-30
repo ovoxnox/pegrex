@@ -1,0 +1,36 @@
+{
+  "$id": "pegrex:pegrex.test-promotion.v1:schema",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": true,
+  "properties": {
+    "identity": {
+      "pattern": "^[0-9a-f]{64}$",
+      "type": "string"
+    },
+    "path": {
+      "type": "string"
+    },
+    "schema": {
+      "const": "pegrex.test-promotion.v1"
+    },
+    "status": {
+      "enum": [
+        "created",
+        "existing"
+      ]
+    },
+    "test_name": {
+      "pattern": "^test_promoted_[0-9a-f]{16}$",
+      "type": "string"
+    }
+  },
+  "required": [
+    "schema",
+    "status",
+    "path",
+    "test_name",
+    "identity"
+  ],
+  "title": "Confirmed counterexample test promotion result",
+  "type": "object"
+}

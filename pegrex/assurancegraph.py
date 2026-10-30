@@ -5,6 +5,11 @@ import hashlib
 import json
 
 SCHEMA = "pegrex.continuous-assurance-graph.v1"
+_MAX_CLAIMS = 10_000
+_MAX_EVIDENCE_PER_CLAIM = 1_000
+_MAX_EDGES = 50_000
+_MAX_ID_LENGTH = 512
+_MAX_STATEMENT_LENGTH = 20_000
 _KINDS = {"api-contract", "access-policy", "taint-invariant", "migration-property"}
 
 
@@ -17,10 +22,15 @@ def build_assurance_graph(claims) -> dict:
     nodes, edges, unknowns = [], [], []
     seen = set()
     try:
+        if not isinstance(claims, (list, tuple)) or len(claims) > _MAX_CLAIMS:
+            raise ValueError("claim list exceeds assurance graph budget")
         for claim in claims:
+            if not isinstance(claim, dict):
+                raise ValueError("claim must be an object")
             identifier = claim["id"]
-            if not identifier or identifier in seen:
-                raise ValueError("claim IDs must be nonempty and unique")
+            if (not isinstance(identifier, str) or not identifier
+                    or len(identifier) > _MAX_ID_LENGTH or identifier in seen):
+                raise ValueError("claim IDs must be bounded, nonempty strings and unique")
             seen.add(identifier)
             kind = claim["kind"]
             if kind not in _KINDS:
@@ -29,26 +39,46 @@ def build_assurance_graph(claims) -> dict:
             if verdict not in {"proved", "refuted", "unknown"}:
                 verdict = "unknown"
                 unknowns.append(f"{identifier}:invalid claim verdict normalized to UNKNOWN")
+            statement = claim.get("statement")
+            if statement is not None and (
+                    not isinstance(statement, str) or len(statement) > _MAX_STATEMENT_LENGTH):
+                raise ValueError(f"{identifier}: statement exceeds assurance graph budget")
             evidence_rows = claim.get("evidence") or []
+            if not isinstance(evidence_rows, (list, tuple)) or len(evidence_rows) > _MAX_EVIDENCE_PER_CLAIM:
+                raise ValueError(f"{identifier}: evidence list exceeds assurance graph budget")
+            if len(edges) + sum(len(row.get("upstream") or []) for row in evidence_rows
+                                if isinstance(row, dict)) > _MAX_EDGES:
+                raise ValueError("assurance graph edge budget exceeded")
             if verdict == "proved" and not evidence_rows:
                 verdict = "unknown"
                 unknowns.append(f"{identifier}:proof claim has no evidence")
             node = {"id": identifier, "kind": kind, "verdict": verdict,
-                    "statement": claim.get("statement"),
+                    "statement": statement,
                     "evidence": [], "unknowns": list(claim.get("unknowns") or [])}
             if node["unknowns"] and verdict == "proved":
                 node["verdict"] = "unknown"
             for evidence in evidence_rows:
-                evidence_id = evidence["id"]
+                if not isinstance(evidence, dict):
+                    raise ValueError(f"{identifier}: evidence row must be an object")
+                evidence_id = evidence.get("id")
+                if not isinstance(evidence_id, str) or not evidence_id or len(evidence_id) > _MAX_ID_LENGTH:
+                    raise ValueError(f"{identifier}: evidence ID is invalid")
+                upstream_rows = evidence.get("upstream") or []
+                if not isinstance(upstream_rows, (list, tuple)):
+                    raise ValueError(f"{identifier}: upstream must be a list")
                 evidence_identity = _identity(evidence)
                 node["evidence"].append({"id": evidence_id, "identity": evidence_identity,
                                          "verdict": evidence.get("verdict", "unknown")})
-                upstreams = evidence.get("upstream") or []
+                upstreams = upstream_rows
                 if evidence.get("verdict") == "proved" and not upstreams:
                     node["verdict"] = "unknown"
                     node["unknowns"].append(f"evidence {evidence_id} has no upstream identity")
                 for upstream in upstreams:
-                    if not upstream.get("id") or not upstream.get("sha256"):
+                    if not isinstance(upstream, dict):
+                        node["verdict"] = "unknown"
+                        node["unknowns"].append(f"evidence {evidence_id} has malformed upstream identity")
+                        continue
+                    if not isinstance(upstream.get("id"), str) or not upstream.get("id") or not isinstance(upstream.get("sha256"), str) or not upstream.get("sha256"):
                         node["verdict"] = "unknown"
                         node["unknowns"].append(f"evidence {evidence_id} has incomplete upstream identity")
                     edges.append({"source": identifier, "target": upstream.get("id"),

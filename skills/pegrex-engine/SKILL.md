@@ -34,7 +34,23 @@ confirms workspace confinement (including symlinks), and preserves evidence
 status. Results are dictionaries with `status`, `verdict`, `data`, `unknowns`,
 and `provenance`. Missing evidence, unavailable dependency intelligence, parser
 gaps, and resource limits remain UNKNOWN. Never convert an error or UNKNOWN
-result into a successful clean audit.
+result into a successful clean audit. Only tools marked `mutates_workspace: true`
+write, and only beneath declared confined staging roots.
+
+## Optional external backends
+
+Use `neural.generate` / `neural.verify_candidate` for staged neural-codegen Rust
+candidates, `ironkernel.run` / `ironkernel.differential` for bounded JSON float64
+expressions, and `pythoc.compile` / `pythoc.analyze_ir` / `pythoc.differential`
+for sandboxed native compilation and explicit LLVM 17/18 analysis. Equivalent
+CLI subgroups are `neural`, `ironkernel`, and `pythoc`.
+
+These adapters return `pegrex.integration-result.v1`. Generation and compilation
+produce candidates, not PROVED implementations. Matching sampled differentials
+remain UNKNOWN for general equivalence; mismatches require confirmed replay.
+PythoC compilation and native execution require an ephemeral no-network sandbox.
+Never pass arbitrary Python source to the ironkernel expression worker. Check
+artifact hashes and preserve backend/toolchain provenance in assurance claims.
 
 ## Compatibility and trust
 

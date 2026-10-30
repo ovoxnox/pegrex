@@ -1,0 +1,28 @@
+{
+  "$id": "pegrex:pegrex.patch-explanation.v1:schema",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": true,
+  "properties": {
+    "behavior_preserving": {},
+    "changes": {},
+    "counterexample": {},
+    "schema": {
+      "const": "pegrex.patch-explanation.v1"
+    },
+    "summary": {},
+    "unknowns": {},
+    "verdict": {}
+  },
+  "required": [
+    "behavior_preserving",
+    "changes",
+    "counterexample",
+    "schema",
+    "summary",
+    "unknowns",
+    "verdict"
+  ],
+  "title": "PegRex public result: pegrex.patch-explanation.v1",
+  "type": "object",
+  "x-peg-rex-validation-level": "inferred-top-level"
+}

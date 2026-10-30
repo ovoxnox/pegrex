@@ -1,0 +1,24 @@
+{
+  "$id": "pegrex:pegrex.memory-graph.v1:schema",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": true,
+  "properties": {
+    "edges": {
+      "type": "array"
+    },
+    "nodes": {
+      "type": "array"
+    },
+    "schema": {
+      "const": "pegrex.memory-graph.v1"
+    }
+  },
+  "required": [
+    "edges",
+    "nodes",
+    "schema"
+  ],
+  "title": "PegRex public result: pegrex.memory-graph.v1",
+  "type": "object",
+  "x-peg-rex-validation-level": "inferred-top-level"
+}

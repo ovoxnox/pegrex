@@ -1,0 +1,24 @@
+{
+  "$id": "pegrex:pegrex.risk-aware-change-plan.v1:schema",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": true,
+  "properties": {
+    "plan_identity": {},
+    "policy": {
+      "type": "string"
+    },
+    "schema": {
+      "const": "pegrex.risk-aware-change-plan.v1"
+    },
+    "unknowns": {}
+  },
+  "required": [
+    "plan_identity",
+    "policy",
+    "schema",
+    "unknowns"
+  ],
+  "title": "PegRex public result: pegrex.risk-aware-change-plan.v1",
+  "type": "object",
+  "x-peg-rex-validation-level": "inferred-top-level"
+}

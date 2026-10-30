@@ -1,0 +1,27 @@
+{
+  "$id": "pegrex:pegrex.core-engine.v1:schema",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": true,
+  "properties": {
+    "api_version": {
+      "type": "string"
+    },
+    "error_policy": {
+      "type": "string"
+    },
+    "operations": {
+      "type": "object"
+    },
+    "schema": {
+      "const": "pegrex.core-engine.v1"
+    }
+  },
+  "required": [
+    "schema",
+    "api_version",
+    "operations",
+    "error_policy"
+  ],
+  "title": "PegRex core engine operation manifest",
+  "type": "object"
+}

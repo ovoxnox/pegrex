@@ -1,0 +1,34 @@
+{
+  "$id": "pegrex:pegrex.action-evidence-attestation.v1:schema",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": true,
+  "properties": {
+    "algorithm": {
+      "type": "string"
+    },
+    "authenticated": {
+      "type": "boolean"
+    },
+    "head_sha256": {},
+    "records": {
+      "type": "integer"
+    },
+    "schema": {
+      "const": "pegrex.action-evidence-attestation.v1"
+    },
+    "scope": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "algorithm",
+    "authenticated",
+    "head_sha256",
+    "records",
+    "schema",
+    "scope"
+  ],
+  "title": "PegRex public result: pegrex.action-evidence-attestation.v1",
+  "type": "object",
+  "x-peg-rex-validation-level": "inferred-top-level"
+}

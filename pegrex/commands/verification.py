@@ -98,19 +98,17 @@ def _cmd_mine(args):
 
 
 def _cmd_concolic(args):
-    import importlib.util
-    import tempfile, os
-    src = open(args.file, encoding="utf-8").read()
-    ns = {}
-    exec(src, ns)
-    fn = ns[args.fn_name]
-    from pegrex.concolic import flip_and_verify, trace_fn
-    run = trace_fn(fn, *args.args, source=src)
-    out = {"result": run["result"], "branches": run["branches"],
-           "opaque_branches": run["opaque_branches"]}
-    if args.flip is not None:
-        out["flip"] = flip_and_verify(fn, run, args.flip, source=src)
-    _emit_json(out)
+    from pegrex.sandbox import run_concolic_isolated
+    try:
+        src = pathlib.Path(args.file).read_text(encoding="utf-8")
+    except OSError as error:
+        _emit_json({"status": "unknown", "reason": "source-read-failed",
+                    "detail": str(error)[:300]})
+        return 2
+    result = run_concolic_isolated(src, args.fn_name, args.args,
+                                   flip_index=args.flip)
+    _emit_json(result)
+    return 0 if result.get("status") == "ok" else 2
 
 
 def _cmd_strategy(args):

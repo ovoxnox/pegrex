@@ -1,0 +1,35 @@
+{
+  "$id": "pegrex:pegrex.dependency-reachability.v1:schema",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": true,
+  "properties": {
+    "coverage": {
+      "type": "string"
+    },
+    "dependencies": {
+      "type": "array"
+    },
+    "parse_failures": {
+      "type": "array"
+    },
+    "root": {
+      "type": "string"
+    },
+    "schema": {
+      "const": "pegrex.dependency-reachability.v1"
+    },
+    "summary": {
+      "type": "object"
+    }
+  },
+  "required": [
+    "schema",
+    "root",
+    "dependencies",
+    "summary",
+    "coverage",
+    "parse_failures"
+  ],
+  "title": "Dependency reachability report",
+  "type": "object"
+}

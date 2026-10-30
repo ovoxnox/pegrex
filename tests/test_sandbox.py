@@ -34,6 +34,8 @@ def test_benign_roundtrip():
     r = run_python_isolated("def add(a, b):\n    return a + b\n", "add",
                             [2, 3], timeout=5.0)
     assert r["ok"] is True and r["result"] == 5
+    assert r["isolation"]["environment_cleared"] is True
+    assert r["isolation"]["network_isolated"] is False
 
 
 def test_non_json_result_uses_repr():
@@ -90,3 +92,23 @@ def test_chain_refuses_when_isolation_unavailable(monkeypatch=None):
             repaired_with_evidence(BEFORE, lambda fb: FIXED, use_sandbox=True)
     finally:
         sandbox.sandbox_available = orig
+
+
+def test_isolated_concolic_traces_source_in_child():
+    from pegrex.sandbox import run_concolic_isolated
+    source = "def classify(x):\n    if x > 0:\n        return 1\n    return 0\n"
+    result = run_concolic_isolated(source, "classify", [2], timeout=10, mem_mb=512)
+    assert result["status"] == "ok", result
+    assert result["result"] == 1
+    assert result["branches"] == [[2, "x > 0", True]]
+    assert result["execution"]["process_isolated"] is True
+    assert result["execution"]["network_isolation"] is False
+
+
+def test_isolated_concolic_times_out_instead_of_hanging_parent():
+    from pegrex.sandbox import run_concolic_isolated
+    source = "def loop(x):\n    while True:\n        pass\n"
+    result = run_concolic_isolated(source, "loop", [1], timeout=1, mem_mb=512)
+    assert result["status"] == "unknown"
+    assert result["reason"] in {"worker-timeout", "worker-invalid-output",
+                                 "worker-execution-failed"}

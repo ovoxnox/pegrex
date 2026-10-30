@@ -1,0 +1,26 @@
+{
+  "$id": "pegrex:pegrex.contract-subsumption.v1:schema",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": true,
+  "properties": {
+    "kept": {
+      "type": "array"
+    },
+    "method": {
+      "type": "string"
+    },
+    "removed": {},
+    "schema": {
+      "const": "pegrex.contract-subsumption.v1"
+    }
+  },
+  "required": [
+    "kept",
+    "method",
+    "removed",
+    "schema"
+  ],
+  "title": "PegRex public result: pegrex.contract-subsumption.v1",
+  "type": "object",
+  "x-peg-rex-validation-level": "inferred-top-level"
+}

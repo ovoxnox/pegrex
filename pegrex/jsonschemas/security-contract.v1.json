@@ -1,0 +1,51 @@
+{
+  "$id": "pegrex:pegrex.security-contract.v1:schema",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": true,
+  "properties": {
+    "contract": {},
+    "evidence": {
+      "additionalProperties": true,
+      "properties": {
+        "fixed_point": {},
+        "frameworks": {},
+        "required_transformations": {},
+        "scope": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "fixed_point",
+        "frameworks",
+        "required_transformations",
+        "scope"
+      ],
+      "type": "object"
+    },
+    "holds": {},
+    "schema": {
+      "const": "pegrex.security-contract.v1"
+    },
+    "schema_version": {
+      "type": "integer"
+    },
+    "unknowns": {
+      "type": "array"
+    },
+    "verdict": {},
+    "violations": {}
+  },
+  "required": [
+    "contract",
+    "evidence",
+    "holds",
+    "schema",
+    "schema_version",
+    "unknowns",
+    "verdict",
+    "violations"
+  ],
+  "title": "PegRex public result: pegrex.security-contract.v1",
+  "type": "object",
+  "x-peg-rex-validation-level": "inferred-top-level"
+}

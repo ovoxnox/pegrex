@@ -1,0 +1,102 @@
+{
+  "$id": "pegrex:pegrex.tools-api-envelope.v2:schema",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": true,
+  "properties": {
+    "api_version": {
+      "const": "2.0"
+    },
+    "assumptions": {
+      "items": {
+        "type": "string"
+      },
+      "type": "array"
+    },
+    "data": {},
+    "error": {
+      "additionalProperties": true,
+      "properties": {
+        "message": {
+          "type": "string"
+        },
+        "type": {
+          "type": "string"
+        }
+      },
+      "type": [
+        "object",
+        "null"
+      ]
+    },
+    "metadata": {
+      "type": "object"
+    },
+    "provenance": {
+      "additionalProperties": true,
+      "properties": {
+        "paths": {
+          "items": {
+            "type": "object"
+          },
+          "type": "array"
+        },
+        "workspace": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "workspace",
+        "paths"
+      ],
+      "type": "object"
+    },
+    "schema": {
+      "const": "pegrex.tools-api-envelope.v2"
+    },
+    "status": {
+      "enum": [
+        "ok",
+        "partial",
+        "error",
+        "unknown"
+      ]
+    },
+    "tool": {
+      "minLength": 1,
+      "type": "string"
+    },
+    "unknowns": {
+      "items": {
+        "type": "string"
+      },
+      "type": "array"
+    },
+    "verdict": {
+      "enum": [
+        "proved",
+        "refuted",
+        "unknown",
+        null
+      ],
+      "type": [
+        "string",
+        "null"
+      ]
+    }
+  },
+  "required": [
+    "schema",
+    "api_version",
+    "tool",
+    "status",
+    "verdict",
+    "data",
+    "unknowns",
+    "assumptions",
+    "metadata",
+    "provenance",
+    "error"
+  ],
+  "title": "Tools API v2 response envelope",
+  "type": "object"
+}

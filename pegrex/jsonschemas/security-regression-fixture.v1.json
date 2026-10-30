@@ -1,0 +1,45 @@
+{
+  "$id": "pegrex:pegrex.security-regression-fixture.v1:schema",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": true,
+  "properties": {
+    "expected": {
+      "const": "detect"
+    },
+    "id": {
+      "type": "string"
+    },
+    "review_required": {
+      "const": true
+    },
+    "rule_id": {
+      "type": "string"
+    },
+    "schema": {
+      "const": "pegrex.security-regression-fixture.v1"
+    },
+    "severity": {
+      "enum": [
+        "CRITICAL",
+        "HIGH",
+        "MEDIUM",
+        "LOW",
+        "INFO"
+      ]
+    },
+    "witness": {
+      "type": "object"
+    }
+  },
+  "required": [
+    "schema",
+    "id",
+    "severity",
+    "rule_id",
+    "witness",
+    "expected",
+    "review_required"
+  ],
+  "title": "Confirmed security regression fixture",
+  "type": "object"
+}

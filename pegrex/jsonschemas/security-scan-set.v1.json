@@ -1,0 +1,87 @@
+{
+  "$id": "pegrex:pegrex.security-scan-set.v1:schema",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": true,
+  "properties": {
+    "active_total": {
+      "minimum": 0,
+      "type": "integer"
+    },
+    "coverage": {
+      "additionalProperties": true,
+      "type": "object"
+    },
+    "files": {
+      "items": {
+        "additionalProperties": true,
+        "properties": {
+          "file": {
+            "type": "string"
+          },
+          "findings": {
+            "type": "array"
+          },
+          "unknowns": {
+            "type": "array"
+          }
+        },
+        "required": [
+          "file"
+        ],
+        "type": "object"
+      },
+      "type": "array"
+    },
+    "findings": {
+      "items": {
+        "additionalProperties": true,
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "severity": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id"
+        ],
+        "type": "object"
+      },
+      "type": "array"
+    },
+    "provenance": {
+      "additionalProperties": true,
+      "type": "object"
+    },
+    "schema": {
+      "const": "pegrex.security-scan-set.v1"
+    },
+    "suppressed_total": {
+      "minimum": 0,
+      "type": "integer"
+    },
+    "total": {
+      "minimum": 0,
+      "type": "integer"
+    },
+    "unknowns": {
+      "items": {
+        "type": "string"
+      },
+      "type": "array"
+    }
+  },
+  "required": [
+    "schema",
+    "files",
+    "findings",
+    "unknowns",
+    "coverage",
+    "total",
+    "active_total",
+    "suppressed_total"
+  ],
+  "title": "Multi-file security scan result",
+  "type": "object"
+}

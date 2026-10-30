@@ -1,0 +1,40 @@
+{
+  "$id": "pegrex:pegrex.patch-gate.v1:schema",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": true,
+  "properties": {
+    "after_sha256": {},
+    "applied": {
+      "type": "boolean"
+    },
+    "approved": {
+      "type": "boolean"
+    },
+    "audit_attempt_id": {},
+    "before_sha256": {},
+    "candidate_check": {},
+    "certificate": {},
+    "invariants": {},
+    "kernel": {},
+    "policy": {},
+    "schema": {
+      "const": "pegrex.patch-gate.v1"
+    },
+    "tests": {},
+    "unknowns": {
+      "items": {
+        "type": "string"
+      },
+      "type": "array"
+    }
+  },
+  "required": [
+    "applied",
+    "approved",
+    "schema",
+    "unknowns"
+  ],
+  "title": "PegRex public result: pegrex.patch-gate.v1",
+  "type": "object",
+  "x-peg-rex-validation-level": "inferred-top-level"
+}

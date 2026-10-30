@@ -1,0 +1,40 @@
+{
+  "$id": "pegrex:pegrex.release-semantic-diff.v1:schema",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": true,
+  "properties": {
+    "after_memory_identity": {},
+    "before_memory_identity": {
+      "type": [
+        "boolean",
+        "null"
+      ]
+    },
+    "changes": {
+      "type": "array"
+    },
+    "schema": {
+      "const": "pegrex.release-semantic-diff.v1"
+    },
+    "unknowns": {
+      "items": {
+        "type": "string"
+      },
+      "type": "array"
+    },
+    "verdict": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "after_memory_identity",
+    "before_memory_identity",
+    "changes",
+    "schema",
+    "unknowns",
+    "verdict"
+  ],
+  "title": "PegRex public result: pegrex.release-semantic-diff.v1",
+  "type": "object",
+  "x-peg-rex-validation-level": "inferred-top-level"
+}

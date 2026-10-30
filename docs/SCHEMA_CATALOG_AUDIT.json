@@ -1,0 +1,15 @@
+{
+  "catalog_entries": 147,
+  "errors": [],
+  "files": 147,
+  "levels": {
+    "inferred-top-level": 89,
+    "reviewed": 58
+  },
+  "limitations": [
+    "structural consistency does not prove that schemas cover every runtime branch",
+    "schemas marked inferred-top-level remain provisional until manually reviewed"
+  ],
+  "passed": true,
+  "schema": "pegrex.schema-catalog-audit.v1"
+}

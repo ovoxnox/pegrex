@@ -1,10 +1,13 @@
 """Minimal trusted certificate kernel.
 
-Only canonical JSON, SHA-256, and structural contract equality are trusted here.
-This module deliberately imports no parser, solver, analyzer, or project schema.
-Unsupported certificate forms fail closed as UNKNOWN, never as proofs.
+The kernel trusts canonical JSON/SHA-256, structural contract equality, and a
+small bounded finite-domain expression evaluator. It deliberately imports no
+parser, solver, or source analyzer. Unsupported certificate forms fail closed
+as UNKNOWN, never as proofs.
 """
 from __future__ import annotations
+
+from .finiteproof import check_finite_domain_proof
 
 import hashlib
 import json
@@ -59,8 +62,32 @@ def check_certificate(certificate) -> dict:
         verdict = certificate.get("verdict")
         if verdict not in {"proved", "refuted", "unknown"}:
             return _unknown("invalid-verdict")
-        if certificate.get("claim") not in {"equivalent", "patch-equivalent"}:
-            return _unknown("unsupported-claim", claim=certificate.get("claim"))
+        claim = certificate.get("claim")
+        if claim not in {"contract-set-identical", "equivalent", "patch-equivalent",
+                         "finite-domain-equivalent"}:
+            return _unknown("unsupported-claim", claim=claim)
+        if claim == "finite-domain-equivalent":
+            if certificate.get("unknowns") or verdict not in {"proved", "refuted"}:
+                return _unknown("finite-domain-certificate-not-complete")
+            evidence = certificate.get("evidence")
+            if not isinstance(evidence, dict):
+                return _unknown("finite-domain-evidence-missing")
+            result = check_finite_domain_proof(evidence.get("finite_domain_proof"))
+            if (result.get("checked") and result.get("verdict") in {"proved", "refuted"}
+                    and result["verdict"] == verdict):
+                return {"schema": RESULT_SCHEMA, "checked": True,
+                        "verdict": verdict, "claim": claim,
+                        "proof": result, "kernel": "finite-domain-enumerator-v1"}
+            return _unknown("finite-domain-proof-not-established-or-verdict-mismatch",
+                            proof_result=result)
+        # Canonical contract equality proves only that two supplied contract
+        # sets are structurally identical. It does not establish that the
+        # source programs are behaviorally equivalent or that extraction was
+        # complete. General source equivalence remains unsupported.
+        if claim in {"equivalent", "patch-equivalent"}:
+            return _unknown(
+                "semantic-equivalence-requires-an-independent-proof-checker",
+                claim=claim)
         if certificate.get("unknowns") and verdict == "proved":
             return _unknown("proved-certificate-contains-unknowns")
         evidence = certificate.get("evidence")
@@ -83,7 +110,7 @@ def check_certificate(certificate) -> dict:
             return _unknown("forged-equivalence-proof", before_contracts_sha256=before_digest,
                             after_contracts_sha256=after_digest)
         return {"schema": RESULT_SCHEMA, "checked": True, "verdict": "proved",
-                "claim": certificate["claim"],
+                "claim": "contract-set-identical",
                 "before_contracts_sha256": before_digest,
                 "after_contracts_sha256": after_digest,
                 "kernel": "canonical-contract-equality-v1"}

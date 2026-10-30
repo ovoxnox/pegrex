@@ -1,0 +1,44 @@
+{
+  "$id": "pegrex:pegrex.plugin-worker.v1:schema",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": true,
+  "properties": {
+    "containerized": {
+      "type": "boolean"
+    },
+    "exit_code": {
+      "type": "integer"
+    },
+    "network_disabled": {
+      "type": "boolean"
+    },
+    "read_only_plugin_mount": {
+      "type": "boolean"
+    },
+    "reason": {
+      "type": "string"
+    },
+    "result": {
+      "type": "object"
+    },
+    "schema": {
+      "const": "pegrex.plugin-worker.v1"
+    },
+    "status": {
+      "enum": [
+        "ok",
+        "unknown"
+      ]
+    },
+    "stderr_bytes": {
+      "minimum": 0,
+      "type": "integer"
+    }
+  },
+  "required": [
+    "schema",
+    "status"
+  ],
+  "title": "Restricted plugin worker result",
+  "type": "object"
+}

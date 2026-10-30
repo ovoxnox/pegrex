@@ -1,0 +1,37 @@
+{
+  "$id": "pegrex:pegrex.osv-provenance.v1:schema",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": true,
+  "properties": {
+    "osv": {},
+    "schema": {
+      "const": "pegrex.osv-provenance.v1"
+    },
+    "source": {
+      "additionalProperties": true,
+      "properties": {
+        "bytes": {
+          "type": "integer"
+        },
+        "path": {
+          "type": "string"
+        },
+        "sha256": {}
+      },
+      "required": [
+        "bytes",
+        "path",
+        "sha256"
+      ],
+      "type": "object"
+    }
+  },
+  "required": [
+    "osv",
+    "schema",
+    "source"
+  ],
+  "title": "PegRex public result: pegrex.osv-provenance.v1",
+  "type": "object",
+  "x-peg-rex-validation-level": "inferred-top-level"
+}

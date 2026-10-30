@@ -191,6 +191,8 @@ def auto_feasible(atoms) -> bool | None:
         solver = z3.Solver()
         for atom in atoms:
             solver.add(_to_z3(z3, str(atom)))
+        from .performance import record_solver_call
+        record_solver_call("z3")
         verdict = solver.check()
     except (ValueError, TypeError, z3.Z3Exception):
         return None
@@ -284,6 +286,8 @@ def _z3_entails(z3, atoms, guard) -> bool:
     for a in atoms:
         solver.add(_to_z3(z3, a))
     solver.add(z3.Not(_guard_to_z3(z3, guard)))
+    from .performance import record_solver_call
+    record_solver_call("z3")
     return solver.check() == z3.unsat
 
 
@@ -291,6 +295,8 @@ def _z3_feasible(z3, atoms) -> bool:
     solver = z3.Solver()
     for a in atoms:
         solver.add(_to_z3(z3, a))
+    from .performance import record_solver_call
+    record_solver_call("z3")
     return solver.check() == z3.sat
 
 

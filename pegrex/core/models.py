@@ -13,6 +13,8 @@ import json
 from pathlib import Path
 from typing import Any, Iterable
 
+from ..limits import MAX_SOURCE_BYTES
+
 SCHEMA_VERSION = "pegrex.core.v1"
 
 
@@ -47,12 +49,18 @@ class SourceDocument:
     sha256: str = ""
 
     def __post_init__(self):
+        if not isinstance(self.text, str):
+            raise TypeError("source text must be a string")
+        source_bytes = self.text.encode("utf-8")
+        if len(source_bytes) > MAX_SOURCE_BYTES:
+            raise ValueError(
+                f"source input exceeds {MAX_SOURCE_BYTES} UTF-8 bytes")
         from ..languages import normalize_language
         language = normalize_language(self.language)
         if language is None:
             raise ValueError(f"unsupported source language {self.language!r}")
         object.__setattr__(self, "language", language)
-        actual_sha256 = hashlib.sha256(self.text.encode("utf-8")).hexdigest()
+        actual_sha256 = hashlib.sha256(source_bytes).hexdigest()
         if self.sha256 and self.sha256.lower() != actual_sha256:
             raise ValueError("source sha256 mismatch; refusing forged provenance")
         object.__setattr__(self, "sha256", actual_sha256)
@@ -65,7 +73,15 @@ class SourceDocument:
         lang = detect_language(p, language)
         if lang is None:
             raise ValueError(f"cannot detect language for {str(p)!r}")
-        return cls(p.read_text(encoding="utf-8"), lang, str(p.resolve()))
+        # Bound the read itself, not just a preceding stat: the file may grow
+        # between metadata inspection and reading.
+        with p.open("rb") as stream:
+            raw = stream.read(MAX_SOURCE_BYTES + 1)
+        if len(raw) > MAX_SOURCE_BYTES:
+            raise ValueError(
+                f"source input exceeds {MAX_SOURCE_BYTES} UTF-8 bytes: {p}")
+        text = raw.decode("utf-8")
+        return cls(text, lang, str(p.resolve()))
 
     def slice(self, start: int, end: int) -> str:
         """Implement slice with the module's explicit API and failure semantics."""
@@ -95,12 +111,39 @@ class PathContract:
     source_hash: str | None = None
     metadata: tuple[tuple[str, str], ...] = ()
 
+    def __post_init__(self) -> None:
+        """Normalize direct construction as strictly as the factory path."""
+        if isinstance(self.constraints, (str, bytes)):
+            raise TypeError("constraints must be an iterable of constraint strings, not a scalar string")
+        normalized = {" ".join(str(item).strip().split()) for item in self.constraints}
+        object.__setattr__(self, "constraints", tuple(sorted(normalized)))
+        if not isinstance(self.outcome, str):
+            object.__setattr__(self, "outcome", str(self.outcome))
+        if self.function is not None and not isinstance(self.function, str):
+            object.__setattr__(self, "function", str(self.function))
+        if self.source_hash is not None and not isinstance(self.source_hash, str):
+            object.__setattr__(self, "source_hash", str(self.source_hash))
+        metadata = self.metadata
+        if isinstance(metadata, dict):
+            items = metadata.items()
+        else:
+            try:
+                items = list(metadata)
+            except TypeError as error:
+                raise TypeError("metadata must be a mapping or iterable of key/value pairs") from error
+        try:
+            pairs = {str(key): str(value) for key, value in items}
+        except (TypeError, ValueError) as error:
+            raise ValueError("metadata must contain key/value pairs") from error
+        object.__setattr__(self, "metadata", tuple(sorted(pairs.items())))
+
     @classmethod
     def create(cls, constraints: Iterable[Any], outcome: Any, **kwargs) -> "PathContract":
         # Keep the original normalized surface text in the public field. Older
-        # APIs expose these strings, so canonical hashes must not force clients
+        # APIs expose these strings, so canonical hashes do not force clients
         # to migrate to solver-internal notation such as ``1*n`` coefficients.
-        """Implement create with the module's explicit API and failure semantics."""
+        if isinstance(constraints, (str, bytes)):
+            raise TypeError("constraints must be an iterable of constraint strings, not a scalar string")
         normalized = {" ".join(str(constraint).strip().split())
                       for constraint in constraints}
         return cls(tuple(sorted(normalized)), str(outcome), **kwargs)

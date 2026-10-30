@@ -1,0 +1,56 @@
+{
+  "$id": "pegrex:pegrex.semantic-change-budget.v1:schema",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": true,
+  "properties": {
+    "after_memory_identity": {},
+    "before_memory_identity": {},
+    "budget": {},
+    "budget_exceeded": {},
+    "complexity_changes": {
+      "type": "array"
+    },
+    "dependency_changes": {
+      "type": "array"
+    },
+    "metrics": {},
+    "public_contract_changes": {
+      "type": "array"
+    },
+    "schema": {
+      "const": "pegrex.semantic-change-budget.v1"
+    },
+    "schema_version": {
+      "type": "integer"
+    },
+    "scope": {
+      "type": "string"
+    },
+    "security_surface_changes": {
+      "type": "array"
+    },
+    "status": {
+      "type": "string"
+    },
+    "unknown_regions": {
+      "type": "array"
+    },
+    "verdict": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "complexity_changes",
+    "dependency_changes",
+    "public_contract_changes",
+    "schema",
+    "schema_version",
+    "security_surface_changes",
+    "status",
+    "unknown_regions",
+    "verdict"
+  ],
+  "title": "PegRex public result: pegrex.semantic-change-budget.v1",
+  "type": "object",
+  "x-peg-rex-validation-level": "inferred-top-level"
+}

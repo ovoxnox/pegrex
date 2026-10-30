@@ -1,0 +1,49 @@
+{
+  "$id": "pegrex:pegrex.compiler-differential.v1:schema",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": true,
+  "properties": {
+    "artifacts": {
+      "additionalProperties": true,
+      "properties": {
+        "baseline_sha256": {},
+        "candidate_sha256": {}
+      },
+      "required": [
+        "baseline_sha256",
+        "candidate_sha256"
+      ],
+      "type": "object"
+    },
+    "certificate": {
+      "type": "null"
+    },
+    "schema": {
+      "const": "pegrex.compiler-differential.v1"
+    },
+    "schema_version": {
+      "type": "integer"
+    },
+    "source_sha256": {},
+    "unknowns": {
+      "items": {
+        "type": "string"
+      },
+      "type": "array"
+    },
+    "verdict": {
+      "type": "string"
+    },
+    "verification": {}
+  },
+  "required": [
+    "schema",
+    "schema_version",
+    "source_sha256",
+    "unknowns",
+    "verdict"
+  ],
+  "title": "PegRex public result: pegrex.compiler-differential.v1",
+  "type": "object",
+  "x-peg-rex-validation-level": "inferred-top-level"
+}

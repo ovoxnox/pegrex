@@ -1,0 +1,101 @@
+{
+  "$id": "pegrex:pegrex.scan-coverage.v1:schema",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": true,
+  "properties": {
+    "file": {
+      "additionalProperties": true,
+      "properties": {
+        "bytes": {},
+        "path": {},
+        "sha256": {},
+        "status": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "bytes",
+        "path",
+        "sha256",
+        "status"
+      ],
+      "type": "object"
+    },
+    "language": {
+      "additionalProperties": true,
+      "properties": {
+        "audit": {},
+        "id": {},
+        "status": {
+          "type": "string"
+        },
+        "taint": {}
+      },
+      "required": [
+        "audit",
+        "id",
+        "status",
+        "taint"
+      ],
+      "type": "object"
+    },
+    "rules": {
+      "additionalProperties": true,
+      "properties": {
+        "pattern": {
+          "additionalProperties": true,
+          "properties": {
+            "executed": {},
+            "skipped": {},
+            "undecided": {}
+          },
+          "required": [
+            "executed",
+            "skipped",
+            "undecided"
+          ],
+          "type": "object"
+        },
+        "taint": {
+          "additionalProperties": true,
+          "properties": {
+            "executed": {},
+            "skipped": {},
+            "undecided": {
+              "type": "array"
+            }
+          },
+          "required": [
+            "executed",
+            "skipped",
+            "undecided"
+          ],
+          "type": "object"
+        }
+      },
+      "required": [
+        "pattern",
+        "taint"
+      ],
+      "type": "object"
+    },
+    "schema": {
+      "const": "pegrex.scan-coverage.v1"
+    },
+    "status": {
+      "type": "string"
+    },
+    "unknowns": {}
+  },
+  "required": [
+    "file",
+    "language",
+    "rules",
+    "schema",
+    "status",
+    "unknowns"
+  ],
+  "title": "PegRex public result: pegrex.scan-coverage.v1",
+  "type": "object",
+  "x-peg-rex-validation-level": "inferred-top-level"
+}

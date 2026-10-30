@@ -1,0 +1,68 @@
+{
+  "$id": "pegrex:pegrex.integration-result.v1:schema",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": true,
+  "properties": {
+    "artifacts": {
+      "items": {
+        "type": "object"
+      },
+      "type": "array"
+    },
+    "assumptions": {
+      "items": {
+        "type": "string"
+      },
+      "type": "array"
+    },
+    "backend": {
+      "type": "string"
+    },
+    "candidate": {
+      "type": "boolean"
+    },
+    "execution": {
+      "type": "object"
+    },
+    "operation": {
+      "type": "string"
+    },
+    "schema": {
+      "const": "pegrex.integration-result.v1"
+    },
+    "schema_version": {
+      "const": 1,
+      "type": "integer"
+    },
+    "status": {
+      "type": "string"
+    },
+    "unknowns": {
+      "items": {
+        "type": "string"
+      },
+      "type": "array"
+    },
+    "verdict": {
+      "enum": [
+        "proved",
+        "refuted",
+        "unknown"
+      ]
+    }
+  },
+  "required": [
+    "schema",
+    "schema_version",
+    "backend",
+    "operation",
+    "status",
+    "verdict",
+    "candidate",
+    "artifacts",
+    "unknowns",
+    "assumptions"
+  ],
+  "title": "PegRex optional integration result",
+  "type": "object"
+}

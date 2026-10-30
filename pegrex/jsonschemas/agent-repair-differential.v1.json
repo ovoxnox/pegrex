@@ -1,0 +1,39 @@
+{
+  "$id": "pegrex:pegrex.agent-repair-differential.v1:schema",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": true,
+  "properties": {
+    "applied": {
+      "type": "boolean"
+    },
+    "sandbox": {},
+    "schema": {
+      "const": "pegrex.agent-repair-differential.v1"
+    },
+    "status": {
+      "type": "string"
+    },
+    "unchanged": {
+      "type": "boolean"
+    },
+    "unknowns": {
+      "items": {
+        "type": "string"
+      },
+      "type": [
+        "array",
+        "boolean"
+      ]
+    }
+  },
+  "required": [
+    "applied",
+    "schema",
+    "status",
+    "unchanged",
+    "unknowns"
+  ],
+  "title": "PegRex public result: pegrex.agent-repair-differential.v1",
+  "type": "object",
+  "x-peg-rex-validation-level": "inferred-top-level"
+}

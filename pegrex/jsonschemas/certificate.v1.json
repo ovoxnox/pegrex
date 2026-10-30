@@ -1,10 +1,89 @@
 {
-  "$id": "pegrex:pegrex.certificate.v1:schema",
+  "$id": "https://pegrex.dev/schemas/certificate.v1.json",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "additionalProperties": true,
+  "additionalProperties": false,
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "claim": {
+            "const": "finite-domain-equivalent"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "evidence": {
+            "additionalProperties": false,
+            "properties": {
+              "finite_domain_proof": {
+                "type": "object"
+              }
+            },
+            "required": [
+              "finite_domain_proof"
+            ],
+            "type": "object"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "claim": {
+            "const": "contract-set-identical"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "evidence": {
+            "additionalProperties": false,
+            "properties": {
+              "after_contracts": {
+                "maxItems": 10000,
+                "type": "array"
+              },
+              "after_contracts_sha256": {
+                "pattern": "^[0-9a-f]{64}$",
+                "type": "string"
+              },
+              "before_contracts": {
+                "maxItems": 10000,
+                "type": "array"
+              },
+              "before_contracts_sha256": {
+                "pattern": "^[0-9a-f]{64}$",
+                "type": "string"
+              }
+            },
+            "required": [
+              "before_contracts",
+              "after_contracts"
+            ],
+            "type": "object"
+          }
+        }
+      }
+    }
+  ],
   "properties": {
-    "claim": {
+    "after_source_sha256": {
+      "pattern": "^[0-9a-f]{64}$",
       "type": "string"
+    },
+    "before_source_sha256": {
+      "pattern": "^[0-9a-f]{64}$",
+      "type": "string"
+    },
+    "claim": {
+      "enum": [
+        "contract-set-identical",
+        "equivalent",
+        "patch-equivalent",
+        "finite-domain-equivalent"
+      ]
     },
     "counterexample": {
       "type": [
@@ -22,6 +101,10 @@
       "const": 1
     },
     "unknowns": {
+      "items": {
+        "type": "string"
+      },
+      "maxItems": 10000,
       "type": "array"
     },
     "verdict": {
@@ -29,8 +112,7 @@
         "proved",
         "refuted",
         "unknown"
-      ],
-      "type": "string"
+      ]
     }
   },
   "required": [
@@ -38,9 +120,9 @@
     "schema_version",
     "verdict",
     "claim",
-    "evidence",
-    "unknowns"
+    "unknowns",
+    "evidence"
   ],
-  "title": "PegRex three-valued certificate",
+  "title": "PegRex proof certificate v1",
   "type": "object"
 }

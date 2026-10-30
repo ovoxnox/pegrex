@@ -1,0 +1,58 @@
+{
+  "$id": "pegrex:pegrex.trace-guided-paths.v1:schema",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": true,
+  "properties": {
+    "coverage": {
+      "additionalProperties": true,
+      "properties": {
+        "observed": {
+          "type": "integer"
+        },
+        "total": {
+          "type": "integer"
+        },
+        "unseen": {
+          "type": "integer"
+        }
+      },
+      "required": [
+        "observed",
+        "total",
+        "unseen"
+      ],
+      "type": "object"
+    },
+    "paths": {
+      "type": "array"
+    },
+    "schema": {
+      "const": "pegrex.trace-guided-paths.v1"
+    },
+    "schema_version": {
+      "type": "integer"
+    },
+    "scope": {
+      "type": "string"
+    },
+    "unknowns": {
+      "items": {
+        "type": "string"
+      },
+      "type": "array"
+    },
+    "verdict": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "paths",
+    "schema",
+    "schema_version",
+    "unknowns",
+    "verdict"
+  ],
+  "title": "PegRex public result: pegrex.trace-guided-paths.v1",
+  "type": "object",
+  "x-peg-rex-validation-level": "inferred-top-level"
+}

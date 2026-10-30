@@ -1,0 +1,58 @@
+{
+  "$id": "pegrex:pegrex.repository-memory.v1:schema",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": true,
+  "properties": {
+    "entries": {
+      "items": {
+        "additionalProperties": true,
+        "properties": {
+          "constraints": {
+            "type": "array"
+          },
+          "evidence": {
+            "type": "array"
+          },
+          "id": {
+            "type": "string"
+          },
+          "kind": {
+            "type": "string"
+          },
+          "source_sha256": {
+            "pattern": "^[0-9a-f]{64}$",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id"
+        ],
+        "type": "object"
+      },
+      "type": "array"
+    },
+    "schema": {
+      "const": "pegrex.repository-memory.v1"
+    },
+    "schema_version": {
+      "const": 1
+    },
+    "status": {
+      "type": "string"
+    },
+    "unknowns": {
+      "items": {
+        "type": "string"
+      },
+      "type": "array"
+    }
+  },
+  "required": [
+    "schema",
+    "entries",
+    "unknowns",
+    "status"
+  ],
+  "title": "Versioned repository memory result",
+  "type": "object"
+}

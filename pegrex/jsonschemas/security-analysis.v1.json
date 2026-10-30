@@ -1,0 +1,126 @@
+{
+  "$id": "pegrex:pegrex.security-analysis.v1:schema",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": true,
+  "properties": {
+    "analysis_schema": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "coverage": {
+      "additionalProperties": true,
+      "properties": {
+        "language": {
+          "type": "string"
+        },
+        "limits": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "mode": {
+          "enum": [
+            "fast",
+            "deep"
+          ]
+        },
+        "model_version": {
+          "type": "string"
+        },
+        "status": {
+          "enum": [
+            "complete",
+            "partial",
+            "unknown"
+          ]
+        }
+      },
+      "required": [
+        "status"
+      ],
+      "type": "object"
+    },
+    "findings": {
+      "items": {
+        "additionalProperties": true,
+        "properties": {
+          "confidence": {
+            "type": "string"
+          },
+          "evidence": {
+            "type": "string"
+          },
+          "file": {
+            "type": "string"
+          },
+          "flow": {
+            "type": "array"
+          },
+          "id": {
+            "type": "string"
+          },
+          "line": {
+            "minimum": 1,
+            "type": "integer"
+          },
+          "rule_id": {
+            "type": "string"
+          },
+          "severity": {
+            "enum": [
+              "CRITICAL",
+              "HIGH",
+              "MEDIUM",
+              "LOW",
+              "INFO"
+            ]
+          },
+          "sink": {
+            "type": "string"
+          },
+          "source": {
+            "type": "string"
+          },
+          "unknowns": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          }
+        },
+        "required": [
+          "id"
+        ],
+        "type": "object"
+      },
+      "type": "array"
+    },
+    "resource_usage": {
+      "additionalProperties": true,
+      "type": "object"
+    },
+    "schema": {
+      "const": "pegrex.security-analysis.v1"
+    },
+    "security_model": {
+      "type": "string"
+    },
+    "unknowns": {
+      "items": {
+        "type": "string"
+      },
+      "type": "array"
+    }
+  },
+  "required": [
+    "schema",
+    "findings",
+    "unknowns",
+    "coverage"
+  ],
+  "title": "Security analysis result",
+  "type": "object"
+}

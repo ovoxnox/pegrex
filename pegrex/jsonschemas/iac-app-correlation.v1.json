@@ -1,0 +1,27 @@
+{
+  "$id": "pegrex:pegrex.iac-app-correlation.v1:schema",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": true,
+  "properties": {
+    "conflicts": {
+      "type": "array"
+    },
+    "coverage": {
+      "type": "string"
+    },
+    "schema": {
+      "const": "pegrex.iac-app-correlation.v1"
+    },
+    "unknowns": {
+      "type": "array"
+    }
+  },
+  "required": [
+    "schema",
+    "conflicts",
+    "coverage",
+    "unknowns"
+  ],
+  "title": "Application assumption and IaC correlation",
+  "type": "object"
+}

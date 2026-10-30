@@ -1,0 +1,24 @@
+{
+  "$id": "pegrex:pegrex.edit-decision.v1:schema",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": true,
+  "properties": {
+    "approval": {},
+    "attempt_id": {},
+    "proof_attempts": {},
+    "schema": {
+      "const": "pegrex.edit-decision.v1"
+    },
+    "tests": {}
+  },
+  "required": [
+    "approval",
+    "attempt_id",
+    "proof_attempts",
+    "schema",
+    "tests"
+  ],
+  "title": "PegRex public result: pegrex.edit-decision.v1",
+  "type": "object",
+  "x-peg-rex-validation-level": "inferred-top-level"
+}

@@ -1,0 +1,37 @@
+{
+  "$id": "pegrex:pegrex.attack-path-graph.v1:schema",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": true,
+  "properties": {
+    "complete": {
+      "type": "boolean"
+    },
+    "edges": {
+      "type": "array"
+    },
+    "nodes": {
+      "type": "array"
+    },
+    "paths": {},
+    "schema": {
+      "const": "pegrex.attack-path-graph.v1"
+    },
+    "schema_version": {
+      "type": "integer"
+    },
+    "unknowns": {
+      "type": "array"
+    },
+    "verdict": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "schema",
+    "schema_version",
+    "unknowns"
+  ],
+  "title": "PegRex public result: pegrex.attack-path-graph.v1",
+  "type": "object",
+  "x-peg-rex-validation-level": "inferred-top-level"
+}

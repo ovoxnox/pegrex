@@ -1,0 +1,74 @@
+{
+  "$id": "pegrex:pegrex.harness-policy-tests.v1:schema",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": true,
+  "properties": {
+    "controls": {
+      "items": {
+        "type": "object"
+      },
+      "type": "array"
+    },
+    "expectation_failures": {
+      "items": {
+        "type": "string"
+      },
+      "type": "array"
+    },
+    "expected_mutation_status": {
+      "type": "object"
+    },
+    "killed": {
+      "type": "integer"
+    },
+    "mutation_report_schema": {
+      "const": "pegrex.analyzer-mutation.v1"
+    },
+    "mutation_verdict": {
+      "enum": [
+        "proved",
+        "refuted",
+        "unknown"
+      ]
+    },
+    "safe_baseline_allowed": {
+      "type": "boolean"
+    },
+    "schema": {
+      "const": "pegrex.harness-policy-tests.v1"
+    },
+    "suite_schema": {
+      "const": "pegrex.harness-policy-tests.v1"
+    },
+    "survived": {
+      "type": "integer"
+    },
+    "unknowns": {
+      "items": {
+        "type": "string"
+      },
+      "type": "array"
+    },
+    "verdict": {
+      "enum": [
+        "proved",
+        "refuted",
+        "unknown"
+      ]
+    }
+  },
+  "required": [
+    "schema",
+    "mutation_report_schema",
+    "suite_schema",
+    "controls",
+    "verdict",
+    "mutation_verdict",
+    "safe_baseline_allowed",
+    "expected_mutation_status",
+    "expectation_failures",
+    "unknowns"
+  ],
+  "title": "PegRex agent harness policy mutation suite",
+  "type": "object"
+}

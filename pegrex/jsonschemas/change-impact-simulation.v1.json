@@ -1,0 +1,57 @@
+{
+  "$id": "pegrex:pegrex.change-impact-simulation.v1:schema",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": true,
+  "properties": {
+    "applied": {
+      "type": "boolean"
+    },
+    "change_budget": {},
+    "contracts": {
+      "type": "array"
+    },
+    "data_flows": {
+      "type": "array"
+    },
+    "downstream_functions": {},
+    "downstream_modules": {
+      "type": "array"
+    },
+    "generated_clients": {
+      "type": "array"
+    },
+    "policies": {},
+    "schema": {
+      "const": "pegrex.change-impact-simulation.v1"
+    },
+    "schema_version": {
+      "type": "integer"
+    },
+    "scope": {
+      "type": "string"
+    },
+    "staged": {
+      "type": "boolean"
+    },
+    "unknowns": {
+      "type": "array"
+    },
+    "verdict": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "applied",
+    "contracts",
+    "data_flows",
+    "downstream_modules",
+    "generated_clients",
+    "schema",
+    "schema_version",
+    "unknowns",
+    "verdict"
+  ],
+  "title": "PegRex public result: pegrex.change-impact-simulation.v1",
+  "type": "object",
+  "x-peg-rex-validation-level": "inferred-top-level"
+}

@@ -1,0 +1,36 @@
+{
+  "$id": "pegrex:pegrex.agent-action-authorization.v1:schema",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": true,
+  "properties": {
+    "allowed": {
+      "type": "boolean"
+    },
+    "decisions": {},
+    "plan_id": {},
+    "policy_sha256": {},
+    "schema": {
+      "const": "pegrex.agent-action-authorization.v1"
+    },
+    "schema_version": {
+      "type": "integer"
+    },
+    "status": {
+      "type": "string"
+    },
+    "unknowns": {
+      "type": "array"
+    },
+    "verdict": {
+      "type": "string"
+    },
+    "workspace": {}
+  },
+  "required": [
+    "allowed",
+    "schema"
+  ],
+  "title": "PegRex public result: pegrex.agent-action-authorization.v1",
+  "type": "object",
+  "x-peg-rex-validation-level": "inferred-top-level"
+}

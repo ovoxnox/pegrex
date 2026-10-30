@@ -17,7 +17,7 @@ def _distance(a, b):
     return rows[-1]
 
 
-def _name(name): return re.split(r"[<>=!~;\[]", name.strip(), 1)[0].strip().lower()
+def _name(name): return re.split(r"[<>=!~;\[]", name.strip(), maxsplit=1)[0].strip().lower()
 def _typo(name):
     name = _name(name)
     if name in _POPULAR: return None

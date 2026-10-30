@@ -1,0 +1,30 @@
+{
+  "$id": "pegrex:pegrex.normalized-semantic-payload.v1:schema",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": true,
+  "properties": {
+    "contracts": {},
+    "domain_assumptions": {
+      "type": "boolean"
+    },
+    "effects": {},
+    "language": {},
+    "schema": {
+      "const": "pegrex.normalized-semantic-payload.v1"
+    },
+    "type_assumptions": {
+      "type": "boolean"
+    }
+  },
+  "required": [
+    "contracts",
+    "domain_assumptions",
+    "effects",
+    "language",
+    "schema",
+    "type_assumptions"
+  ],
+  "title": "PegRex public result: pegrex.normalized-semantic-payload.v1",
+  "type": "object",
+  "x-peg-rex-validation-level": "inferred-top-level"
+}

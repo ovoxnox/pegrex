@@ -81,7 +81,7 @@ def generate_sbom(lockfile, *, format="cyclonedx", licenses=None) -> dict:
                   "bytes": len(raw), "generator": "pegrex.sbom", "offline": True}
     if format.lower() in {"cyclonedx", "cdx"}:
         document = {"bomFormat": "CycloneDX", "specVersion": "1.5", "version": 1,
-            "metadata": {"tools": {"components": [{"type": "application", "name": "PegRex", "version": "1.1.0"}]},
+            "metadata": {"tools": {"components": [{"type": "application", "name": "PegRex", "version": "1.3.0"}]},
                 "properties": [{"name": "pegrex:provenance", "value": json.dumps(provenance, sort_keys=True)}] +
                             [{"name": "pegrex:unknown", "value": row} for row in unknowns]},
             "components": [{"type": "library", "bom-ref": row["purl"], "name": row["name"],
@@ -108,7 +108,7 @@ def generate_sbom(lockfile, *, format="cyclonedx", licenses=None) -> dict:
                            "relatedSpdxElement": ids[target]} for ref, deps in sorted(edges.items()) for target in deps]
         return {"spdxVersion": "SPDX-2.3", "dataLicense": "CC0-1.0", "SPDXID": "SPDXRef-DOCUMENT",
             "name": Path(lockfile).stem + "-sbom", "documentNamespace": f"urn:pegrex:sbom:{identity}",
-            "creationInfo": {"created": created, "creators": ["Tool: PegRex-1.1.0"]},
+            "creationInfo": {"created": created, "creators": ["Tool: PegRex-1.3.0"]},
             "documentComment": json.dumps({"provenance": provenance, "unknowns": unknowns}, sort_keys=True),
             "packages": packages, "relationships": relationships}
     raise ValueError("SBOM format must be cyclonedx or spdx")

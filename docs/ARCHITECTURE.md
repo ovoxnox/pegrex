@@ -31,7 +31,18 @@ Core operations return `OperationResult`, with a status (`ok`, `partial`, `error
 
 `SourceDocument` uses Python character offsets for spans and carries a SHA-256 source digest recomputed from the UTF-8 text; forged caller-supplied digests are rejected. Tree-sitter byte offsets are converted once at the parser bridge. `PathContract.identity` includes normalized guard text and observable outcome semantics, and it is intentionally independent of the optional refinement/solver layer. Semantic equivalence remains a separate analysis operation.
 
-`CoreEngine.execute()` is the non-throwing operation-dispatch adapter: malformed envelopes, unsupported operations, and adapter exceptions become structured error/UNKNOWN results, while direct historical methods retain their exception contracts. Only explicitly confirmed counterexamples promote verification to REFUTED. `pegrex.toolsapi` adds declarative argument schemas, lazy implementation loading, workspace path/symlink confinement, file hashes, and versioned evidence envelopes. Its registry has no raw-shell operation and no real-workspace mutation path.
+`CoreEngine.execute()` is the non-throwing operation-dispatch adapter: malformed envelopes, unsupported operations, and adapter exceptions become structured error/UNKNOWN results, while direct historical methods retain their exception contracts. Only explicitly confirmed counterexamples promote verification to REFUTED. `pegrex.toolsapi` adds declarative argument schemas, lazy implementation loading, workspace path/symlink confinement, file hashes, and versioned evidence envelopes. Its registry has no raw-shell operation. Mutation is an explicit manifest property restricted to declared, confined staging roots.
+
+## Optional external backends
+
+`pegrex.integrations` is a fifth, optional adapter family rather than a new semantic center. `CoreEngine` stores only lazy operation-to-module mappings; core data models and the minimal trusted replay kernel do not import external compilers, numerical runtimes, LLMs, or generated code. All backends emit `pegrex.integration-result.v1` and reuse core statuses, verdicts, UNKNOWNs, assumptions, and provenance.
+
+- `neural_codegen.py` connects a versioned offline Rust wrapper (`tools/nc_pegrex`) to neural-codegen's public S-expression parser, typed `ApiEndpoint` IR, and deterministic generator. It writes only into staging, verifies report/artifact identities, and independently audits candidate Rust. Compilation checks are argv-only and sandboxed; generated stubs and user intent remain unresolved.
+- `ironkernel_backend.py` owns a small JSON expression grammar and flat float64 input contract. A separate worker constructs expressions through ironkernel's public API and compares them with NumPy. Arbitrary Python source, dynamic operators, unbounded arrays, and non-finite inputs are rejected. Differential mismatches require replay before confirmation; passing samples never become equivalence proofs.
+- `pythoc_backend.py` copies one source and the compilation worker into staging, then requires bubblewrap/prlimit isolation with no network or inherited credentials. The parent independently checks source/IR hashes and sends emitted IR through `compilerir`'s explicit LLVM 17/18 grammars. LLVM well-formedness and CFG parsing are narrow claims, not native safety proofs. Native differential execution uses the existing ephemeral PoC sandbox.
+- `integrations/common.py` centralizes bounded UTF-8/binary input, safe artifact records, deterministic JSON writes, staging containment, argv validation, minimal environments, process groups, resource limits, output caps, and optional OS sandboxing. `integrations/assurance.py` binds claims to exact artifact hashes for existing continuous-assurance invalidation.
+
+The CLI subgroups in `pegrex.commands.integrations` call Tools API v2 rather than maintaining a second argument-validation or evidence path. Optional Python extras do not alter the base dependency set. No adapter loads generated or native code into the PegRex parent process.
 
 ## Shared analysis and scaling
 
@@ -73,7 +84,7 @@ Loop-summary evidence interprets only validated integer arithmetic and compariso
 
 `pegrex.patchgate` performs edits in a disposable staged repository. Semantic certificates, required invariants, argv-only tests, optional candidate rechecks, and the selected security policy must all allow the change before an atomic target replacement. `pegrex.editaudit` durably records original and proposed source, unified diffs, tests, proof attempts, and the final decision for accepted and rejected attempts. `pegrex.repairloop` reruns the same finding analyzer on each staged candidate and requires the target finding to decrease without increasing any other finding identity.
 
-`pegrex.kernel` is the minimal trusted certificate checker. It uses only standard-library JSON, SHA-256, bounded structural validation, and canonical contract-set equality. It imports no analyzer, parser, solver, or PegRex schema module and does not trust a producer's `proved` claim. REFUTED certificates and unsupported or malformed evidence remain UNKNOWN because counterexample execution is outside this kernel.
+`pegrex.kernel` is the minimal trusted certificate checker. It uses only standard-library JSON, SHA-256, bounded structural validation, and canonical contract-set equality. It proves only that two supplied contract sets are identical; it deliberately refuses to promote that equality to semantic program equivalence. It imports no analyzer, parser, solver, or PegRex schema module and does not trust a producer's `proved` claim. REFUTED certificates and unsupported or malformed evidence remain UNKNOWN because counterexample execution is outside this kernel.
 
 `pegrex.multiagent` separates candidate generation, patch generation, counterexample search, and independent checking into typed role-evidence records. A checker may not be either generator callable. Role output feeds the patch gate as an additional candidate check; it never grants a separate write path.
 
@@ -160,3 +171,13 @@ Loop-summary evidence interprets only validated integer arithmetic and compariso
 ## Adding an operation
 
 Keep domain/result types in `pegrex.core`; expose a lazily loaded adapter in `CoreEngine` and enforce capabilities through `pegrex.languages`. Public APIs should be thin compatibility wrappers. Never encode an unknown result as success, and do not represent a completed analysis as a certificate unless an independently checkable proof artifact was emitted.
+
+
+## Resource budget contract
+
+The shared analysis session applies byte, normalized-tree node, report-output, path-count, and per-file deadline limits. Limit exhaustion is represented as `unknown` with a resource classification rather than as an empty or partial success. Legacy analyzers may still have narrower local controls; expensive or untrusted external integrations must additionally use bounded subprocess execution and must not infer that a session deadline can interrupt arbitrary synchronous code.
+
+
+## PathContract interchange v2
+
+The portable v2 record and its source-coordinate, effect, exception, termination, and numeric-semantics rules are specified in `docs/specs/PATH_CONTRACT_V2.md`. This is opt-in and does not change legacy `PathContract` serialization. The v2 validator is deliberately shape-only and never labels a record as a proof.

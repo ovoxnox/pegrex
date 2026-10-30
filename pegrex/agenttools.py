@@ -71,11 +71,15 @@ def verify_change(before_path: str, after_path: str, *, claim="equivalent") -> d
             verdict = "refuted"
         else:
             verdict = "unknown"
+        source_identities = {
+            f"{side}_source_sha256": provenance[side]["sha256"]
+            for side in ("before", "after") if provenance[side].get("sha256")
+        }
         certificate = certificate_document(verdict, claim, evidence={
             "distinguishing": result.get("distinguishing", [])},
             counterexample=result.get("counterexample"),
             unknowns=[] if verdict == "proved" else ([result["note"]] if result.get("note") else []),
-            before=provenance["before"], after=provenance["after"])
+            **source_identities)
         return _envelope("verifier.check", {"certificate": certificate,
                                             "verification": result},
                          verdict=verdict, unknowns=certificate["unknowns"], provenance=provenance)
@@ -108,3 +112,55 @@ def agent_tool_manifest() -> dict:
         {"name": "verifier.check", "input": ["before_path", "after_path", "claim?"],
          "output": "pegrex.certificate.v1", "evidence": SCHEMA},
     ]}
+
+
+def patch_review(before_path: str, after_path: str, *, claim="equivalent") -> dict:
+    """Evidence-first patch review; never upgrades unknown to success."""
+    verification = verify_change(before_path, after_path, claim=claim)
+    certificate = verification.get("data", {}).get("certificate")
+    unresolved = list(verification.get("unknowns", []))
+    verified_properties = []
+    if certificate and certificate.get("verdict") == "proved":
+        verified_properties.append({"claim": claim, "certificate": certificate})
+    counterexample = None
+    if certificate and certificate.get("verdict") == "refuted":
+        counterexample = certificate.get("counterexample")
+    if not verified_properties and counterexample is None and not unresolved:
+        unresolved.append(unknown_document("no-independent-proof-or-counterexample"))
+    return {"schema": "pegrex.patch-review.v1", "verdict": verification["verdict"],
+            "verified_properties": verified_properties, "counterexample": counterexample,
+            "unresolved_obligations": unresolved, "provenance": verification.get("provenance", {})}
+
+
+def repair_candidates(candidate_generator, isolated_test_runner, independent_verifier, *, max_candidates=3) -> dict:
+    """Evaluate generated candidates through caller-supplied isolation and verifier adapters.
+
+    The test runner must provide an actual isolation boundary. This function
+    deliberately does not execute candidate code itself.
+    """
+    if isinstance(max_candidates, bool) or not isinstance(max_candidates, int) or not 1 <= max_candidates <= 20:
+        raise ValueError("max_candidates must be between 1 and 20")
+    candidates, results = candidate_generator(max_candidates), []
+    if not isinstance(candidates, (list, tuple)):
+        return {"schema": "pegrex.repair-loop.v1", "status": "unknown", "results": [],
+                "unknowns": ["candidate generator must return a list or tuple"]}
+    for index, candidate in enumerate(candidates[:max_candidates]):
+        row = {"candidate": index, "test": None, "verification": None, "status": "unknown"}
+        if not isinstance(candidate, dict) or not isinstance(candidate.get("source"), str):
+            row["reason"] = "candidate must be an object with source text"; results.append(row); continue
+        try:
+            test = isolated_test_runner(candidate["source"])
+            row["test"] = test
+            if not isinstance(test, dict) or test.get("status") != "passed":
+                row["reason"] = "isolated tests did not pass"; results.append(row); continue
+            proof = independent_verifier(candidate["source"])
+            row["verification"] = proof
+            if isinstance(proof, dict) and proof.get("verdict") == "proved": row["status"] = "promising"
+            else: row["reason"] = "independent verification did not prove required property"
+        except Exception as exc:
+            row["reason"] = "adapter failure: " + type(exc).__name__
+        results.append(row)
+    promising = [row for row in results if row["status"] == "promising"]
+    return {"schema": "pegrex.repair-loop.v1", "status": "candidate-ready-for-review" if promising else "unknown",
+            "results": results, "promising_candidates": [row["candidate"] for row in promising],
+            "unknowns": [] if promising else ["no candidate passed isolated tests and independent verification"]}

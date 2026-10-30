@@ -1,0 +1,37 @@
+{
+  "$id": "pegrex:pegrex.path-contract-validation.v1:schema",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": true,
+  "properties": {
+    "completeness": {
+      "enum": [
+        "described",
+        "unknown"
+      ]
+    },
+    "errors": {
+      "items": {
+        "type": "string"
+      },
+      "type": "array"
+    },
+    "is_proof": {
+      "const": false
+    },
+    "schema": {
+      "const": "pegrex.path-contract-validation.v1"
+    },
+    "valid": {
+      "type": "boolean"
+    }
+  },
+  "required": [
+    "schema",
+    "valid",
+    "completeness",
+    "errors",
+    "is_proof"
+  ],
+  "title": "PathContract v2 validation result",
+  "type": "object"
+}

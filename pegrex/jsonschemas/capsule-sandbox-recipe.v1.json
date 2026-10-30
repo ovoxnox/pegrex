@@ -1,0 +1,59 @@
+{
+  "$id": "pegrex:pegrex.capsule-sandbox-recipe.v1:schema",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": true,
+  "properties": {
+    "argv": {
+      "type": "array"
+    },
+    "backend": {
+      "type": "string"
+    },
+    "credentials": {
+      "type": "string"
+    },
+    "execution": {
+      "type": "string"
+    },
+    "files": {
+      "additionalProperties": true,
+      "properties": {
+        "regression_test.py": {},
+        "vulnerable.min": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "regression_test.py",
+        "vulnerable.min"
+      ],
+      "type": "object"
+    },
+    "memory_mb": {
+      "type": "integer"
+    },
+    "network": {
+      "type": "string"
+    },
+    "schema": {
+      "const": "pegrex.capsule-sandbox-recipe.v1"
+    },
+    "timeout_ms": {
+      "type": "integer"
+    }
+  },
+  "required": [
+    "argv",
+    "backend",
+    "credentials",
+    "execution",
+    "files",
+    "memory_mb",
+    "network",
+    "schema",
+    "timeout_ms"
+  ],
+  "title": "PegRex public result: pegrex.capsule-sandbox-recipe.v1",
+  "type": "object",
+  "x-peg-rex-validation-level": "inferred-top-level"
+}

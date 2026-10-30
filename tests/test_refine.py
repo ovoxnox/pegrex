@@ -33,6 +33,14 @@ def test_parse_contracts():
     assert c == {"requires": ["n != 0"], "ensures": ["result >= 0"]}
 
 
+def test_comment_looking_docstrings_and_test_fixtures_are_not_contracts():
+    source = ('"""Documentation: # requires: n >= 0\\n"""\n'
+              'FIXTURE = "# ensures: result >= 0\\n"\n'
+              '# ensures: result >= 0\n'
+              'def f(n):\n    return abs(n)\n')
+    assert parse_contracts(source) == {"requires": [], "ensures": ["result >= 0"]}
+
+
 def test_ensures_discharged_both_paths():
     v = discharge_source(_w(SRC), parse_contracts(SRC))
     assert all(e["status"] == "discharged" for x in v for e in x["ensures"])

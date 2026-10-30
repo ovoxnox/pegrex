@@ -1,0 +1,42 @@
+{
+  "$id": "pegrex:pegrex.taint-summary.v1:schema",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": true,
+  "properties": {
+    "findings": {
+      "items": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "type": "array"
+    },
+    "fixed_point": {
+      "additionalProperties": true,
+      "type": "object"
+    },
+    "schema": {
+      "const": "pegrex.taint-summary.v1"
+    },
+    "summaries": {
+      "additionalProperties": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "type": "object"
+    },
+    "unknowns": {
+      "items": {
+        "type": "string"
+      },
+      "type": "array"
+    }
+  },
+  "required": [
+    "schema",
+    "summaries",
+    "findings",
+    "unknowns"
+  ],
+  "title": "Taint summary result",
+  "type": "object"
+}

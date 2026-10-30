@@ -1,0 +1,52 @@
+{
+  "$id": "pegrex:pegrex.resource-bounds.v1:schema",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": true,
+  "properties": {
+    "exhausted": {
+      "type": "boolean"
+    },
+    "limits": {
+      "additionalProperties": {
+        "type": [
+          "integer",
+          "number",
+          "string",
+          "boolean",
+          "null"
+        ]
+      },
+      "type": "object"
+    },
+    "schema": {
+      "const": "pegrex.resource-bounds.v1"
+    },
+    "unknowns": {
+      "items": {
+        "type": "string"
+      },
+      "type": "array"
+    },
+    "usage": {
+      "additionalProperties": {
+        "type": [
+          "integer",
+          "number",
+          "string",
+          "boolean",
+          "null"
+        ]
+      },
+      "type": "object"
+    }
+  },
+  "required": [
+    "schema",
+    "limits",
+    "usage",
+    "exhausted",
+    "unknowns"
+  ],
+  "title": "Resource budget report",
+  "type": "object"
+}

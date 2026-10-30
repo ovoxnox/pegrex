@@ -1,0 +1,30 @@
+{
+  "$id": "pegrex:pegrex.function-contracts.v1:schema",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": true,
+  "properties": {
+    "analyzer_version": {},
+    "dependencies": {
+      "type": "array"
+    },
+    "function": {},
+    "function_sha256": {},
+    "path": {},
+    "schema": {
+      "const": "pegrex.function-contracts.v1"
+    },
+    "source_sha256": {}
+  },
+  "required": [
+    "analyzer_version",
+    "dependencies",
+    "function",
+    "function_sha256",
+    "path",
+    "schema",
+    "source_sha256"
+  ],
+  "title": "PegRex public result: pegrex.function-contracts.v1",
+  "type": "object",
+  "x-peg-rex-validation-level": "inferred-top-level"
+}

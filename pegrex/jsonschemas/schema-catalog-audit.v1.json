@@ -1,0 +1,51 @@
+{
+  "$id": "pegrex:pegrex.schema-catalog-audit.v1:schema",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": true,
+  "properties": {
+    "catalog_entries": {
+      "minimum": 0,
+      "type": "integer"
+    },
+    "errors": {
+      "items": {
+        "type": "string"
+      },
+      "type": "array"
+    },
+    "files": {
+      "minimum": 0,
+      "type": "integer"
+    },
+    "levels": {
+      "additionalProperties": {
+        "minimum": 0,
+        "type": "integer"
+      },
+      "type": "object"
+    },
+    "limitations": {
+      "items": {
+        "type": "string"
+      },
+      "type": "array"
+    },
+    "passed": {
+      "type": "boolean"
+    },
+    "schema": {
+      "const": "pegrex.schema-catalog-audit.v1"
+    }
+  },
+  "required": [
+    "schema",
+    "files",
+    "catalog_entries",
+    "levels",
+    "errors",
+    "passed",
+    "limitations"
+  ],
+  "title": "Public schema catalog consistency audit",
+  "type": "object"
+}

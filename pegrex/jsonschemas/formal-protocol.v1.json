@@ -1,0 +1,47 @@
+{
+  "$id": "pegrex:pegrex.formal-protocol.v1:schema",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": true,
+  "properties": {
+    "canonical": {
+      "type": "null"
+    },
+    "canonical_sha256": {},
+    "format": {},
+    "grammar": {},
+    "schema": {
+      "const": "pegrex.formal-protocol.v1"
+    },
+    "schema_version": {
+      "type": "integer"
+    },
+    "scope": {
+      "type": "string"
+    },
+    "status": {
+      "type": "string"
+    },
+    "unknowns": {
+      "type": "array"
+    },
+    "value": {
+      "type": "null"
+    },
+    "verdict": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "canonical",
+    "format",
+    "schema",
+    "schema_version",
+    "status",
+    "unknowns",
+    "value",
+    "verdict"
+  ],
+  "title": "PegRex public result: pegrex.formal-protocol.v1",
+  "type": "object",
+  "x-peg-rex-validation-level": "inferred-top-level"
+}

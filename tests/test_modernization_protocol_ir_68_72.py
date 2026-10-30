@@ -1,4 +1,5 @@
 import json
+import pytest
 
 from pegrex.compilerir import parse_compiler_ir
 from pegrex.formalprotocols import parse_protocol
@@ -50,6 +51,7 @@ def test_cobol_python_modernization_proves_contract_and_declared_numeric_scope(t
 
 
 def test_fortran_go_round_trip_and_rust_overflow_remain_distinct(tmp_path):
+    pytest.importorskip("tree_sitter", reason="cross-language modernization needs optional parser dependencies")
     source = tmp_path / "abs.f90"
     source.write_text(FORTRAN)
     go = modernize_preserving_contracts(source, "go",

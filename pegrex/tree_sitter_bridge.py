@@ -6,14 +6,22 @@ The conversion map is built once per source, not once per node.
 """
 from __future__ import annotations
 
+from array import array
+
+from .limits import MAX_AST_NODES, MAX_SOURCE_BYTES
 from .cfg import TagSpec
 from .peg import Node as PNode
 
 
-def _byte_to_char_offsets(source: str) -> list[int]:
-    """Map any UTF-8 byte offset to its containing Python character offset."""
+def _byte_to_char_offsets(source: str) -> array:
+    """Map UTF-8 byte offsets to Python character offsets compactly.
+
+    A 32-bit array keeps the map to roughly four bytes per UTF-8 byte instead
+    of a Python integer object per byte. PegRex's source-size limit keeps the
+    character offsets within the unsigned 32-bit range.
+    """
     raw_size = len(source.encode("utf-8"))
-    offsets = [0] * (raw_size + 1)
+    offsets = array("I", [0]) * (raw_size + 1)
     byte_offset = 0
     char_offset = 0
     for char in source:
@@ -26,25 +34,42 @@ def _byte_to_char_offsets(source: str) -> list[int]:
     return offsets
 
 
-def _normalize_node(ts_node, source: str, offsets: list[int] | None) -> PNode:
-    if offsets is None:
-        start, end = ts_node.start_byte, ts_node.end_byte
-    else:
-        start = offsets[min(ts_node.start_byte, len(offsets) - 1)]
-        end = offsets[min(ts_node.end_byte, len(offsets) - 1)]
-    children = [_normalize_node(child, source, offsets)
-                for child in ts_node.children if child.is_named]
-    if not children and source:
-        children = [source[start:end]]
-    return PNode(ts_node.type, start, end, children)
+def _normalize_node(ts_node, source: str, offsets) -> PNode:
+    """Normalize a parser subtree iteratively, with an explicit node budget."""
+    built: dict[int, PNode] = {}
+    stack = [(ts_node, False)]
+    visited = 0
+    while stack:
+        current, ready = stack.pop()
+        named_children = [child for child in current.children if child.is_named]
+        if not ready:
+            visited += 1
+            if visited > MAX_AST_NODES:
+                raise ValueError(f"parse tree exceeds {MAX_AST_NODES} named-node budget")
+            stack.append((current, True))
+            stack.extend((child, False) for child in reversed(named_children))
+            continue
+        if offsets is None:
+            start, end = current.start_byte, current.end_byte
+        else:
+            start = offsets[min(current.start_byte, len(offsets) - 1)]
+            end = offsets[min(current.end_byte, len(offsets) - 1)]
+        children = [built[id(child)] for child in named_children]
+        if not children and source:
+            children = [source[start:end]]
+        built[id(current)] = PNode(current.type, start, end, children)
+    return built[id(ts_node)]
 
 
 def normalize_tree(ts_node, source: str = "") -> PNode:
-    """Normalize a parser tree into PegRex's character-offset coordinate system.
+    """Normalize a Tree-sitter tree into Python character-offset coordinates.
 
-    For synthetic test nodes without source text, preserve their given offsets;
-    real parser callers always provide the source text.
+    For synthetic test nodes without source text, preserve their given offsets.
+    Traversal is iterative to avoid Python recursion exhaustion on deeply nested
+    input; an explicit named-node budget bounds allocation.
     """
+    if source and len(source.encode("utf-8")) > MAX_SOURCE_BYTES:
+        raise ValueError(f"source input exceeds {MAX_SOURCE_BYTES} UTF-8 bytes")
     offsets = _byte_to_char_offsets(source) if source else None
     return _normalize_node(ts_node, source, offsets)
 
@@ -55,6 +80,8 @@ def ts_to_pegrex(ts_node, src: str = "") -> PNode:
 
 
 def parse_tree_sitter(language: str, source: str) -> PNode:
+    if len(source.encode("utf-8")) > MAX_SOURCE_BYTES:
+        raise ValueError(f"source input exceeds {MAX_SOURCE_BYTES} UTF-8 bytes")
     """Low-level registered Tree-sitter parse; use ``languages.parse_source`` publicly."""
     from .languages import get_language, load_tree_sitter_parser
     spec = get_language(language)

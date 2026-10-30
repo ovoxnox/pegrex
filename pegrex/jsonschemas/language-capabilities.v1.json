@@ -1,0 +1,49 @@
+{
+  "$id": "pegrex:pegrex.language-capabilities.v1:schema",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": true,
+  "properties": {
+    "languages": {
+      "items": {
+        "additionalProperties": true,
+        "properties": {
+          "features": {
+            "additionalProperties": {
+              "type": "boolean"
+            },
+            "type": "object"
+          },
+          "id": {
+            "type": "string"
+          },
+          "limitations": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "name": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id"
+        ],
+        "type": "object"
+      },
+      "type": "array"
+    },
+    "schema": {
+      "const": "pegrex.language-capabilities.v1"
+    }
+  },
+  "required": [
+    "schema",
+    "languages"
+  ],
+  "title": "Language capability registry result",
+  "type": "object"
+}

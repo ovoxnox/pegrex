@@ -1,0 +1,57 @@
+{
+  "$id": "pegrex:pegrex.agent-action-plan.v1:schema",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": true,
+  "properties": {
+    "actions": {
+      "items": {
+        "additionalProperties": true,
+        "properties": {
+          "arguments": {
+            "type": "object"
+          },
+          "id": {
+            "type": "string"
+          },
+          "requires_approval": {
+            "type": "boolean"
+          },
+          "risk": {
+            "type": "string"
+          },
+          "tool": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id"
+        ],
+        "type": "object"
+      },
+      "type": "array"
+    },
+    "schema": {
+      "const": "pegrex.agent-action-plan.v1"
+    },
+    "schema_version": {
+      "const": 1
+    },
+    "status": {
+      "type": "string"
+    },
+    "unknowns": {
+      "items": {
+        "type": "string"
+      },
+      "type": "array"
+    }
+  },
+  "required": [
+    "schema",
+    "actions",
+    "status",
+    "unknowns"
+  ],
+  "title": "Agent action plan",
+  "type": "object"
+}

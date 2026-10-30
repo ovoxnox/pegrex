@@ -1,0 +1,29 @@
+{
+  "$id": "pegrex:pegrex.high-severity-mutation-audit.v1:schema",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": true,
+  "properties": {
+    "measured": {
+      "minimum": 0,
+      "type": "integer"
+    },
+    "results": {
+      "type": "array"
+    },
+    "rules_checked": {
+      "minimum": 0,
+      "type": "integer"
+    },
+    "schema": {
+      "const": "pegrex.high-severity-mutation-audit.v1"
+    }
+  },
+  "required": [
+    "schema",
+    "rules_checked",
+    "measured",
+    "results"
+  ],
+  "title": "High severity rule mutation audit",
+  "type": "object"
+}

@@ -1,0 +1,30 @@
+{
+  "$id": "pegrex:pegrex.taint-framework-packs.v1:schema",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": true,
+  "properties": {
+    "packs": {},
+    "schema": {
+      "const": "pegrex.taint-framework-packs.v1"
+    },
+    "schema_version": {
+      "type": "integer"
+    },
+    "sink_rules": {},
+    "source_rules": {},
+    "unknowns": {
+      "type": "array"
+    }
+  },
+  "required": [
+    "packs",
+    "schema",
+    "schema_version",
+    "sink_rules",
+    "source_rules",
+    "unknowns"
+  ],
+  "title": "PegRex public result: pegrex.taint-framework-packs.v1",
+  "type": "object",
+  "x-peg-rex-validation-level": "inferred-top-level"
+}

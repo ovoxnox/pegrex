@@ -1,0 +1,50 @@
+{
+  "$id": "pegrex:pegrex.incremental-contracts.v1:schema",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": true,
+  "properties": {
+    "analyzed": {
+      "type": "array"
+    },
+    "changed": {
+      "type": "array"
+    },
+    "files": {
+      "type": "integer"
+    },
+    "functions": {
+      "type": "integer"
+    },
+    "granularity": {
+      "type": "string"
+    },
+    "invalidated": {
+      "type": "array"
+    },
+    "language": {},
+    "path": {},
+    "removed": {
+      "type": "array"
+    },
+    "reused": {
+      "type": "array"
+    },
+    "schema": {
+      "const": "pegrex.incremental-contracts.v1"
+    },
+    "source_sha256": {},
+    "summaries": {},
+    "unknown_functions": {
+      "type": "array"
+    },
+    "unknowns": {
+      "type": "array"
+    }
+  },
+  "required": [
+    "schema"
+  ],
+  "title": "PegRex public result: pegrex.incremental-contracts.v1",
+  "type": "object",
+  "x-peg-rex-validation-level": "inferred-top-level"
+}

@@ -1,0 +1,62 @@
+{
+  "$id": "pegrex:pegrex.soundness.v1:schema",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": true,
+  "properties": {
+    "plugins": {},
+    "policy": {
+      "additionalProperties": true,
+      "properties": {
+        "completion": {
+          "type": "string"
+        },
+        "contract_identity": {
+          "type": "string"
+        },
+        "coordinates": {
+          "type": "string"
+        },
+        "counterexamples": {
+          "type": "string"
+        },
+        "incomplete_security_scan": {
+          "type": "string"
+        },
+        "parser_availability": {
+          "type": "string"
+        },
+        "unsupported_analysis": {
+          "type": "string"
+        },
+        "verdicts": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        }
+      },
+      "required": [
+        "completion",
+        "contract_identity",
+        "coordinates",
+        "counterexamples",
+        "incomplete_security_scan",
+        "parser_availability",
+        "unsupported_analysis",
+        "verdicts"
+      ],
+      "type": "object"
+    },
+    "schema": {
+      "const": "pegrex.soundness.v1"
+    }
+  },
+  "required": [
+    "plugins",
+    "policy",
+    "schema"
+  ],
+  "title": "PegRex public result: pegrex.soundness.v1",
+  "type": "object",
+  "x-peg-rex-validation-level": "inferred-top-level"
+}

@@ -11,6 +11,7 @@ from __future__ import annotations
 import random
 
 import pytest
+pytest.importorskip("z3", reason="solver differential tests require pegrex[solver]")
 import z3
 
 from pegrex.linsolve import LinearBackend, LinearError, parse_atom

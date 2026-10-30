@@ -11,7 +11,12 @@ from typing import Any
 
 from .contracts import canonicalize
 from .models import OperationResult, OperationStatus, PathContract, SourceDocument, Verdict
+from .operations import all_operation_parameters, operation_fields, operation_parameters
 from .. import languages
+from ..limits import MAX_AST_NODES
+from ..errorpolicy import disclosed_error_message
+from ..jsonshape import validate_object
+from ..requestlimits import validate_request, validate_operation_budgets
 
 
 class CapabilityError(NotImplementedError):
@@ -23,24 +28,19 @@ class CoreEngine:
     api_version = "2.0"
 
     def operations(self) -> dict:
-        """Describe the stable operation-dispatch contract without exposing callables."""
+        """Describe stable operations and their enforced JSON argument schemas."""
+        from .operations import OPERATION_SCHEMAS
         return {
             "schema": "pegrex.core-operations.v2",
             "api_version": self.api_version,
-            "operations": {
-                "parse": ["source", "language", "function_body?", "entrypoint?"],
-                "contracts": ["source", "language", "path?", "entrypoint?"],
-                "contracts_file": ["path", "language?"],
-                "audit": ["path", "language?"],
-                "call_graph": ["source", "language?"],
-                "verify_patch": ["before_path", "after_path", "claim?"],
-                "capabilities": ["language?"],
-                "soundness": ["language?"],
-            },
-            "error_policy": "exceptions become status=error and verdict=unknown",
+            "operations": {name: operation_fields(name) for name in OPERATION_SCHEMAS},
+            "schemas": all_operation_parameters(),
+            "error_policy": "validation and implementation failures become status=error and verdict=unknown",
+            "state_policy": "optional alpha/demo/beta profiles constrain execution and never authorize promotion",
         }
 
-    def execute(self, operation: str, arguments: dict | None = None) -> OperationResult:
+    def execute(self, operation: str, arguments: dict | None = None, *,
+                disclose_errors: bool = False, state: str | None = None) -> OperationResult:
         """Invoke a named operation through the non-throwing production boundary.
 
         Direct methods retain their historical exceptions. This adapter is intended
@@ -48,10 +48,18 @@ class CoreEngine:
         """
         arguments = {} if arguments is None else arguments
         if not isinstance(arguments, dict):
+            metadata = {"api_version": self.api_version,
+                        "error_type": "ValueError",
+                        "error_disclosure": "full" if disclose_errors else "redacted"}
+            if state is not None:
+                metadata.update(state=state, state_policy_enforced=False)
             return OperationResult(
                 str(operation), OperationStatus.ERROR, verdict=Verdict.UNKNOWN,
                 unknowns=["operation arguments must be a JSON object"],
-                metadata={"api_version": self.api_version})
+                metadata=metadata)
+        # Avoid mutating a caller-owned arguments object when adding effective
+        # state-specific limits below.
+        arguments = dict(arguments)
         methods = {
             "parse": self.parse,
             "contracts": self.extract_contracts,
@@ -61,24 +69,89 @@ class CoreEngine:
             "verify_patch": self.verify_patch,
             "soundness": self.soundness,
         }
+        state_policy_enforced = False
         try:
+            if not isinstance(operation, str):
+                raise TypeError("operation name must be a string")
+            parameters = operation_parameters(operation)
+            validate_operation_budgets(arguments)
+            validate_request(arguments)
+            validate_object(arguments, parameters)
+            if state is not None:
+                from ..states import apply_profile_limits
+                mutating = operation in {"neural.generate", "pythoc.compile", "release.create"}
+                arguments, _profile = apply_profile_limits(
+                    state, operation, arguments, mutates_workspace=mutating)
+                state_policy_enforced = True
             if operation == "capabilities":
+                metadata = {"api_version": self.api_version}
+                if state is not None:
+                    metadata.update(state=state, state_policy_enforced=True)
                 return OperationResult(
                     "capabilities", OperationStatus.OK,
                     data=self.capabilities(arguments.get("language")),
-                    metadata={"api_version": self.api_version})
+                    metadata=metadata)
+            integration = self._integration_operation(operation)
+            if integration is not None:
+                module, function = integration
+                from importlib import import_module
+                value = getattr(import_module(f"pegrex.integrations.{module}"), function)(**arguments)
+                if not isinstance(value, dict):
+                    raise TypeError(f"integration {operation!r} returned a non-object result")
+                raw_unknowns = value.get("unknowns") or []
+                if not isinstance(raw_unknowns, list):
+                    raise TypeError(f"integration {operation!r} returned malformed unknowns")
+                unknowns = [str(row) for row in raw_unknowns]
+                raw_verdict = value.get("verdict")
+                verdict = Verdict(raw_verdict) if raw_verdict in {"proved", "refuted", "unknown"} else None
+                raw_status = value.get("status")
+                if raw_status in {"error", "exception"}:
+                    status = OperationStatus.ERROR
+                elif raw_status in {"unknown", "partial", "timeout", "unavailable", "failed", "rejected"}:
+                    status = OperationStatus.PARTIAL
+                else:
+                    status = OperationStatus.PARTIAL if unknowns or verdict is Verdict.UNKNOWN else OperationStatus.OK
+                if status is OperationStatus.ERROR and not unknowns:
+                    unknowns.append("integration backend reported an error")
+                return OperationResult(
+                    operation, status, verdict=verdict, data=value, unknowns=unknowns,
+                    assumptions=list(value.get("assumptions") or []),
+                    metadata={"api_version": self.api_version,
+                              "backend": value.get("backend"), "candidate": value.get("candidate", False),
+                              **({"state": state, "state_policy_enforced": True} if state else {})})
             method = methods.get(operation)
             if method is None:
                 raise ValueError(f"unknown core operation {operation!r}")
             result = method(**arguments)
             result.metadata.setdefault("api_version", self.api_version)
+            if state is not None:
+                result.metadata["state"] = state
+                result.metadata["state_policy_enforced"] = True
             return result
         except Exception as error:
-            return OperationResult(
-                str(operation), OperationStatus.ERROR, verdict=Verdict.UNKNOWN,
-                unknowns=[f"{type(error).__name__}: {error}"],
-                metadata={"api_version": self.api_version,
-                          "error_type": type(error).__name__})
+            message = disclosed_error_message(error, disclose=disclose_errors)
+            metadata = {"api_version": self.api_version,
+                        "error_type": type(error).__name__,
+                        "error_disclosure": "full" if disclose_errors else "redacted"}
+            if state is not None:
+                metadata.update(state=state, state_policy_enforced=state_policy_enforced)
+            return OperationResult(str(operation), OperationStatus.ERROR, verdict=Verdict.UNKNOWN,
+                                   unknowns=[f"{type(error).__name__}: {message}"],
+                                   metadata=metadata)
+
+    @staticmethod
+    def _integration_operation(operation: str) -> tuple[str, str] | None:
+        """Resolve optional backends lazily, outside the minimal trusted kernel."""
+        operations = {
+            "neural.generate": ("neural_codegen", "generate_candidate"),
+            "neural.verify_candidate": ("neural_codegen", "verify_candidate"),
+            "ironkernel.run": ("ironkernel_backend", "run_expression"),
+            "ironkernel.differential": ("ironkernel_backend", "differential"),
+            "pythoc.compile": ("pythoc_backend", "compile_source"),
+            "pythoc.analyze_ir": ("pythoc_backend", "analyze_ir"),
+            "pythoc.differential": ("pythoc_backend", "differential_native"),
+        }
+        return operations.get(operation)
 
     def language(self, path: str | Path | None = None, explicit: str | None = None,
                  default: str | None = None) -> str:
@@ -108,6 +181,8 @@ class CoreEngine:
         spec = languages.get_language(language)
         if "parse" not in spec.capabilities:
             raise CapabilityError(f"parse unsupported for {spec.name}: {spec.notes}")
+        # Enforce the source byte budget before invoking any parser.
+        document = SourceDocument(source, spec.name)
         if function_body:
             if "contracts" not in spec.capabilities or not spec.frontend_factory:
                 raise CapabilityError(
@@ -119,7 +194,6 @@ class CoreEngine:
                 raise ValueError(f"no function body found for {entrypoint or 'first function'} in {spec.name} source")
         else:
             tree = languages.parse_source(spec.name, source)
-        document = SourceDocument(source, spec.name)
         return OperationResult("parse", OperationStatus.OK,
                                data={"language": spec.name, "tree": self._node_dict(tree),
                                      "node_count": self._node_count(tree)},
@@ -136,8 +210,8 @@ class CoreEngine:
         spec = languages.get_language(language)
         if "contracts" not in spec.capabilities:
             raise CapabilityError(f"contracts unsupported for {spec.name}: {spec.notes}")
-        from hashlib import sha256
-        source_hash = sha256(source.encode("utf-8")).hexdigest()
+        document = SourceDocument(source, spec.name)
+        source_hash = document.sha256
         pairs = languages.extract_contract_pairs(spec.name, source, entrypoint=entrypoint)
         typed = canonicalize(pairs)
         if not typed:
@@ -180,8 +254,10 @@ class CoreEngine:
         spec = languages.get_language(language)
         if "callgraph" not in spec.capabilities:
             raise CapabilityError(f"call graph unsupported for {spec.name}: {spec.notes}")
+        # Enforce the same input limit before parser and graph construction.
+        document = SourceDocument(source, spec.name)
         from ..callgraph import build_call_graph
-        graph = build_call_graph(source, spec.name)
+        graph = build_call_graph(document.text, spec.name)
         data = {"functions": sorted(graph.functions),
                 "edges": [list(edge) for edge in sorted(graph.edges)],
                 "dot": graph.to_dot(), "ascii": graph.to_ascii()}
@@ -216,25 +292,69 @@ class CoreEngine:
 
     @staticmethod
     def _node_dict(node: Any) -> Any:
-        # Structural protocol keeps the stable core independent of a concrete
-        # parser AST class. Frontends may adapt Nodes without changing the wire schema.
-        if (hasattr(node, "tag") and hasattr(node, "pos")
-                and hasattr(node, "endpos") and hasattr(node, "children")):
-            return {"tag": node.tag, "pos": node.pos, "endpos": node.endpos,
-                    "children": [CoreEngine._node_dict(child) for child in node.children]}
-        if isinstance(node, list):
-            return [CoreEngine._node_dict(item) for item in node]
+        """Serialize normalized ASTs iteratively to avoid Python recursion limits."""
+        def is_node(value: Any) -> bool:
+            return (hasattr(value, "tag") and hasattr(value, "pos")
+                    and hasattr(value, "endpos") and hasattr(value, "children"))
+
+        built: dict[int, Any] = {}
+        active: set[int] = set()
+        stack = [(node, False)]
+        node_count = 0
+        while stack:
+            current, visited = stack.pop()
+            if is_node(current):
+                key = id(current)
+                if not visited:
+                    if key in active:
+                        raise ValueError("cyclic parse trees are not serializable")
+                    active.add(key)
+                    node_count += 1
+                    if node_count > MAX_AST_NODES:
+                        raise ValueError(f"parse tree exceeds {MAX_AST_NODES} node budget")
+                    stack.append((current, True))
+                    stack.extend((child, False)
+                                 for child in reversed(current.children)
+                                 if is_node(child) or isinstance(child, list))
+                else:
+                    active.discard(key)
+                    children = [built[id(child)] if is_node(child) or isinstance(child, list)
+                                else child for child in current.children]
+                    built[key] = {"tag": current.tag, "pos": current.pos,
+                                  "endpos": current.endpos, "children": children}
+            elif isinstance(current, list):
+                key = id(current)
+                if not visited:
+                    if key in active:
+                        raise ValueError("cyclic parse trees are not serializable")
+                    active.add(key)
+                    stack.append((current, True))
+                    stack.extend((child, False) for child in reversed(current)
+                                 if is_node(child) or isinstance(child, list))
+                else:
+                    active.discard(key)
+                    built[key] = [built[id(child)] if is_node(child) or isinstance(child, list)
+                                  else child for child in current]
+        if is_node(node) or isinstance(node, list):
+            return built[id(node)]
         return node
 
     @staticmethod
     def _node_count(node: Any) -> int:
+        """Count unique normalized nodes without looping on malformed cyclic input."""
         count = 0
+        seen: set[int] = set()
         stack = [node]
         while stack:
             current = stack.pop()
+            if id(current) in seen:
+                continue
+            seen.add(id(current))
             if (hasattr(current, "tag") and hasattr(current, "children")
                     and hasattr(current, "pos") and hasattr(current, "endpos")):
                 count += 1
+                if count > MAX_AST_NODES:
+                    raise ValueError(f"parse tree exceeds {MAX_AST_NODES} node budget")
                 stack.extend(current.children)
             elif isinstance(current, list):
                 stack.extend(current)

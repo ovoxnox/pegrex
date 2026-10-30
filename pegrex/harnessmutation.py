@@ -19,7 +19,10 @@ def run_harness_policy_suite(*, base_dir=None) -> dict:
       "baseline":lambda action=action: check_plan([action],default_policy(),base_dir=base_dir),
       "weakened":lambda action=action: check_plan([action],[{"effect":"allow","tool":"*"}],base_dir=base_dir),
       "detects":lambda result: result["safe"] is False} for name,action in attacks]
-    report=mutation_controls(cases);report["suite_schema"]=SCHEMA
+    report=mutation_controls(cases)
+    report["mutation_report_schema"] = report.get("schema")
+    report["schema"] = SCHEMA
+    report["suite_schema"] = SCHEMA
     report["mutation_verdict"]=report["verdict"]
     report["safe_baseline_allowed"]=safe["safe"] is True
     # Syntax/launcher confinements must survive an allow-all policy mutation;

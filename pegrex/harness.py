@@ -44,7 +44,10 @@ def default_policy():
         {"effect": "deny", "tool": "shell", "args": "git push*"},
         {"effect": "allow", "tool": "read"},
         {"effect": "allow", "tool": "write", "path": "src/*"},
-        {"effect": "allow", "tool": "shell", "executable": "pytest"},
+        # Only the no-target quiet discovery invocation is in the default
+        # policy. Additional pytest flags/targets require an explicit local
+        # policy because pytest imports repository-controlled conftest/plugins.
+        {"effect": "allow", "tool": "shell", "argv": ["pytest", "-q"]},
         {"effect": "allow", "tool": "shell", "executable": "git",
          "argv_prefix": ["status"]},
     ]
@@ -170,6 +173,29 @@ def _rule_matches(rule, tool, args, path, argv):
 
 def check_action(action, policy, *, base_dir=None):
     """Check one action without executing it, using default-deny semantics."""
+    if not isinstance(action, dict):
+        return {"action": action, "verdict": "refused",
+                "reason": "action must be an object"}
+    if not isinstance(policy, (list, tuple)):
+        return {"action": action, "verdict": "refused",
+                "reason": "policy must be a list of rule objects"}
+    for rule in policy:
+        if not isinstance(rule, dict):
+            return {"action": action, "verdict": "refused",
+                    "reason": "policy contains a malformed rule; default-deny"}
+        effect = rule.get("effect")
+        if not isinstance(effect, str) or effect not in {"allow", "deny"}:
+            return {"action": action, "verdict": "refused",
+                    "reason": "policy contains an invalid effect; default-deny"}
+        for key in ("tool", "args", "path", "executable"):
+            if key in rule and not isinstance(rule[key], str):
+                return {"action": action, "verdict": "refused",
+                        "reason": f"policy field {key!r} must be text; default-deny"}
+        for key in ("argv", "argv_prefix"):
+            if key in rule and (not isinstance(rule[key], (list, tuple))
+                                or any(not isinstance(token, str) for token in rule[key])):
+                return {"action": action, "verdict": "refused",
+                        "reason": f"policy field {key!r} must be a string list; default-deny"}
     tool = action.get("tool", "")
     if not isinstance(tool, str):
         return {"action": action, "verdict": "refused", "reason": "tool must be text"}

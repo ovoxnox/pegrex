@@ -1,0 +1,32 @@
+{
+  "$id": "pegrex:pegrex.hybrid-priority.v1:schema",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": true,
+  "properties": {
+    "deferred": {
+      "type": "array"
+    },
+    "heuristic_can_set_verdict": {
+      "type": "boolean"
+    },
+    "heuristic_errors": {},
+    "schema": {
+      "const": "pegrex.hybrid-priority.v1"
+    },
+    "selected": {},
+    "verdict_authority": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "deferred",
+    "heuristic_can_set_verdict",
+    "heuristic_errors",
+    "schema",
+    "selected",
+    "verdict_authority"
+  ],
+  "title": "PegRex public result: pegrex.hybrid-priority.v1",
+  "type": "object",
+  "x-peg-rex-validation-level": "inferred-top-level"
+}

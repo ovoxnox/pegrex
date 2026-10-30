@@ -1,0 +1,41 @@
+{
+  "$id": "pegrex:pegrex.cli-error.v1:schema",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": true,
+  "properties": {
+    "command": {},
+    "error": {
+      "additionalProperties": true,
+      "properties": {
+        "message": {
+          "type": "string"
+        },
+        "type": {}
+      },
+      "required": [
+        "message",
+        "type"
+      ],
+      "type": "object"
+    },
+    "schema": {
+      "const": "pegrex.cli-error.v1"
+    },
+    "status": {
+      "type": "string"
+    },
+    "verdict": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "command",
+    "error",
+    "schema",
+    "status",
+    "verdict"
+  ],
+  "title": "PegRex public result: pegrex.cli-error.v1",
+  "type": "object",
+  "x-peg-rex-validation-level": "inferred-top-level"
+}

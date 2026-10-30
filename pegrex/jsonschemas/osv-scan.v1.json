@@ -1,0 +1,128 @@
+{
+  "$id": "pegrex:pegrex.osv-scan.v1:schema",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": true,
+  "properties": {
+    "dependencies": {
+      "minimum": 0,
+      "type": "integer"
+    },
+    "offline": {
+      "type": "boolean"
+    },
+    "provenance": {
+      "additionalProperties": true,
+      "properties": {
+        "osv": {
+          "type": "object"
+        },
+        "schema": {
+          "const": "pegrex.osv-provenance.v1"
+        },
+        "source": {
+          "additionalProperties": true,
+          "properties": {
+            "bytes": {
+              "minimum": 0,
+              "type": "integer"
+            },
+            "path": {
+              "type": "string"
+            },
+            "sha256": {
+              "pattern": "^[0-9a-f]{64}$",
+              "type": "string"
+            }
+          },
+          "required": [
+            "path",
+            "sha256",
+            "bytes"
+          ],
+          "type": "object"
+        },
+        "status": {
+          "enum": [
+            "complete",
+            "unknown"
+          ]
+        }
+      },
+      "required": [
+        "schema",
+        "source",
+        "osv",
+        "status"
+      ],
+      "type": "object"
+    },
+    "schema": {
+      "const": "pegrex.osv-scan.v1"
+    },
+    "status": {
+      "enum": [
+        "complete",
+        "unknown"
+      ]
+    },
+    "unknowns": {
+      "items": {
+        "additionalProperties": true,
+        "properties": {
+          "dependency": {
+            "type": "string"
+          },
+          "reason": {
+            "type": "string"
+          },
+          "source": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "reason"
+        ],
+        "type": "object"
+      },
+      "type": "array"
+    },
+    "vulnerabilities": {
+      "items": {
+        "additionalProperties": true,
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "modified": {
+            "type": "string"
+          },
+          "package": {
+            "type": "string"
+          },
+          "severity": {
+            "type": "string"
+          },
+          "summary": {
+            "type": "string"
+          },
+          "version": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "type": "array"
+    }
+  },
+  "required": [
+    "schema",
+    "dependencies",
+    "vulnerabilities",
+    "offline",
+    "status",
+    "unknowns",
+    "provenance"
+  ],
+  "title": "OSV dependency scan result",
+  "type": "object"
+}

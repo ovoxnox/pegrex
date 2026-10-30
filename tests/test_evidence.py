@@ -1,6 +1,7 @@
 import json
 import pathlib
 import sys
+import pytest
 
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent.parent))
 
@@ -12,6 +13,8 @@ SRC = ("# ensures: result >= 0\n"
 
 
 def _pack(tmp_path, src_text=SRC, witnesses=None):
+    if evidence.xxhash is None:
+        pytest.skip("success-path tests require pegrex[evidence]")
     src = tmp_path / "absval.py"
     src.write_text(src_text)
     bundle = evidence.pack(src, tmp_path / "bundle", KEY,
@@ -77,3 +80,9 @@ def test_path_count_change_reported(tmp_path):
     r = evidence.replay(bundle, KEY)
     assert r["ok"] is True and r["stable"] is False
     assert any(d["kind"] == "path-count" for d in r["diff"])
+
+
+def test_missing_xxhash_is_an_explicit_refusal(monkeypatch):
+    monkeypatch.setattr(evidence, "xxhash", None)
+    with pytest.raises(evidence.EvidenceError, match="xxhash required"):
+        evidence._xxh64(b"test")

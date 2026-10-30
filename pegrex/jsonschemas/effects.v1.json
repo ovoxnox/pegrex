@@ -1,0 +1,51 @@
+{
+  "$id": "pegrex:pegrex.effects.v1:schema",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": true,
+  "properties": {
+    "categories": {
+      "type": "array"
+    },
+    "coverage": {
+      "additionalProperties": true,
+      "properties": {
+        "dynamic_dispatch": {
+          "type": "string"
+        },
+        "status": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "dynamic_dispatch",
+        "status"
+      ],
+      "type": "object"
+    },
+    "functions": {},
+    "language": {
+      "type": "string"
+    },
+    "module": {},
+    "schema": {
+      "const": "pegrex.effects.v1"
+    },
+    "source_sha256": {},
+    "unknowns": {
+      "type": "array"
+    }
+  },
+  "required": [
+    "categories",
+    "coverage",
+    "functions",
+    "language",
+    "module",
+    "schema",
+    "source_sha256",
+    "unknowns"
+  ],
+  "title": "PegRex public result: pegrex.effects.v1",
+  "type": "object",
+  "x-peg-rex-validation-level": "inferred-top-level"
+}

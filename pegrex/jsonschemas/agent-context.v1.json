@@ -1,0 +1,28 @@
+{
+  "$id": "pegrex:pegrex.agent-context.v1:schema",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": true,
+  "properties": {
+    "items": {
+      "type": "object"
+    },
+    "schema": {
+      "const": "pegrex.agent-context.v1"
+    },
+    "sha256": {
+      "pattern": "^[0-9a-f]{64}$",
+      "type": "string"
+    },
+    "truncated": {
+      "type": "object"
+    }
+  },
+  "required": [
+    "schema",
+    "items",
+    "truncated",
+    "sha256"
+  ],
+  "title": "Evidence-preserving agent context",
+  "type": "object"
+}

@@ -1,7 +1,9 @@
 from pathlib import Path
+import pytest
 
 from pegrex.editaudit import EditAudit
 from pegrex.multiagent import ROLE_SCHEMA, SCHEMA, run_multi_agent_change
+from pegrex.schema import validate_document
 
 
 ORIGINAL = """def f(x):
@@ -11,7 +13,8 @@ ORIGINAL = """def f(x):
 """
 
 
-def test_four_roles_feed_proof_gate_and_apply_equivalent_patch(tmp_path):
+def test_four_roles_fail_closed_without_independent_semantic_checker(tmp_path):
+    pytest.importorskip("tree_sitter", reason="semantic analysis requires optional parser dependencies")
     target = tmp_path / "app.py"
     target.write_text(ORIGINAL)
     calls = []
@@ -23,24 +26,33 @@ def test_four_roles_feed_proof_gate_and_apply_equivalent_patch(tmp_path):
         return source.replace("x + 1", "(x + 1)")
     result = run_multi_agent_change(target, candidates, patch,
         finding={"rule_id": "style"}, audit_dir=tmp_path / "audit")
-    assert result["schema"] == SCHEMA and result["applied"]
+    assert result["schema"] == SCHEMA and not result["applied"]
+    assert result["verdict"] == "unknown"
+    assert validate_document(result) == []
+    assert all(validate_document(role) == [] for role in result["roles"])
     assert [row["role"] for row in result["roles"]] == [
         "candidate-generation", "patch-generation", "counterexample-search",
         "independent-checking"]
     assert all(row["schema"] == ROLE_SCHEMA for row in result["roles"])
-    assert result["roles"][-1]["data"]["kernel"]["checked"]
-    assert result["patch_gate"]["candidate_check"]["allowed"]
+    assert result["roles"][2]["verdict"] == "proved"
+    assert not result["roles"][-1]["data"]["kernel"]["checked"]
+    assert not result["patch_gate"]["candidate_check"]["allowed"]
     assert calls == ["candidate", "patch"]
-    assert target.read_text() != ORIGINAL
+    assert target.read_text() == ORIGINAL
+    attempt = tmp_path / "audit" / result["patch_gate"]["audit_attempt_id"]
+    assert EditAudit.verify(attempt)["ok"]
 
 
 def test_counterexample_role_rejects_behavior_change_without_target_mutation(tmp_path):
+    pytest.importorskip("tree_sitter", reason="counterexample search requires optional parser dependencies")
     target = tmp_path / "app.py"
     target.write_text(ORIGINAL)
     result = run_multi_agent_change(target, lambda source, finding: {"repair": "bad"},
         lambda source, candidate, finding: source.replace("x + 1", "x + 2"),
         audit_dir=tmp_path / "audit")
     assert not result["applied"] and result["verdict"] == "refuted"
+    assert validate_document(result) == []
+    assert all(validate_document(role) == [] for role in result["roles"])
     assert result["roles"][2]["data"]["confirmed"] is True
     assert result["roles"][2]["data"]["counterexample"] is not None
     assert target.read_text() == ORIGINAL

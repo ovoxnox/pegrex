@@ -1,0 +1,32 @@
+{
+  "$id": "pegrex:pegrex.release-unknown-summary.v1:schema",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": true,
+  "properties": {
+    "by_category": {
+      "type": "object"
+    },
+    "complete": {
+      "type": "boolean"
+    },
+    "count": {
+      "type": "integer"
+    },
+    "entries": {},
+    "schema": {
+      "const": "pegrex.release-unknown-summary.v1"
+    },
+    "summary_sha256": {}
+  },
+  "required": [
+    "by_category",
+    "complete",
+    "count",
+    "entries",
+    "schema",
+    "summary_sha256"
+  ],
+  "title": "PegRex public result: pegrex.release-unknown-summary.v1",
+  "type": "object",
+  "x-peg-rex-validation-level": "inferred-top-level"
+}

@@ -1,0 +1,119 @@
+{
+  "$id": "pegrex:pegrex.security-policy-decision.v1:schema",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": true,
+  "properties": {
+    "accepted_unknowns": {
+      "items": {
+        "type": "object"
+      },
+      "type": "array"
+    },
+    "allowed": {
+      "type": "boolean"
+    },
+    "failures": {
+      "items": {
+        "additionalProperties": true,
+        "properties": {
+          "counterexample": {
+            "type": [
+              "object",
+              "null"
+            ]
+          },
+          "evidence": {
+            "type": "object"
+          },
+          "reason": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "type": {
+            "type": "string"
+          },
+          "verdict": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "type"
+        ],
+        "type": "object"
+      },
+      "type": "array"
+    },
+    "profile": {
+      "additionalProperties": true,
+      "properties": {
+        "allow_unknown_reasons": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "fail_on_unknown": {
+          "type": "boolean"
+        },
+        "name": {
+          "type": "string"
+        },
+        "profile_sha256": {
+          "pattern": "^[0-9a-f]{64}$",
+          "type": "string"
+        },
+        "require_proved": {
+          "type": "boolean"
+        },
+        "unknown_categories": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "unknown_reasons": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "unknown_rules": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        }
+      },
+      "required": [
+        "name",
+        "fail_on_unknown",
+        "unknown_reasons",
+        "unknown_categories",
+        "unknown_rules",
+        "allow_unknown_reasons",
+        "require_proved",
+        "profile_sha256"
+      ],
+      "type": "object"
+    },
+    "schema": {
+      "const": "pegrex.security-policy-decision.v1"
+    },
+    "unknown_count": {
+      "minimum": 0,
+      "type": "integer"
+    }
+  },
+  "required": [
+    "schema",
+    "allowed",
+    "profile",
+    "failures",
+    "accepted_unknowns",
+    "unknown_count"
+  ],
+  "title": "Security policy decision",
+  "type": "object"
+}

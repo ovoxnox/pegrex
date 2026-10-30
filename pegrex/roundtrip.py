@@ -80,13 +80,15 @@ def check_round_trip(spec, *, old_server=None, new_server=None,
     """
     try:
         stubs = generate_api_stubs(spec)
-        ast.parse(stubs["python_server"] or "\n")
-        sources = {
-            "old_server": old_server if old_server is not None else stubs["python_server"],
-            "new_server": new_server if new_server is not None else stubs["python_server"],
-            "old_client": old_client if old_client is not None else stubs["go_client"],
-            "new_client": new_client if new_client is not None else stubs["go_client"],
-        }
+        python_stub = stubs["python_server"]
+        go_stub = stubs["go_client"]
+        ast.parse(python_stub or "\n")
+        generations = (("old_server", old_server), ("new_server", new_server),
+                       ("old_client", old_client), ("new_client", new_client))
+        sources = {}
+        for name, supplied in generations:
+            fallback = python_stub if name.endswith("server") else go_stub
+            sources[name] = supplied if supplied is not None else fallback
         static = {}
         for name, source in sources.items():
             checker = check_python_server if name.endswith("server") else check_go_client

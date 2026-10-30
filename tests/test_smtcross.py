@@ -1,3 +1,4 @@
+import pytest
 import pathlib
 import sys
 
@@ -8,6 +9,7 @@ from pegrex.smt import Backend, crosscheck, get_backend, set_backend
 
 
 def test_crosscheck_agrees_with_z3():
+    pytest.importorskip("z3", reason="Z3 cross-check is optional")
     r = crosscheck(["(x >= 0)", "(x <= 10)", "(y = 3)"], n=64, seed=1)
     assert r["refusal"] is None
     assert r["agree"] is True and not r["witnesses"]
@@ -21,6 +23,7 @@ def test_crosscheck_refuses_out_of_fragment():
 
 
 def test_crosscheck_catches_disagreeing_backend():
+    pytest.importorskip("z3", reason="Z3 cross-check is optional")
     class Liar(Backend):
         def entails(self, model, guard):
             return True

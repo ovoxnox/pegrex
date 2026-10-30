@@ -1,0 +1,127 @@
+{
+  "$id": "pegrex:pegrex.security-effectiveness-benchmark.v1:schema",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": true,
+  "properties": {
+    "case_results": {
+      "items": {
+        "additionalProperties": true,
+        "properties": {
+          "detected": {
+            "type": "boolean"
+          },
+          "expected_vulnerable": {
+            "type": "boolean"
+          },
+          "id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "expected_vulnerable",
+          "detected"
+        ],
+        "type": "object"
+      },
+      "type": "array"
+    },
+    "cases": {
+      "minimum": 0,
+      "type": "integer"
+    },
+    "categories": {
+      "minimum": 0,
+      "type": "integer"
+    },
+    "errors": {
+      "type": "array"
+    },
+    "high_severity_mutation_audit": {
+      "additionalProperties": true,
+      "type": "object"
+    },
+    "limitations": {
+      "items": {
+        "type": "string"
+      },
+      "type": "array"
+    },
+    "metrics": {
+      "items": {
+        "additionalProperties": true,
+        "properties": {
+          "coverage": {
+            "maximum": 1,
+            "minimum": 0,
+            "type": "number"
+          },
+          "f1": {
+            "maximum": 1,
+            "minimum": 0,
+            "type": "number"
+          },
+          "fn": {
+            "minimum": 0,
+            "type": "integer"
+          },
+          "fp": {
+            "minimum": 0,
+            "type": "integer"
+          },
+          "precision": {
+            "maximum": 1,
+            "minimum": 0,
+            "type": "number"
+          },
+          "recall": {
+            "maximum": 1,
+            "minimum": 0,
+            "type": "number"
+          },
+          "rule_id": {
+            "type": "string"
+          },
+          "tn": {
+            "minimum": 0,
+            "type": "integer"
+          },
+          "tp": {
+            "minimum": 0,
+            "type": "integer"
+          }
+        },
+        "required": [
+          "rule_id",
+          "tp",
+          "fp",
+          "tn",
+          "fn",
+          "precision",
+          "recall",
+          "f1"
+        ],
+        "type": "object"
+      },
+      "type": "array"
+    },
+    "model_version": {
+      "type": "string"
+    },
+    "schema": {
+      "const": "pegrex.security-effectiveness-benchmark.v1"
+    }
+  },
+  "required": [
+    "schema",
+    "model_version",
+    "cases",
+    "metrics",
+    "high_severity_mutation_audit",
+    "case_results",
+    "errors",
+    "limitations"
+  ],
+  "title": "Security rule effectiveness benchmark",
+  "type": "object"
+}

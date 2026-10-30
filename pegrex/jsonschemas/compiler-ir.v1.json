@@ -1,0 +1,43 @@
+{
+  "$id": "pegrex:pegrex.compiler-ir.v1:schema",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": true,
+  "properties": {
+    "functions": {
+      "type": "array"
+    },
+    "grammar": {},
+    "proof_mode": {
+      "type": "boolean"
+    },
+    "schema": {
+      "const": "pegrex.compiler-ir.v1"
+    },
+    "schema_version": {
+      "type": "integer"
+    },
+    "scope": {
+      "type": "string"
+    },
+    "source_sha256": {},
+    "status": {
+      "type": "string"
+    },
+    "unknowns": {
+      "type": "array"
+    },
+    "verdict": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "functions",
+    "schema",
+    "schema_version",
+    "unknowns",
+    "verdict"
+  ],
+  "title": "PegRex public result: pegrex.compiler-ir.v1",
+  "type": "object",
+  "x-peg-rex-validation-level": "inferred-top-level"
+}

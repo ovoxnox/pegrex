@@ -1,0 +1,34 @@
+{
+  "$id": "pegrex:pegrex.rule-mutation.v1:schema",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": true,
+  "properties": {
+    "interpretable": {
+      "type": "boolean"
+    },
+    "killed": {
+      "minimum": 0,
+      "type": "integer"
+    },
+    "mutants": {
+      "minimum": 0,
+      "type": "integer"
+    },
+    "schema": {
+      "const": "pegrex.rule-mutation.v1"
+    },
+    "survived": {
+      "minimum": 0,
+      "type": "integer"
+    }
+  },
+  "required": [
+    "schema",
+    "mutants",
+    "killed",
+    "survived",
+    "interpretable"
+  ],
+  "title": "Rule mutation effectiveness result",
+  "type": "object"
+}

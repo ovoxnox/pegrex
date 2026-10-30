@@ -1,0 +1,45 @@
+{
+  "$id": "pegrex:pegrex.iac-analysis.v1:schema",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": true,
+  "properties": {
+    "assumption_checks": {
+      "type": "array"
+    },
+    "coverage": {
+      "additionalProperties": true,
+      "properties": {
+        "status": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "status"
+      ],
+      "type": "object"
+    },
+    "findings": {
+      "type": "array"
+    },
+    "schema": {
+      "const": "pegrex.iac-analysis.v1"
+    },
+    "status": {
+      "type": "string"
+    },
+    "unknowns": {
+      "type": "array"
+    }
+  },
+  "required": [
+    "assumption_checks",
+    "coverage",
+    "findings",
+    "schema",
+    "status",
+    "unknowns"
+  ],
+  "title": "PegRex public result: pegrex.iac-analysis.v1",
+  "type": "object",
+  "x-peg-rex-validation-level": "inferred-top-level"
+}

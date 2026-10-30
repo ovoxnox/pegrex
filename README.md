@@ -1,8 +1,4 @@
-# PegRex v1.1.0
-
-
-![](assets/report.png)
-
+# PegRex v1.3.0
 
 **A self-contained symbolic-execution and syntactic-analysis engine** that
 turns source code in 22 registered languages into mathematical specifications for AI
@@ -13,15 +9,11 @@ REFUTED by confirmed evidence, or explicitly UNKNOWN with its coverage gaps.
 
 The canonical frontend registry owns every language ID, extension, parser and version, coordinate conversion, normalizer, error policy, CFG adapter, lowering level, contract feature set, security pack, maturity level, and known unsupported case. Parsing never implies contract or proof support.
 
-**PegRex** is a self-contained symbolic-execution and syntactic-analysis engine for AI agents — **parse, solve, prove, abstract, execute, emit, verify, repair, serve**. Version 1.1.0 adds a non-throwing CoreEngine dispatch boundary, a workspace-confined Tools API v2, structured CLI errors, stronger source and counterexample provenance, and production hardening for scanner, modernization, insurance, and certificate paths. The repository audits itself through fresh SELF/HEALTH evidence and machine-checkable finding dispositions.
-
-Run `python pegrex.py soundness` for the complete machine-readable plugin manifest and trust policy, or add `--language ID` for one frontend. The same report is available through `CoreEngine.soundness()` and the stdio service's `soundness` method. Native legacy and domain-specific analyzers are registered through the same manifest; the split `pegrex/lpegc/` compiler handles the bundled grammar-text formats. 
-
-It speaks fifteen-plus languages, exposes sixty-five commands, 331 unit tests, 17 agent skills — and audits itself in public via a regenerated SELF.md that CI refuses to let go stale.
+**PegRex** is a self-contained symbolic-execution and syntactic-analysis engine that turns source code into mathematical specifications for AI agents — **parse, solve, prove, abstract, execute, emit, verify, repair, serve** — where every claim is either proven; refuted with a concrete counterexample; or honestly reported as unknown. It provides 22 registered languages, a versioned command catalog, a dependency-complete test suite, and 17 agent skills — and audits itself in public via a regenerated SELF.md that CI refuses to let go stale.
 
 **Tree-sitter frontends (full CST → contracts)**
- - Nine bindings: Python, Go, Rust, Julia, Kotlin, Zig, Solidity, Vyper, JavaScript, TypeScript, AssemblyScript. 
- - The bridge's language map also routes lua and c (those resolve via the tree_sitter_language_pack when installed 
+ - Eleven bindings: Python, Go, Rust, Julia, Kotlin, Zig, Solidity, Vyper, JavaScript, TypeScript, AssemblyScript.
+ - The bridge's language map also routes Lua and C; those resolve through `tree_sitter_language_pack` when installed.
 
 **Native legacy frontends (certified, no grammar needed)** hand-built parsers producing the same contract tuples as every other language, with machine-checked cross-language equivalence (a COBOL absval and a Fortran absval verify as identical). An offline tree-sitter mock layer makes these parse through the standard bridge too.
 
@@ -34,6 +26,8 @@ It speaks fifteen-plus languages, exposes sixty-five commands, 331 unit tests, 1
 
 **Grammar-text formats (the LPegRex .gram compiler)**
  - JSON, C11, CSV, URL, INI, S-expressions, Go-subset, MIR, MLIR, Vyper-subset, agent grammars — compiled by the split pegrex/lpegc/ compiler into executable pattern trees.
+
+Run `python pegrex.py soundness` for the complete machine-readable plugin manifest and trust policy, or add `--language ID` for one frontend. The same report is available through `CoreEngine.soundness()` and the stdio service's `soundness` method. Native legacy and domain-specific analyzers are registered through the same manifest; the split `pegrex/lpegc/` compiler handles the bundled grammar-text formats.
 
 
 ## The Security Engine
@@ -72,9 +66,13 @@ It speaks fifteen-plus languages, exposes sixty-five commands, 331 unit tests, 1
 
 ## Core Engine and Tools API v2
 
-`CoreEngine.execute(operation, arguments)` is the production dispatch boundary. It returns an `OperationResult` for `parse`, `contracts`, `contracts_file`, `audit`, `call_graph`, `verify_patch`, `capabilities`, and `soundness`; invalid envelopes and implementation failures become structured `status: "error"`, `verdict: "unknown"` results. Direct historical methods retain their exception behavior.
+The minimal certificate kernel proves only canonical contract-set identity; it does not independently prove semantic equivalence. Required-equivalence patch gates therefore fail closed until an independent semantic proof checker is available.
 
-`pegrex.toolsapi` adds a lazy, manifest-driven API with JSON-shaped argument validation, workspace confinement (including symlink escapes), source SHA-256 provenance, and versioned evidence envelopes. It does not execute shell commands or mutate the real workspace.
+`CoreEngine.execute(operation, arguments)` is the production dispatch boundary. It returns an `OperationResult` for `parse`, `contracts`, `contracts_file`, `audit`, `call_graph`, `verify_patch`, `capabilities`, `soundness`, and the lazily registered external-integration operations; invalid envelopes and implementation failures become structured `status: "error"`, `verdict: "unknown"` results. Direct historical methods retain their exception behavior. `CoreEngine.operations()` exposes both the compatible v2 field lists and the canonical enforced argument schemas. CoreEngine and the Tools API consume the same registry, so a tool manifest cannot drift from core dispatch validation.
+
+Public requests are checked before parser or backend execution: JSON byte size, nesting, item/string/integer budgets, finite numbers, operation-specific required and unknown fields, numeric bounds, and argv shape are enforced without coercion. Cyclic or over-budget normalized ASTs are refused rather than traversed indefinitely. CLI `--input`, `@file`, and `--input-file` use the same limits and additionally reject duplicate JSON object keys and non-standard NaN/Infinity values.
+
+`pegrex.toolsapi` adds a lazy, manifest-driven API with JSON-shaped argument validation, workspace confinement (including symlink escapes), source SHA-256 provenance, and versioned evidence envelopes. It does not execute shell commands. Only explicitly marked integration operations write, and only beneath caller-declared staging roots inside the selected workspace. External compiler/interpreter workers use the platform sandbox adapter by default; unavailable sandbox setup yields incomplete/unknown evidence rather than an assumed successful run.
 
 ```python
 from pegrex.core import get_engine
@@ -93,9 +91,71 @@ python pegrex.py engine parse --input '{"source":"return 1","language":"python"}
 python pegrex.py tools
 python pegrex.py tools --name core.contracts_file
 python pegrex.py tool core.contracts_file --workspace . --input '{"path":"example.py"}'
+python pegrex.py state list
+python pegrex.py state show demo
+python pegrex.py tool core.contracts_file --workspace . --state demo --input '{"path":"example.py"}'
 ```
 
 Operation errors exit 1. `--fail-on-unknown` exits 2 for UNKNOWN or partial evidence. A completed REFUTED analysis is not, by itself, a process failure.
+
+### Production lifecycle profiles
+
+Profiles are opt-in policy gates, not maturity claims or proof certificates. They constrain execution, workspace mutation, evidence creation, and subprocess budgets; none authorizes automatic promotion. Successful results record `state_policy_enforced: true`. Errors retain the selected state but set it to `false` when validation or authorization failed before enforcement completed.
+
+| profile | external execution | workspace mutation | release evidence | maximum timeout | maximum memory |
+|---|---|---|---|---|---|
+| `alpha` | allowed | allowed | forbidden | 15,000 ms | 512 MB |
+| `demo` | forbidden | forbidden | forbidden | 5,000 ms | 256 MB |
+| `beta` | allowed | allowed | allowed | 120,000 ms | 1,024 MB |
+
+`pegrex.states.alpha`, `demo`, and `beta` each expose `PROFILE`, `policy()`, `authorize()`, and `effective_arguments()`. The last helper authorizes first, returns an independent argument dictionary, and caps omitted backend defaults to the selected profile. For example:
+
+```python
+from pegrex.states import demo
+
+demo.authorize("core.audit")
+arguments = demo.effective_arguments("core.audit", {"path": "example.py"})
+```
+
+The reviewed `pegrex.state-profile.v1` JSON Schema validates both `state show` documents and the `state list` catalog.
+
+## Optional external integrations
+
+Three lazy adapters connect external generation and execution backends without adding them to the stable core or base installation:
+
+- `neural.generate` runs the pinned neural-codegen S-expression → typed IR → Rust pipeline into staging. `neural.verify_candidate` independently inspects Rust source, rejects implementation stubs as complete candidates, records security-analysis evidence, and optionally runs an argv-only compilation check in an ephemeral sandbox.
+- `ironkernel.run` accepts a bounded JSON expression AST and flat float64 inputs, never arbitrary Python source. `ironkernel.differential` compares ironkernel with NumPy. Matching samples remain UNKNOWN for general equivalence; a mismatch becomes a confirmed counterexample only after an independent process replay.
+- `pythoc.compile` executes PythoC in an ephemeral no-network/no-credential sandbox and retains source, LLVM IR, and backend-report hashes. `pythoc.analyze_ir` uses PegRex's versioned LLVM 17/18 CFG grammars; other versions and unsupported terminators remain UNKNOWN. `pythoc.differential` uses separate ephemeral native-execution sandboxes.
+
+Install only the required Python backends, or both through the combined extra:
+
+```
+python -m pip install 'pegrex[pythoc]'
+python -m pip install 'pegrex[ironkernel]'
+python -m pip install 'pegrex[integrations]'
+```
+
+Neural Codegen is a Rust dependency rather than a PyPI dependency. Build the offline adapter against a pinned upstream checkout:
+
+```
+python tools/build_nc_pegrex.py --upstream /path/to/neural-codegen \
+  --work-dir /tmp/nc-pegrex-build --output /tmp/nc-pegrex
+python pegrex.py neural generate api.sexp .pegrex/neural \
+  --backend-argv '["/tmp/nc-pegrex"]' --fail-on-unknown
+python pegrex.py neural verify .pegrex/neural \
+  --check-argv '["cargo","check","--locked","--offline"]'
+```
+
+The generation command intentionally exits 2 with `--fail-on-unknown`: generated code is a candidate, not production-approved code. The verification command also preserves UNKNOWN for user intent and general behavioral correctness.
+
+```
+python pegrex.py ironkernel differential '{"op":"add","args":[{"op":"arg","name":"x"},{"op":"const","value":1.0}]}' \
+  '{"x":[1.0,2.0,3.0]}'
+python pegrex.py pythoc compile kernel.py .pegrex/pythoc --entrypoint add
+python pegrex.py pythoc analyze-ir .pegrex/pythoc/candidate.ll --llvm-version 18
+```
+
+Integration artifacts use `pegrex.integration-result.v1`; `pegrex.integrations.assurance.assurance_claim()` binds claims to exact artifact hashes for continuous-assurance invalidation. Missing backends, unavailable sandboxes, malformed reports, artifact identity mismatches, resource exhaustion, and unsupported semantics never produce clean results. Native and generated code is never loaded into the main PegRex process.
 
 ## Installation and validation
 
@@ -106,7 +166,8 @@ python run_tests.py
 python tools/selfhost.py --check
 python tools/health_report.py --check
 python tools/build_skills.py --check
-python tools/grammar_lint.py examples/*.gram
+python tools/grammar_lint.py examples/*.gram pegrex/grammars/*.gram
+python tools/audit_public_schemas.py --check
 ```
 
 Optional parser, solver, and evidence dependencies are declared in `pyproject.toml`. Missing capabilities remain explicit refusals; they are not replaced with silent semantic fallbacks.
@@ -207,12 +268,12 @@ tests/         historical, compatibility, adversarial, and hardening suites
 examples/      .gram formats + walkthroughs
 tools/         repo-facing scripts (secaudit, mkspec, ...)
 skills/        agent SKILL packs
-docs/          README.md, HEALTH.md, SELF.md (the self-audit)
+docs/          architecture, public contracts, HEALTH.md, SELF.md (the self-audit)
 ```
 
 ## The self-hosting proof
 
-`python tools/selfhost.py` regenerates `docs/SELF.md` -- the twin, cognitive-complexity, and contract reports of pegrex/ *by pegrex itself* (regenerated function totals and published refusals). `python tools/build_skills.py` reproducibly rebuilds `pegrex-skills.tar.gz`; both generators support `--check`. See `docs/PUBLIC_CONTRACTS.md` for stable API, CLI, service, and result contracts.
+`python tools/selfhost.py` regenerates `docs/SELF.md` -- the twin, cognitive-complexity, and contract reports of pegrex/ *by pegrex itself*. Every Python module is included, including package initializers; source-only twin traversal is sorted and excludes bytecode caches, and each contract-extraction UNKNOWN carries a bounded deterministic refusal reason. `python tools/build_skills.py` reproducibly rebuilds the committed `pegrex-skills.tar.gz`; both generators support `--check`. `python tools/health_report.py` and `python tools/audit_public_schemas.py --output docs/SCHEMA_CATALOG_AUDIT.json` refresh the other generated evidence. The release builder retains tests, certificates, CI, the skills archive, current validation report, security policy, and SHA-256 manifest while excluding caches, build products, obsolete reports, and non-runtime artwork. See `docs/PUBLIC_CONTRACTS.md` for stable API, CLI, service, and result contracts.
 
 
 ## What it does
@@ -307,7 +368,7 @@ Given a function, pegrex enumerates its path contracts —
       · octagons;
       · SLSA attestation;
       · KLEE-lite memory;
-      · Houdini and IC3/PDR frames;
+      · Houdini invariants and bounded single-fixpoint property checking (not full IC3/PDR);
       · complexipy's cognitive complexity;
       · a Z3-class QF_LIA solver by Fourier-Motzkin;
       · DRAT-style proof certificates;

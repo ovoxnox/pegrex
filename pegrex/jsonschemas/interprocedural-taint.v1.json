@@ -1,0 +1,31 @@
+{
+  "$id": "pegrex:pegrex.interprocedural-taint.v1:schema",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": true,
+  "properties": {
+    "findings": {
+      "type": "array"
+    },
+    "fixed_point": {
+      "type": "object"
+    },
+    "schema": {
+      "const": "pegrex.interprocedural-taint.v1"
+    },
+    "summaries": {
+      "type": "object"
+    },
+    "unknowns": {
+      "type": "array"
+    }
+  },
+  "required": [
+    "schema",
+    "fixed_point",
+    "summaries",
+    "findings",
+    "unknowns"
+  ],
+  "title": "Interprocedural taint analysis result",
+  "type": "object"
+}

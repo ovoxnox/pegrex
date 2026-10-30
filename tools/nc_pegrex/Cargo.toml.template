@@ -1,0 +1,10 @@
+[package]
+name = "nc-pegrex"
+version = "0.1.0"
+edition = "2021"
+license = "MIT"
+
+[dependencies]
+nc-parser = { path = "__NEURAL_CODEGEN_ROOT__/crates/nc-parser" }
+nc-ir = { path = "__NEURAL_CODEGEN_ROOT__/crates/nc-ir" }
+nc-codegen = { path = "__NEURAL_CODEGEN_ROOT__/crates/nc-codegen" }

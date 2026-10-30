@@ -1,0 +1,98 @@
+{
+  "$id": "pegrex:pegrex.security-scan.v1:schema",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": true,
+  "properties": {
+    "active_total": {
+      "minimum": 0,
+      "type": "integer"
+    },
+    "coverage": {
+      "additionalProperties": true,
+      "type": "object"
+    },
+    "file": {
+      "type": "string"
+    },
+    "findings": {
+      "items": {
+        "additionalProperties": true,
+        "properties": {
+          "evidence": {
+            "type": "string"
+          },
+          "id": {
+            "type": "string"
+          },
+          "line": {
+            "minimum": 1,
+            "type": "integer"
+          },
+          "rule_id": {
+            "type": "string"
+          },
+          "severity": {
+            "enum": [
+              "CRITICAL",
+              "HIGH",
+              "MEDIUM",
+              "LOW",
+              "INFO"
+            ]
+          },
+          "suppressed": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "id"
+        ],
+        "type": "object"
+      },
+      "type": "array"
+    },
+    "language": {
+      "type": "string"
+    },
+    "mode": {
+      "enum": [
+        "fast",
+        "deep"
+      ]
+    },
+    "provenance": {
+      "additionalProperties": true,
+      "type": "object"
+    },
+    "resource_limits": {
+      "additionalProperties": true,
+      "type": "object"
+    },
+    "schema": {
+      "const": "pegrex.security-scan.v1"
+    },
+    "suppressed_total": {
+      "minimum": 0,
+      "type": "integer"
+    },
+    "total": {
+      "minimum": 0,
+      "type": "integer"
+    },
+    "unknowns": {
+      "items": {
+        "type": "string"
+      },
+      "type": "array"
+    }
+  },
+  "required": [
+    "schema",
+    "file",
+    "findings",
+    "coverage",
+    "unknowns"
+  ],
+  "title": "Security scan result",
+  "type": "object"
+}

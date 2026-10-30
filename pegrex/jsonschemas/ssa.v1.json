@@ -1,0 +1,22 @@
+{
+  "$id": "pegrex:pegrex.ssa.v1:schema",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": true,
+  "properties": {
+    "functions": {},
+    "schema": {
+      "const": "pegrex.ssa.v1"
+    },
+    "unknowns": {
+      "type": "array"
+    }
+  },
+  "required": [
+    "functions",
+    "schema",
+    "unknowns"
+  ],
+  "title": "PegRex public result: pegrex.ssa.v1",
+  "type": "object",
+  "x-peg-rex-validation-level": "inferred-top-level"
+}

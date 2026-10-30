@@ -212,7 +212,7 @@ class TreeSitterAst:
     """Parses via real tree-sitter; falls back to regex-only mode."""
 
     def __init__(self, path: pathlib.Path, max_bytes: int = MAX_SOURCE_BYTES,
-                 lang: str | None = None) -> None:
+                 lang: str | None = None, max_ast_nodes: int = 250_000) -> None:
         self.lang: str | None = detect_language(path, lang)
         self.tree: object | None = None
         self.parse_error: str | None = None
@@ -237,6 +237,15 @@ class TreeSitterAst:
             try:
                 self.tree = parse_registered_source(self.lang, self.src)
                 self.parser_used = get_language(self.lang).parse_adapter
+                if self.tree is not None:
+                    pending, count = [self.tree], 0
+                    while pending:
+                        node = pending.pop(); count += 1
+                        if count > max_ast_nodes:
+                            self.tree = None
+                            self.input_error = f"syntax tree exceeds {max_ast_nodes} node limit; scan refused"
+                            break
+                        pending.extend(getattr(node, "children", ()) or ())
             except (ImportError, NotImplementedError, ValueError, RuntimeError) as exc:
                 self.parse_error = f"{type(exc).__name__}: {str(exc)[:200]}"
 
@@ -663,7 +672,8 @@ class Auditor:
         }
 
     def provenance(self, ast: AstProvider, *, path: str | None = None,
-                   osv: dict | None = None) -> dict:
+                   osv: dict | None = None, max_source_bytes: int = MAX_SOURCE_BYTES,
+                   max_ast_nodes: int = 250_000) -> dict:
         coverage = self.coverage(ast.lang)
         catalogs = {kind: self._catalog_snapshot(coverage[kind])
                     for kind in ("pattern", "taint")}
@@ -682,7 +692,8 @@ class Auditor:
             "osv": osv or {"mode": "offline", "status": "not_applicable",
                            "snapshot": None},
             "configuration": {
-                "max_source_bytes": MAX_SOURCE_BYTES,
+                "max_source_bytes": max_source_bytes,
+                "max_ast_nodes": max_ast_nodes,
                 "max_matches_per_rule": MAX_MATCHES_PER_RULE,
                 "regex_timeout_ms": REGEX_TIMEOUT_MS,
                 "network": "disabled-for-source-audit",
@@ -700,9 +711,11 @@ class Auditor:
         return self._audit_with_ast(ast, str(path))
 
     def scan_report(self, path: str, lang: str | None = None, *,
-                    osv: dict | None = None) -> dict:
-        """Reproducible, offline source scan with exact input/tool identity."""
-        ast = TreeSitterAst(pathlib.Path(path), lang=lang)
+                    osv: dict | None = None, max_source_bytes: int = MAX_SOURCE_BYTES,
+                    max_ast_nodes: int = 250_000) -> dict:
+        """Reproducible, offline source scan with explicit source/tree budgets."""
+        ast = TreeSitterAst(pathlib.Path(path), max_bytes=max_source_bytes,
+                            lang=lang, max_ast_nodes=max_ast_nodes)
         findings = self._audit_with_ast(ast, str(path))
         from pegrex.schema import finding_document, unknown_document
         rows = [finding_document(finding.__dict__) for finding in findings]
@@ -715,7 +728,9 @@ class Auditor:
             "active_total": sum(not f.suppressed for f in findings),
             "suppressed_total": sum(f.suppressed for f in findings),
             "coverage": self.file_coverage(ast, findings, path=str(path)),
-            "provenance": self.provenance(ast, path=str(path), osv=osv),
+            "provenance": self.provenance(ast, path=str(path), osv=osv,
+                                           max_source_bytes=max_source_bytes,
+                                           max_ast_nodes=max_ast_nodes),
         }
 
     def audit_source(self, source: str, lang: str, *, tree=None) -> list[Finding]:
@@ -767,9 +782,112 @@ def audit_source(source: str, lang: str, *, tree=None) -> list[dict]:
     return [f.__dict__ for f in Auditor().audit_source(source, lang, tree=tree)]
 
 
+def _unknown_budget_report(path: str, lang: str | None, mode: str, reason: str,
+                           limits: dict) -> dict:
+    from pegrex.schema import finding_document, unknown_document
+    language = normalize_language(lang) if lang else detect_language(path, None)
+    row = {"id": "analysis-budget-exceeded", "severity": "INFO", "confidence": "none",
+           "line": 1, "column": 1, "evidence": "", "message": reason,
+           "kind": "unknown", "file": str(path), "suppressed": False}
+    unknown = unknown_document(reason, source=str(path), resource="analysis-budget")
+    rule_rows = {kind: {"executed": [], "skipped": [], "undecided": [{"id": "analysis-budget-exceeded", "reason": reason}]}
+                 for kind in ("pattern", "taint")}
+    return {"schema": "pegrex.security-scan.v1", "file": str(path), "language": language,
+            "findings": [finding_document(row)], "total": 1, "unknowns": [unknown],
+            "active_total": 1, "suppressed_total": 0,
+            "coverage": {"status": "partial", "language": {"id": language, "audit": "unknown", "taint": "unknown"},
+                         "rules": rule_rows, "reason": reason},
+            "provenance": {"schema": "pegrex.security-provenance.v1",
+                           "source": {"path": str(path), "sha256": None, "bytes": None},
+                           "language": language, "parser": {"status": "unknown"}, "rules": {},
+                           "rule_catalog_version": None, "osv": {"mode": "offline", "status": "unknown", "snapshot": None},
+                           "configuration": limits},
+            "mode": mode, "resource_limits": limits}
+
+
+def _audit_report_worker(path, lang, osv, mode, limits, result_queue):
+    try:
+        # POSIX resource limits complement the parent wall-clock deadline. They
+        # are best-effort platform controls, not a filesystem/network sandbox.
+        try:
+            import math, resource
+            cpu = max(1, math.ceil(limits["timeout_ms"] / 1000))
+            resource.setrlimit(resource.RLIMIT_CPU, (cpu, cpu + 1))
+            memory = limits["max_memory_mb"] * 1024 * 1024
+            resource.setrlimit(resource.RLIMIT_AS, (memory, memory))
+        except (ImportError, AttributeError, OSError, ValueError):
+            pass
+        report = Auditor().scan_report(path, lang, osv=osv,
+                                       max_source_bytes=limits["max_source_bytes"],
+                                       max_ast_nodes=limits["max_ast_nodes"])
+        report["mode"] = mode
+        report["resource_limits"] = limits
+        encoded = json.dumps(report, ensure_ascii=False, separators=(",", ":")).encode("utf-8")
+        if len(encoded) > limits["max_output_bytes"]:
+            report = _unknown_budget_report(path, lang, mode,
+                "analysis output budget exceeded; detailed report suppressed", limits)
+        result_queue.put({"report": report})
+    except BaseException as error:
+        result_queue.put({"error": type(error).__name__})
+
+
 def audit_report(path: str, lang: str | None = None, *,
-                 osv: dict | None = None) -> dict:
-    return Auditor().scan_report(path, lang, osv=osv)
+                 osv: dict | None = None, mode: str | None = None) -> dict:
+    """Scan a file, optionally in a hard-deadline fast/deep worker.
+
+    With no mode, legacy behavior is unchanged. A selected mode runs the scan in
+    a disposable child process, enforces a parent deadline, and returns UNKNOWN
+    rather than a clean report when the worker exceeds the budget.
+    """
+    if mode is None:
+        return Auditor().scan_report(path, lang, osv=osv)
+    from pegrex.performance import audit_mode
+    profile = audit_mode(mode)
+    limits = {"timeout_ms": int(profile.max_seconds * 1000),
+              "max_source_bytes": min(MAX_SOURCE_BYTES, 1_000_000) if mode == "fast" else MAX_SOURCE_BYTES,
+              "max_ast_nodes": 20_000 if mode == "fast" else 250_000,
+              "max_output_bytes": 1_000_000 if mode == "fast" else 8_000_000,
+              "max_memory_mb": profile.max_memory_mb,
+              "memory_limit_enforced": hasattr(__import__("resource"), "RLIMIT_AS") if sys.platform != "win32" else False}
+    try:
+        if pathlib.Path(path).stat().st_size > limits["max_source_bytes"]:
+            return _unknown_budget_report(path, lang, mode, "source input budget exceeded", limits)
+    except OSError as error:
+        return _unknown_budget_report(path, lang, mode, f"source unavailable: {type(error).__name__}", limits)
+    # Use spawn so the bounded outer worker does not fork the parser/regex state;
+    # the inner regex worker is itself spawned and can then be terminated cleanly.
+    main_file = getattr(sys.modules.get("__main__"), "__file__", None)
+    if not main_file or str(main_file).startswith("<"):
+        return _unknown_budget_report(path, lang, mode,
+            "bounded worker bootstrap unavailable in an interactive interpreter", limits)
+    context = mp.get_context("spawn")
+    output = context.Queue(maxsize=1)
+    process = context.Process(target=_audit_report_worker,
+                              args=(str(path), lang, osv, mode, limits, output), daemon=False)
+    try:
+        process.start()
+    except (OSError, RuntimeError) as error:
+        output.close()
+        return _unknown_budget_report(path, lang, mode,
+                                      f"bounded worker bootstrap unavailable: {type(error).__name__}", limits)
+    process.join(profile.max_seconds)
+    if process.is_alive():
+        process.terminate(); process.join(1)
+        if process.is_alive() and hasattr(process, "kill"):
+            process.kill(); process.join()
+        output.close()
+        return _unknown_budget_report(path, lang, mode,
+                                      f"audit exceeded {limits['timeout_ms']}ms budget", limits)
+    try:
+        result = output.get(timeout=0.5)
+    except queue.Empty:
+        result = {"error": "worker returned no report"}
+    finally:
+        output.close()
+    if "report" in result:
+        return result["report"]
+    return _unknown_budget_report(path, lang, mode,
+                                  f"audit worker failed: {result.get('error', 'unknown error')}", limits)
 
 
 def aggregate_scan_coverage(reports: list[dict]) -> dict:
@@ -821,6 +939,8 @@ def main() -> int:
     ap = argparse.ArgumentParser(prog="secaudit")
     ap.add_argument("file")
     ap.add_argument("--lang", default=None)
+    ap.add_argument("--mode", choices=["fast", "deep"], default=None,
+                    help="run in a deadline-bounded analysis profile")
     output = ap.add_mutually_exclusive_group()
     output.add_argument("--json", action="store_true")
     output.add_argument("--sarif", action="store_true")
@@ -828,7 +948,7 @@ def main() -> int:
     ap.add_argument("--fail-on", choices=[s.lower() for s in SEV_ORDER])
     ap.add_argument("--fail-on-unknown", action="store_true")
     a = ap.parse_args()
-    report = audit_report(a.file, a.lang)
+    report = audit_report(a.file, a.lang, mode=a.mode)
     findings = report["findings"]
     if a.sarif:
         from pegrex.export import to_sarif

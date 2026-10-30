@@ -1,0 +1,48 @@
+{
+  "$id": "pegrex:pegrex.agent-role-evidence.v1:schema",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": true,
+  "properties": {
+    "data": {
+      "type": "object"
+    },
+    "role": {
+      "enum": [
+        "candidate-generation",
+        "patch-generation",
+        "counterexample-search",
+        "independent-checking"
+      ]
+    },
+    "schema": {
+      "const": "pegrex.agent-role-evidence.v1"
+    },
+    "schema_version": {
+      "const": 1
+    },
+    "unknowns": {
+      "items": {
+        "type": "string"
+      },
+      "type": "array"
+    },
+    "verdict": {
+      "enum": [
+        "proved",
+        "refuted",
+        "unknown",
+        "ok"
+      ]
+    }
+  },
+  "required": [
+    "schema",
+    "schema_version",
+    "role",
+    "verdict",
+    "data",
+    "unknowns"
+  ],
+  "title": "Independent agent role evidence",
+  "type": "object"
+}

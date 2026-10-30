@@ -1,0 +1,50 @@
+{
+  "$id": "pegrex:pegrex.mutation-testing.v1:schema",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": true,
+  "properties": {
+    "baseline": {},
+    "equivalent": {
+      "type": "integer"
+    },
+    "generated": {
+      "type": "integer"
+    },
+    "killed": {},
+    "mutants": {
+      "type": "array"
+    },
+    "mutation_score": {
+      "type": "null"
+    },
+    "schema": {
+      "const": "pegrex.mutation-testing.v1"
+    },
+    "scored": {
+      "type": "integer"
+    },
+    "source_sha256": {},
+    "status": {
+      "type": "string"
+    },
+    "survived": {},
+    "target": {},
+    "unknowns": {
+      "items": {
+        "type": "string"
+      },
+      "type": "array"
+    }
+  },
+  "required": [
+    "baseline",
+    "mutants",
+    "mutation_score",
+    "schema",
+    "status",
+    "unknowns"
+  ],
+  "title": "PegRex public result: pegrex.mutation-testing.v1",
+  "type": "object",
+  "x-peg-rex-validation-level": "inferred-top-level"
+}

@@ -1,0 +1,35 @@
+{
+  "$id": "pegrex:pegrex.reproducible-audit-bundle.v1:schema",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": true,
+  "properties": {
+    "artifacts": {
+      "type": "object"
+    },
+    "files": {
+      "type": "integer"
+    },
+    "include_sources": {},
+    "output": {
+      "type": "string"
+    },
+    "provenance": {},
+    "root_name": {},
+    "schema": {
+      "const": "pegrex.reproducible-audit-bundle.v1"
+    },
+    "sha256": {},
+    "sources": {},
+    "status": {
+      "type": "string"
+    },
+    "unknowns": {}
+  },
+  "required": [
+    "schema",
+    "unknowns"
+  ],
+  "title": "PegRex public result: pegrex.reproducible-audit-bundle.v1",
+  "type": "object",
+  "x-peg-rex-validation-level": "inferred-top-level"
+}

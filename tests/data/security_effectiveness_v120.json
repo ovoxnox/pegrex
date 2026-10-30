@@ -1,0 +1,392 @@
+[
+  {
+    "id": "ssrf-flask-request",
+    "rule_id": "ssrf-http-client",
+    "category": "ssrf",
+    "vulnerable": true,
+    "source": "from flask import request\nimport requests\ndef fetch():\n    url = request.args.get('url')\n    requests.get(url)\n"
+  },
+  {
+    "id": "ssrf-flask-request-unrelated-helper",
+    "rule_id": "ssrf-http-client",
+    "category": "ssrf-metamorphic-unrelated-helper",
+    "vulnerable": true,
+    "source": "\ndef _pegrex_unrelated_helper(value):\n    \"\"\"Harmless unrelated helper added by the metamorphic regression suite.\"\"\"\n    return str(value).strip()\n\nfrom flask import request\nimport requests\ndef fetch():\n    url = request.args.get('url')\n    requests.get(url)\n",
+    "derived_from": "ssrf-flask-request"
+  },
+  {
+    "id": "ssrf-allowlist-guard",
+    "rule_id": "ssrf-http-client",
+    "category": "ssrf",
+    "vulnerable": false,
+    "source": "from flask import request\nimport requests\ndef fetch():\n    url = request.args.get('url')\n    if not validate_url(url):\n        return None\n    requests.get(url)\n"
+  },
+  {
+    "id": "ssrf-allowlist-guard-unrelated-helper",
+    "rule_id": "ssrf-http-client",
+    "category": "ssrf-metamorphic-unrelated-helper",
+    "vulnerable": false,
+    "source": "\ndef _pegrex_unrelated_helper(value):\n    \"\"\"Harmless unrelated helper added by the metamorphic regression suite.\"\"\"\n    return str(value).strip()\n\nfrom flask import request\nimport requests\ndef fetch():\n    url = request.args.get('url')\n    if not validate_url(url):\n        return None\n    requests.get(url)\n",
+    "derived_from": "ssrf-allowlist-guard"
+  },
+  {
+    "id": "command-injection-request",
+    "rule_id": "command-injection-process",
+    "category": "command-injection",
+    "vulnerable": true,
+    "source": "from flask import request\nimport subprocess\ndef run():\n    command = request.args.get('command')\n    subprocess.run(command, shell=True)\n"
+  },
+  {
+    "id": "command-injection-request-unrelated-helper",
+    "rule_id": "command-injection-process",
+    "category": "command-injection-metamorphic-unrelated-helper",
+    "vulnerable": true,
+    "source": "\ndef _pegrex_unrelated_helper(value):\n    \"\"\"Harmless unrelated helper added by the metamorphic regression suite.\"\"\"\n    return str(value).strip()\n\nfrom flask import request\nimport subprocess\ndef run():\n    command = request.args.get('command')\n    subprocess.run(command, shell=True)\n",
+    "derived_from": "command-injection-request"
+  },
+  {
+    "id": "command-injection-constant-argv",
+    "rule_id": "command-injection-process",
+    "category": "command-injection",
+    "vulnerable": false,
+    "source": "import subprocess\ndef run():\n    subprocess.run(['echo', 'hello'], shell=False, check=True)\n"
+  },
+  {
+    "id": "command-injection-constant-argv-unrelated-helper",
+    "rule_id": "command-injection-process",
+    "category": "command-injection-metamorphic-unrelated-helper",
+    "vulnerable": false,
+    "source": "\ndef _pegrex_unrelated_helper(value):\n    \"\"\"Harmless unrelated helper added by the metamorphic regression suite.\"\"\"\n    return str(value).strip()\n\nimport subprocess\ndef run():\n    subprocess.run(['echo', 'hello'], shell=False, check=True)\n",
+    "derived_from": "command-injection-constant-argv"
+  },
+  {
+    "id": "path-traversal-request",
+    "rule_id": "path-traversal-file",
+    "category": "path-traversal",
+    "vulnerable": true,
+    "source": "from flask import request\ndef read():\n    path = request.args.get('path')\n    open(path).read()\n"
+  },
+  {
+    "id": "path-traversal-request-unrelated-helper",
+    "rule_id": "path-traversal-file",
+    "category": "path-traversal-metamorphic-unrelated-helper",
+    "vulnerable": true,
+    "source": "\ndef _pegrex_unrelated_helper(value):\n    \"\"\"Harmless unrelated helper added by the metamorphic regression suite.\"\"\"\n    return str(value).strip()\n\nfrom flask import request\ndef read():\n    path = request.args.get('path')\n    open(path).read()\n",
+    "derived_from": "path-traversal-request"
+  },
+  {
+    "id": "path-traversal-guarded",
+    "rule_id": "path-traversal-file",
+    "category": "path-traversal",
+    "vulnerable": false,
+    "source": "from flask import request\ndef read():\n    path = request.args.get('path')\n    if not validate_path(path):\n        return None\n    open(path).read()\n"
+  },
+  {
+    "id": "path-traversal-guarded-unrelated-helper",
+    "rule_id": "path-traversal-file",
+    "category": "path-traversal-metamorphic-unrelated-helper",
+    "vulnerable": false,
+    "source": "\ndef _pegrex_unrelated_helper(value):\n    \"\"\"Harmless unrelated helper added by the metamorphic regression suite.\"\"\"\n    return str(value).strip()\n\nfrom flask import request\ndef read():\n    path = request.args.get('path')\n    if not validate_path(path):\n        return None\n    open(path).read()\n",
+    "derived_from": "path-traversal-guarded"
+  },
+  {
+    "id": "pickle-deserialization",
+    "rule_id": "unsafe-deserialization",
+    "category": "unsafe-deserialization",
+    "vulnerable": true,
+    "source": "from flask import request\nimport pickle\ndef load():\n    data = request.get_json()\n    pickle.loads(data)\n"
+  },
+  {
+    "id": "pickle-deserialization-unrelated-helper",
+    "rule_id": "unsafe-deserialization",
+    "category": "unsafe-deserialization-metamorphic-unrelated-helper",
+    "vulnerable": true,
+    "source": "\ndef _pegrex_unrelated_helper(value):\n    \"\"\"Harmless unrelated helper added by the metamorphic regression suite.\"\"\"\n    return str(value).strip()\n\nfrom flask import request\nimport pickle\ndef load():\n    data = request.get_json()\n    pickle.loads(data)\n",
+    "derived_from": "pickle-deserialization"
+  },
+  {
+    "id": "json-deserialization",
+    "rule_id": "unsafe-deserialization",
+    "category": "unsafe-deserialization",
+    "vulnerable": false,
+    "source": "from flask import request\nimport json\ndef load():\n    data = request.get_json()\n    json.loads(data)\n"
+  },
+  {
+    "id": "json-deserialization-unrelated-helper",
+    "rule_id": "unsafe-deserialization",
+    "category": "unsafe-deserialization-metamorphic-unrelated-helper",
+    "vulnerable": false,
+    "source": "\ndef _pegrex_unrelated_helper(value):\n    \"\"\"Harmless unrelated helper added by the metamorphic regression suite.\"\"\"\n    return str(value).strip()\n\nfrom flask import request\nimport json\ndef load():\n    data = request.get_json()\n    json.loads(data)\n",
+    "derived_from": "json-deserialization"
+  },
+  {
+    "id": "template-injection-request",
+    "rule_id": "template-injection",
+    "category": "template-injection",
+    "vulnerable": true,
+    "source": "from flask import request\nfrom jinja2 import Template\ndef render():\n    text = request.args.get('template')\n    Template(text).render()\n"
+  },
+  {
+    "id": "template-injection-request-unrelated-helper",
+    "rule_id": "template-injection",
+    "category": "template-injection-metamorphic-unrelated-helper",
+    "vulnerable": true,
+    "source": "\ndef _pegrex_unrelated_helper(value):\n    \"\"\"Harmless unrelated helper added by the metamorphic regression suite.\"\"\"\n    return str(value).strip()\n\nfrom flask import request\nfrom jinja2 import Template\ndef render():\n    text = request.args.get('template')\n    Template(text).render()\n",
+    "derived_from": "template-injection-request"
+  },
+  {
+    "id": "template-fixed-constant",
+    "rule_id": "template-injection",
+    "category": "template-injection",
+    "vulnerable": false,
+    "source": "from jinja2 import Template\ndef render():\n    Template('hello {{ name }}').render(name='world')\n"
+  },
+  {
+    "id": "template-fixed-constant-unrelated-helper",
+    "rule_id": "template-injection",
+    "category": "template-injection-metamorphic-unrelated-helper",
+    "vulnerable": false,
+    "source": "\ndef _pegrex_unrelated_helper(value):\n    \"\"\"Harmless unrelated helper added by the metamorphic regression suite.\"\"\"\n    return str(value).strip()\n\nfrom jinja2 import Template\ndef render():\n    Template('hello {{ name }}').render(name='world')\n",
+    "derived_from": "template-fixed-constant"
+  },
+  {
+    "id": "sql-injection-request",
+    "rule_id": "dynamic-sql",
+    "category": "sql-injection",
+    "vulnerable": true,
+    "source": "from flask import request\ndef query(cursor):\n    value = request.args.get('id')\n    cursor.execute(value)\n"
+  },
+  {
+    "id": "sql-injection-request-unrelated-helper",
+    "rule_id": "dynamic-sql",
+    "category": "sql-injection-metamorphic-unrelated-helper",
+    "vulnerable": true,
+    "source": "\ndef _pegrex_unrelated_helper(value):\n    \"\"\"Harmless unrelated helper added by the metamorphic regression suite.\"\"\"\n    return str(value).strip()\n\nfrom flask import request\ndef query(cursor):\n    value = request.args.get('id')\n    cursor.execute(value)\n",
+    "derived_from": "sql-injection-request"
+  },
+  {
+    "id": "sql-parameterized",
+    "rule_id": "dynamic-sql",
+    "category": "sql-injection",
+    "vulnerable": false,
+    "source": "from flask import request\ndef query(cursor):\n    value = request.args.get('id')\n    cursor.execute('SELECT * FROM users WHERE id = ?', (value,))\n"
+  },
+  {
+    "id": "sql-parameterized-unrelated-helper",
+    "rule_id": "dynamic-sql",
+    "category": "sql-injection-metamorphic-unrelated-helper",
+    "vulnerable": false,
+    "source": "\ndef _pegrex_unrelated_helper(value):\n    \"\"\"Harmless unrelated helper added by the metamorphic regression suite.\"\"\"\n    return str(value).strip()\n\nfrom flask import request\ndef query(cursor):\n    value = request.args.get('id')\n    cursor.execute('SELECT * FROM users WHERE id = ?', (value,))\n",
+    "derived_from": "sql-parameterized"
+  },
+  {
+    "id": "secret-log-env",
+    "rule_id": "secret-log",
+    "category": "log",
+    "vulnerable": true,
+    "source": "import os, logging\ndef f():\n token = os.getenv('SERVICE_TOKEN')\n logging.info(token)\n"
+  },
+  {
+    "id": "secret-log-env-unrelated-helper",
+    "rule_id": "secret-log",
+    "category": "log-metamorphic-unrelated-helper",
+    "vulnerable": true,
+    "source": "\ndef _pegrex_unrelated_helper(value):\n    \"\"\"Harmless unrelated helper added by the metamorphic regression suite.\"\"\"\n    return str(value).strip()\n\nimport os, logging\ndef f():\n token = os.getenv('SERVICE_TOKEN')\n logging.info(token)\n",
+    "derived_from": "secret-log-env"
+  },
+  {
+    "id": "secret-log-redacted",
+    "rule_id": "secret-log",
+    "category": "log",
+    "vulnerable": false,
+    "source": "import os, logging\ndef f():\n token = os.getenv('SERVICE_TOKEN')\n logging.info(redact(token))\n"
+  },
+  {
+    "id": "secret-log-redacted-unrelated-helper",
+    "rule_id": "secret-log",
+    "category": "log-metamorphic-unrelated-helper",
+    "vulnerable": false,
+    "source": "\ndef _pegrex_unrelated_helper(value):\n    \"\"\"Harmless unrelated helper added by the metamorphic regression suite.\"\"\"\n    return str(value).strip()\n\nimport os, logging\ndef f():\n token = os.getenv('SERVICE_TOKEN')\n logging.info(redact(token))\n",
+    "derived_from": "secret-log-redacted"
+  },
+  {
+    "id": "secret-telemetry-env",
+    "rule_id": "secret-telemetry",
+    "category": "telemetry",
+    "vulnerable": true,
+    "source": "import os, sentry_sdk\ndef f():\n token = os.getenv('SERVICE_TOKEN')\n sentry_sdk.capture_message(token)\n"
+  },
+  {
+    "id": "secret-telemetry-env-unrelated-helper",
+    "rule_id": "secret-telemetry",
+    "category": "telemetry-metamorphic-unrelated-helper",
+    "vulnerable": true,
+    "source": "\ndef _pegrex_unrelated_helper(value):\n    \"\"\"Harmless unrelated helper added by the metamorphic regression suite.\"\"\"\n    return str(value).strip()\n\nimport os, sentry_sdk\ndef f():\n token = os.getenv('SERVICE_TOKEN')\n sentry_sdk.capture_message(token)\n",
+    "derived_from": "secret-telemetry-env"
+  },
+  {
+    "id": "secret-telemetry-redacted",
+    "rule_id": "secret-telemetry",
+    "category": "telemetry",
+    "vulnerable": false,
+    "source": "import os, sentry_sdk\ndef f():\n token = os.getenv('SERVICE_TOKEN')\n sentry_sdk.capture_message(redact(token))\n"
+  },
+  {
+    "id": "secret-telemetry-redacted-unrelated-helper",
+    "rule_id": "secret-telemetry",
+    "category": "telemetry-metamorphic-unrelated-helper",
+    "vulnerable": false,
+    "source": "\ndef _pegrex_unrelated_helper(value):\n    \"\"\"Harmless unrelated helper added by the metamorphic regression suite.\"\"\"\n    return str(value).strip()\n\nimport os, sentry_sdk\ndef f():\n token = os.getenv('SERVICE_TOKEN')\n sentry_sdk.capture_message(redact(token))\n",
+    "derived_from": "secret-telemetry-redacted"
+  },
+  {
+    "id": "secret-url-env",
+    "rule_id": "secret-url",
+    "category": "url",
+    "vulnerable": true,
+    "source": "import os, requests\ndef f():\n token = os.getenv('SERVICE_TOKEN')\n requests.get(token)\n"
+  },
+  {
+    "id": "secret-url-env-unrelated-helper",
+    "rule_id": "secret-url",
+    "category": "url-metamorphic-unrelated-helper",
+    "vulnerable": true,
+    "source": "\ndef _pegrex_unrelated_helper(value):\n    \"\"\"Harmless unrelated helper added by the metamorphic regression suite.\"\"\"\n    return str(value).strip()\n\nimport os, requests\ndef f():\n token = os.getenv('SERVICE_TOKEN')\n requests.get(token)\n",
+    "derived_from": "secret-url-env"
+  },
+  {
+    "id": "secret-url-redacted",
+    "rule_id": "secret-url",
+    "category": "url",
+    "vulnerable": false,
+    "source": "import os, requests\ndef f():\n token = os.getenv('SERVICE_TOKEN')\n requests.get(redact(token))\n"
+  },
+  {
+    "id": "secret-url-redacted-unrelated-helper",
+    "rule_id": "secret-url",
+    "category": "url-metamorphic-unrelated-helper",
+    "vulnerable": false,
+    "source": "\ndef _pegrex_unrelated_helper(value):\n    \"\"\"Harmless unrelated helper added by the metamorphic regression suite.\"\"\"\n    return str(value).strip()\n\nimport os, requests\ndef f():\n token = os.getenv('SERVICE_TOKEN')\n requests.get(redact(token))\n",
+    "derived_from": "secret-url-redacted"
+  },
+  {
+    "id": "secret-process-env",
+    "rule_id": "secret-process",
+    "category": "process-arguments",
+    "vulnerable": true,
+    "source": "import os, subprocess\ndef f():\n token = os.getenv('SERVICE_TOKEN')\n subprocess.run(token)\n"
+  },
+  {
+    "id": "secret-process-env-unrelated-helper",
+    "rule_id": "secret-process",
+    "category": "process-arguments-metamorphic-unrelated-helper",
+    "vulnerable": true,
+    "source": "\ndef _pegrex_unrelated_helper(value):\n    \"\"\"Harmless unrelated helper added by the metamorphic regression suite.\"\"\"\n    return str(value).strip()\n\nimport os, subprocess\ndef f():\n token = os.getenv('SERVICE_TOKEN')\n subprocess.run(token)\n",
+    "derived_from": "secret-process-env"
+  },
+  {
+    "id": "secret-process-redacted",
+    "rule_id": "secret-process",
+    "category": "process-arguments",
+    "vulnerable": false,
+    "source": "import os, subprocess\ndef f():\n token = os.getenv('SERVICE_TOKEN')\n subprocess.run(redact(token))\n"
+  },
+  {
+    "id": "secret-process-redacted-unrelated-helper",
+    "rule_id": "secret-process",
+    "category": "process-arguments-metamorphic-unrelated-helper",
+    "vulnerable": false,
+    "source": "\ndef _pegrex_unrelated_helper(value):\n    \"\"\"Harmless unrelated helper added by the metamorphic regression suite.\"\"\"\n    return str(value).strip()\n\nimport os, subprocess\ndef f():\n token = os.getenv('SERVICE_TOKEN')\n subprocess.run(redact(token))\n",
+    "derived_from": "secret-process-redacted"
+  },
+  {
+    "id": "secret-network-env",
+    "rule_id": "secret-network",
+    "category": "network",
+    "vulnerable": true,
+    "source": "import os, socket\ndef f(sock):\n token = os.getenv('SERVICE_TOKEN')\n socket.send(token)\n"
+  },
+  {
+    "id": "secret-network-env-unrelated-helper",
+    "rule_id": "secret-network",
+    "category": "network-metamorphic-unrelated-helper",
+    "vulnerable": true,
+    "source": "\ndef _pegrex_unrelated_helper(value):\n    \"\"\"Harmless unrelated helper added by the metamorphic regression suite.\"\"\"\n    return str(value).strip()\n\nimport os, socket\ndef f(sock):\n token = os.getenv('SERVICE_TOKEN')\n socket.send(token)\n",
+    "derived_from": "secret-network-env"
+  },
+  {
+    "id": "secret-network-redacted",
+    "rule_id": "secret-network",
+    "category": "network",
+    "vulnerable": false,
+    "source": "import os, socket\ndef f(sock):\n token = os.getenv('SERVICE_TOKEN')\n socket.send(redact(token))\n"
+  },
+  {
+    "id": "secret-network-redacted-unrelated-helper",
+    "rule_id": "secret-network",
+    "category": "network-metamorphic-unrelated-helper",
+    "vulnerable": false,
+    "source": "\ndef _pegrex_unrelated_helper(value):\n    \"\"\"Harmless unrelated helper added by the metamorphic regression suite.\"\"\"\n    return str(value).strip()\n\nimport os, socket\ndef f(sock):\n token = os.getenv('SERVICE_TOKEN')\n socket.send(redact(token))\n",
+    "derived_from": "secret-network-redacted"
+  },
+  {
+    "id": "code-eval-input",
+    "rule_id": "code-injection",
+    "category": "code-injection",
+    "vulnerable": true,
+    "source": "def f():\n return eval(input())\n"
+  },
+  {
+    "id": "code-eval-input-unrelated-helper",
+    "rule_id": "code-injection",
+    "category": "code-injection-metamorphic-unrelated-helper",
+    "vulnerable": true,
+    "source": "\ndef _pegrex_unrelated_helper(value):\n    \"\"\"Harmless unrelated helper added by the metamorphic regression suite.\"\"\"\n    return str(value).strip()\n\ndef f():\n return eval(input())\n",
+    "derived_from": "code-eval-input"
+  },
+  {
+    "id": "code-literal-eval",
+    "rule_id": "code-injection",
+    "category": "code-injection",
+    "vulnerable": false,
+    "source": "import ast\ndef f():\n return ast.literal_eval(input())\n"
+  },
+  {
+    "id": "code-literal-eval-unrelated-helper",
+    "rule_id": "code-injection",
+    "category": "code-injection-metamorphic-unrelated-helper",
+    "vulnerable": false,
+    "source": "\ndef _pegrex_unrelated_helper(value):\n    \"\"\"Harmless unrelated helper added by the metamorphic regression suite.\"\"\"\n    return str(value).strip()\n\nimport ast\ndef f():\n return ast.literal_eval(input())\n",
+    "derived_from": "code-literal-eval"
+  },
+  {
+    "id": "command-system-input",
+    "rule_id": "command-injection",
+    "category": "command-injection",
+    "vulnerable": true,
+    "source": "import os\ndef f():\n os.system(input())\n"
+  },
+  {
+    "id": "command-system-input-unrelated-helper",
+    "rule_id": "command-injection",
+    "category": "command-injection-metamorphic-unrelated-helper",
+    "vulnerable": true,
+    "source": "\ndef _pegrex_unrelated_helper(value):\n    \"\"\"Harmless unrelated helper added by the metamorphic regression suite.\"\"\"\n    return str(value).strip()\n\nimport os\ndef f():\n os.system(input())\n",
+    "derived_from": "command-system-input"
+  },
+  {
+    "id": "command-system-quoted",
+    "rule_id": "command-injection",
+    "category": "command-injection",
+    "vulnerable": false,
+    "source": "import os, shlex\ndef f():\n os.system(shlex.quote(input()))\n"
+  },
+  {
+    "id": "command-system-quoted-unrelated-helper",
+    "rule_id": "command-injection",
+    "category": "command-injection-metamorphic-unrelated-helper",
+    "vulnerable": false,
+    "source": "\ndef _pegrex_unrelated_helper(value):\n    \"\"\"Harmless unrelated helper added by the metamorphic regression suite.\"\"\"\n    return str(value).strip()\n\nimport os, shlex\ndef f():\n os.system(shlex.quote(input()))\n",
+    "derived_from": "command-system-quoted"
+  }
+]

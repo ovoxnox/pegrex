@@ -11,7 +11,7 @@ from pegrex.policygate import SecurityProfile
 def test_kernel_rejects_forged_and_supports_only_canonical_equality():
     row = [{"constraints": [], "outcome": "x"}]
     certificate = {"schema": "pegrex.certificate.v1", "schema_version": 1,
-                   "verdict": "proved", "claim": "equivalent", "unknowns": [],
+                   "verdict": "proved", "claim": "contract-set-identical", "unknowns": [],
                    "evidence": {"before_contracts": row, "after_contracts": row}}
     assert check_certificate(certificate)["checked"]
     forged = json.loads(json.dumps(certificate))
@@ -26,9 +26,12 @@ def test_equivalent_patch_applies_atomically_with_durable_trail(tmp_path):
     target.write_text("def f(x):\n    if x >= 0:\n        return x + 1\n    return 0\n")
     proposed = target.read_text().replace("x + 1", "(x + 1)")
     result = apply_patch_gated(target, proposed, audit_dir=tmp_path / "audit")
-    assert result["approved"] and result["applied"]
-    assert result["kernel"]["checked"]
-    assert target.read_text() == proposed
+    # The minimal kernel can check contract-set identity, not semantic
+    # equivalence. Until an independent semantic proof checker is supplied,
+    # required-equivalence edits fail closed.
+    assert not result["approved"] and not result["applied"]
+    assert not result["kernel"]["checked"]
+    assert target.read_text() != proposed
     trail = tmp_path / "audit" / result["audit_attempt_id"]
     assert EditAudit.verify(trail)["ok"]
     assert (trail / "original.txt").read_text() != proposed

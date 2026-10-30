@@ -1,0 +1,30 @@
+{
+  "$id": "pegrex:pegrex.observability-twin.v1:schema",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": true,
+  "properties": {
+    "contracts": {},
+    "interpretation": {
+      "type": "string"
+    },
+    "reason": {
+      "type": "string"
+    },
+    "schema": {
+      "const": "pegrex.observability-twin.v1"
+    },
+    "source_revision": {},
+    "status": {
+      "type": "string"
+    },
+    "trace_fingerprint": {},
+    "unmatched_events": {}
+  },
+  "required": [
+    "schema",
+    "status"
+  ],
+  "title": "PegRex public result: pegrex.observability-twin.v1",
+  "type": "object",
+  "x-peg-rex-validation-level": "inferred-top-level"
+}

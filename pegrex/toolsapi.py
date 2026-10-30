@@ -2,18 +2,24 @@
 
 The registry contains metadata only at rest; implementation imports are lazy.
 Every invocation validates JSON-shaped arguments, confines declared paths to a
-workspace, and returns a serializable evidence envelope. No tool in this API
-executes shell commands or mutates its real workspace.
+workspace, and returns a serializable evidence envelope. No tool executes shell
+commands. Only explicitly marked integration operations write, and only beneath
+caller-declared staging roots confined to the selected workspace.
 """
 from __future__ import annotations
 
 from dataclasses import dataclass
-import hashlib
 import json
 from pathlib import Path
 from typing import Any, Callable
 
 from .core import OperationResult, OperationStatus, Verdict, get_engine
+from .core.operations import operation_parameters
+from .jsonshape import matches_type as _matches_type
+from .jsonshape import validate_value as _validate_schema_value
+from .requestlimits import validate_request, validate_operation_budgets
+from .errorpolicy import disclosed_error_message
+from .workspace import confine_paths as _confine_paths, provenance as _provenance
 
 SCHEMA = "pegrex.tools-api-envelope.v2"
 MANIFEST_SCHEMA = "pegrex.tools-api-manifest.v2"
@@ -30,6 +36,7 @@ class ToolSpec:
     handler: Callable[[dict[str, Any]], Any]
     path_arguments: tuple[str, ...] = ()
     trust_claim: bool = False
+    mutates_workspace: bool = False
 
     def manifest(self) -> dict[str, Any]:
         """Implement manifest with the module's explicit API and failure semantics."""
@@ -39,7 +46,7 @@ class ToolSpec:
             "parameters": self.parameters,
             "path_arguments": list(self.path_arguments),
             "trust_claim": self.trust_claim,
-            "mutates_workspace": False,
+            "mutates_workspace": self.mutates_workspace,
         }
 
 
@@ -70,38 +77,54 @@ def _lazy(module, function):
 def _registry():
     string = {"type": "string"}
     integer = {"type": "integer", "minimum": 0}
-    boolean = {"type": "boolean"}
     mapping = {"type": "object"}
-    array = {"type": "array"}
+    string_array = {"type": "array", "items": {"type": "string", "minLength": 1},
+                    "maxItems": 128}
     specs = [
         ToolSpec("core.parse", "Parse source with a registered frontend.",
-                 _schema({"source": string, "language": string,
-                          "function_body": boolean, "entrypoint": string},
-                         ["source", "language"]), _core_handler("parse")),
+                 operation_parameters("parse"), _core_handler("parse")),
         ToolSpec("core.contracts", "Extract typed path contracts from source.",
-                 _schema({"source": string, "language": string, "path": string,
-                          "entrypoint": string}, ["source", "language"]),
+                 operation_parameters("contracts"),
                  _core_handler("contracts"), trust_claim=True),
         ToolSpec("core.contracts_file", "Extract typed path contracts from a workspace file.",
-                 _schema({"path": string, "language": string}, ["path"]),
+                 operation_parameters("contracts_file"),
                  _core_handler("contracts_file"), ("path",), True),
         ToolSpec("core.audit", "Run the registered source security audit.",
-                 _schema({"path": string, "language": string}, ["path"]),
-                 _core_handler("audit"), ("path",)),
+                 operation_parameters("audit"), _core_handler("audit"), ("path",)),
         ToolSpec("core.call_graph", "Build a source call graph.",
-                 _schema({"source": string, "language": string}, ["source"]),
-                 _core_handler("call_graph")),
+                 operation_parameters("call_graph"), _core_handler("call_graph")),
         ToolSpec("core.verify_patch", "Check a semantic claim for two source files.",
-                 _schema({"before_path": string, "after_path": string, "claim": string},
-                         ["before_path", "after_path"]),
+                 operation_parameters("verify_patch"),
                  _core_handler("verify_patch"), ("before_path", "after_path"), True),
         ToolSpec("core.capabilities", "List registered language capabilities.",
-                 _schema({"language": string}), _core_handler("capabilities")),
+                 operation_parameters("capabilities"), _core_handler("capabilities")),
         ToolSpec("core.soundness", "Return frontend and trust-policy metadata.",
-                 _schema({"language": string}), _core_handler("soundness")),
+                 operation_parameters("soundness"), _core_handler("soundness")),
+        ToolSpec("neural.generate", "Generate a staged Rust candidate with offline neural-codegen.",
+                 operation_parameters("neural.generate"),
+                 _core_handler("neural.generate"), ("spec_path", "staging"),
+                 mutates_workspace=True),
+        ToolSpec("neural.verify_candidate", "Independently inspect staged Rust without promoting it.",
+                 operation_parameters("neural.verify_candidate"),
+                 _core_handler("neural.verify_candidate"), ("candidate_root",), True),
+        ToolSpec("ironkernel.run", "Execute a bounded float64 expression in an isolated worker.",
+                 operation_parameters("ironkernel.run"), _core_handler("ironkernel.run")),
+        ToolSpec("ironkernel.differential", "Compare bounded ironkernel and NumPy observations.",
+                 operation_parameters("ironkernel.differential"),
+                 _core_handler("ironkernel.differential"), trust_claim=True),
+        ToolSpec("pythoc.compile", "Compile PythoC in an ephemeral sandbox and retain LLVM IR.",
+                 operation_parameters("pythoc.compile"),
+                 _core_handler("pythoc.compile"), ("source_path", "staging"),
+                 mutates_workspace=True),
+        ToolSpec("pythoc.analyze_ir", "Parse an explicit supported LLVM IR grammar.",
+                 operation_parameters("pythoc.analyze_ir"),
+                 _core_handler("pythoc.analyze_ir"), ("ir_path",), True),
+        ToolSpec("pythoc.differential", "Replay two native candidates in isolated sandboxes.",
+                 operation_parameters("pythoc.differential"),
+                 _core_handler("pythoc.differential"), ("before_path", "after_path"), True),
         ToolSpec("release.create", "Create proof-carrying repository release evidence.",
-                 _schema({"root": string, "subjects": array, "builder_id": string,
-                          "command_argv": array, "build_type": string,
+                 _schema({"root": string, "subjects": string_array, "builder_id": string,
+                          "command_argv": string_array, "build_type": string,
                           "previous_root": string, "lockfile": string,
                           "materials": mapping, "internal_parameters": mapping},
                          ["root", "subjects", "builder_id", "command_argv", "build_type"]),
@@ -109,7 +132,7 @@ def _registry():
                  ("root", "subjects", "previous_root", "lockfile", "materials"), True),
         ToolSpec("release.verify", "Independently verify release evidence and upstream artifacts.",
                  _schema({"pack": mapping, "root": string, "previous_root": string,
-                          "lockfile": string, "subject_paths": array,
+                          "lockfile": string, "subject_paths": string_array,
                           "material_paths": mapping}, ["pack", "root"]),
                  _lazy("releaseproof", "verify_release_pack"),
                  ("root", "previous_root", "lockfile", "subject_paths", "material_paths"), True),
@@ -158,102 +181,27 @@ def list_tools() -> dict[str, Any]:
         "tools": [_REGISTRY[name].manifest() for name in sorted(_REGISTRY)],
         "error_policy": "validation and implementation failures return status=error, verdict=unknown",
         "workspace_policy": "declared paths must resolve inside the caller-selected workspace",
+        "state_profiles": ["alpha", "demo", "beta"],
+        "state_policy": "profiles are opt-in; all generated code remains a candidate and no profile authorizes automatic promotion",
     }
 
 
-def _matches_type(value, expected):
-    if expected == "object":
-        return isinstance(value, dict)
-    if expected == "array":
-        return isinstance(value, list)
-    if expected == "string":
-        return isinstance(value, str)
-    if expected == "boolean":
-        return isinstance(value, bool)
-    if expected == "integer":
-        return isinstance(value, int) and not isinstance(value, bool)
-    if expected == "number":
-        return isinstance(value, (int, float)) and not isinstance(value, bool)
-    return True
-
-
-def _validate(spec, arguments):
+def _validate(spec: ToolSpec, arguments: Any) -> None:
     if not isinstance(arguments, dict):
         raise ValueError("tool arguments must be a JSON object")
+    validate_operation_budgets(arguments)
+    validate_request(arguments)
     schema = spec.parameters
-    unknown = sorted(set(arguments) - set(schema["properties"]))
-    if unknown:
+    properties = schema["properties"]
+    unknown = sorted(set(arguments) - set(properties))
+    if unknown and schema.get("additionalProperties") is False:
         raise ValueError(f"unknown tool argument(s): {', '.join(unknown)}")
-    missing = [name for name in schema["required"] if name not in arguments]
+    missing = [name for name in schema.get("required", []) if name not in arguments]
     if missing:
         raise ValueError(f"missing required tool argument(s): {', '.join(missing)}")
     for name, value in arguments.items():
-        definition = schema["properties"][name]
-        expected = definition.get("type")
-        if expected and not _matches_type(value, expected):
-            raise ValueError(f"argument {name!r} must be {expected}")
-        if expected == "integer" and value < definition.get("minimum", value):
-            raise ValueError(f"argument {name!r} is below its minimum")
-
-
-def _resolve(workspace, value):
-    path = Path(value)
-    if not path.is_absolute():
-        path = workspace / path
-    resolved = path.resolve()
-    try:
-        resolved.relative_to(workspace)
-    except ValueError as error:
-        raise ValueError(f"path escapes tool workspace: {value!r}") from error
-    return str(resolved)
-
-
-def _confine_paths(spec, arguments, workspace):
-    resolved = dict(arguments)
-    for name in spec.path_arguments:
-        if name not in resolved:
-            continue
-        value = resolved[name]
-        if isinstance(value, str):
-            resolved[name] = _resolve(workspace, value)
-        elif isinstance(value, list) and all(isinstance(row, str) for row in value):
-            resolved[name] = [_resolve(workspace, row) for row in value]
-        elif isinstance(value, dict) and all(isinstance(row, str) for row in value.values()):
-            resolved[name] = {key: _resolve(workspace, row) for key, row in value.items()}
-        else:
-            raise ValueError(f"path argument {name!r} has an unsupported shape")
-    return resolved
-
-
-def _identity(path):
-    candidate = Path(path)
-    row = {"path": str(candidate), "kind": "directory" if candidate.is_dir() else "file"}
-    if candidate.is_file():
-        digest = hashlib.sha256()
-        with candidate.open("rb") as stream:
-            for chunk in iter(lambda: stream.read(1024 * 1024), b""):
-                digest.update(chunk)
-        row.update(sha256=digest.hexdigest(), bytes=candidate.stat().st_size)
-    elif not candidate.exists():
-        row.update(kind="missing", error="path does not exist")
-    return row
-
-
-def _provenance(arguments, workspace):
-    paths = []
-    for name, value in sorted(arguments.items()):
-        values = []
-        if isinstance(value, str) and name in {
-                "path", "root", "before_path", "after_path", "before_root",
-                "after_root", "previous_root", "lockfile"}:
-            values = [value]
-        elif name in {"subjects", "subject_paths"} and isinstance(value, list):
-            values = value
-        elif name in {"materials", "material_paths"} and isinstance(value, dict):
-            values = list(value.values())
-        paths.extend(_identity(row) for row in values if isinstance(row, str))
-    return {"workspace": str(workspace), "paths": paths}
-
+        if name in properties:
+            _validate_schema_value(name, value, properties[name])
 
 def _unknowns(value):
     if isinstance(value, OperationResult):
@@ -285,6 +233,20 @@ def _verdict(value, unknowns):
     return None
 
 
+def _normalize_status(value: Any, unknowns: list[str], verdict: Verdict | None) -> OperationStatus:
+    """Map backend status to the stable API status without erasing failures."""
+    if isinstance(value, OperationResult):
+        return value.status
+    raw = value.get("status") if isinstance(value, dict) else None
+    if raw in {"error", "exception"}:
+        return OperationStatus.ERROR
+    if raw in {"unknown", "partial", "timeout", "unavailable", "failed", "rejected"}:
+        return OperationStatus.PARTIAL
+    if unknowns or verdict is Verdict.UNKNOWN:
+        return OperationStatus.PARTIAL
+    return OperationStatus.OK
+
+
 def _envelope(name, value, provenance):
     unknowns = _unknowns(value)
     verdict = _verdict(value, unknowns)
@@ -294,7 +256,7 @@ def _envelope(name, value, provenance):
         assumptions = list(value.assumptions)
         metadata = dict(value.metadata)
     else:
-        status = OperationStatus.PARTIAL if unknowns or verdict is Verdict.UNKNOWN else OperationStatus.OK
+        status = _normalize_status(value, unknowns, verdict)
         data = value
         assumptions = list(value.get("assumptions") or []) if isinstance(value, dict) else []
         metadata = {}
@@ -314,7 +276,13 @@ def _envelope(name, value, provenance):
     }
 
 
-def _error(name, error, provenance):
+def _error(name, error, provenance, *, disclose_errors=False, state=None,
+           state_policy_enforced=False):
+    message = disclosed_error_message(error, disclose=disclose_errors)
+    metadata = {"api_version": API_VERSION, "error_type": type(error).__name__,
+                "error_disclosure": "full" if disclose_errors else "redacted"}
+    if state is not None:
+        metadata.update(state=state, state_policy_enforced=state_policy_enforced)
     return {
         "schema": SCHEMA,
         "api_version": API_VERSION,
@@ -322,28 +290,64 @@ def _error(name, error, provenance):
         "status": OperationStatus.ERROR.value,
         "verdict": Verdict.UNKNOWN.value,
         "data": None,
-        "unknowns": [f"{type(error).__name__}: {error}"],
+        "unknowns": [f"{type(error).__name__}: {message}"],
         "assumptions": [],
-        "metadata": {"api_version": API_VERSION, "error_type": type(error).__name__},
+        "metadata": metadata,
         "provenance": provenance,
-        "error": {"type": type(error).__name__, "message": str(error)},
+        "error": {"type": type(error).__name__, "message": message},
     }
 
 
 def invoke(name: str, arguments: dict[str, Any] | None = None, *,
-           workspace: str | Path = ".") -> dict[str, Any]:
-    """Validate and invoke one registered tool without throwing across the API boundary."""
-    root = Path(workspace).resolve()
+           workspace: str | Path = ".", disclose_errors: bool = False,
+           state: str | None = None) -> dict[str, Any]:
+    """Validate and invoke one registered tool without throwing across the API boundary.
+
+    ``state`` is opt-in for backwards compatibility. Once selected, the profile
+    is enforced before the tool handler runs, not merely recorded as metadata.
+    Error metadata distinguishes a selected profile from completed enforcement.
+    """
+    state_policy_enforced = False
+    try:
+        root = Path(workspace).expanduser().resolve(strict=True)
+    except (OSError, RuntimeError, TypeError, ValueError):
+        root = Path.cwd().resolve()
+        provenance = {"workspace": str(root), "paths": []}
+        return _error(name if isinstance(name, str) else "<invalid-tool-name>",
+                      ValueError("workspace must be an existing resolvable directory"),
+                      provenance, disclose_errors=disclose_errors, state=state,
+                      state_policy_enforced=False)
     provenance = {"workspace": str(root), "paths": []}
+    if not root.is_dir():
+        return _error(name if isinstance(name, str) else "<invalid-tool-name>",
+                      ValueError("workspace must be an existing directory"),
+                      provenance, disclose_errors=disclose_errors, state=state,
+                      state_policy_enforced=False)
+    if not isinstance(name, str):
+        return _error("<invalid-tool-name>", ValueError("tool name must be a string"),
+                      provenance, disclose_errors=disclose_errors, state=state,
+                      state_policy_enforced=False)
     spec = _REGISTRY.get(name)
     if spec is None:
-        return _error(name, ValueError(f"unknown tool {name!r}"), provenance)
+        return _error(name, ValueError(f"unknown tool {name!r}"), provenance,
+                      disclose_errors=disclose_errors, state=state,
+                      state_policy_enforced=False)
     try:
         supplied = {} if arguments is None else arguments
         _validate(spec, supplied)
+        if state is not None:
+            from .states import apply_profile_limits
+            supplied, _profile = apply_profile_limits(
+                state, name, supplied, mutates_workspace=spec.mutates_workspace)
+            state_policy_enforced = True
         confined = _confine_paths(spec, supplied, root)
         provenance = _provenance(confined, root)
         value = spec.handler(confined)
-        return _envelope(name, value, provenance)
+        envelope = _envelope(name, value, provenance)
+        if state is not None:
+            envelope["metadata"]["state"] = state
+            envelope["metadata"]["state_policy_enforced"] = True
+        return envelope
     except Exception as error:
-        return _error(name, error, provenance)
+        return _error(name, error, provenance, disclose_errors=disclose_errors,
+                      state=state, state_policy_enforced=state_policy_enforced)

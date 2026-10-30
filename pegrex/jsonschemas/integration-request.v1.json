@@ -1,0 +1,27 @@
+{
+  "$id": "pegrex:pegrex.integration-request.v1:schema",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "arguments": {
+      "type": "object"
+    },
+    "operation": {
+      "minLength": 1,
+      "type": "string"
+    },
+    "schema": {
+      "const": "pegrex.integration-request.v1"
+    },
+    "schema_version": {
+      "const": 1,
+      "type": "integer"
+    }
+  },
+  "required": [
+    "schema",
+    "operation"
+  ],
+  "title": "PegRex optional integration request",
+  "type": "object"
+}

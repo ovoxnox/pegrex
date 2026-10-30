@@ -140,3 +140,33 @@ def test_staged_happy_path_in_temp_git_repo(tmp_path):
                        text=True)
     assert r.returncode == 0, r.stderr
     assert "1 file(s)" in r.stdout
+
+
+def test_changed_since_fails_only_new_complexity_debt(tmp_path):
+    if subprocess.run(["git", "--version"], capture_output=True).returncode != 0:
+        print("git unavailable -- skipping changed-file gate happy path")
+        return
+    _w(tmp_path, dict(CLEAN, **OVER))
+    def git(*args):
+        return subprocess.run(["git", *args], cwd=tmp_path, check=True,
+                              capture_output=True, text=True).stdout.strip()
+    git("init", "-q")
+    git("add", ".")
+    git("-c", "user.email=t@pegrex", "-c", "user.name=t", "commit", "-qm", "base")
+    base = git("rev-parse", "HEAD")
+    (tmp_path / "plain.py").write_text("def one():\n    return 2\n")
+    git("add", "plain.py")
+    git("-c", "user.email=t@pegrex", "-c", "user.name=t", "commit", "-qm", "clean change")
+    command = [sys.executable, str(ROOT / "tools" / "ci_gate.py", ),
+               ".", "--changed-since", base]
+    clean = subprocess.run(command, cwd=tmp_path, capture_output=True, text=True)
+    assert clean.returncode == 0, clean.stdout + clean.stderr
+    assert "changed-cognitive-budget" in clean.stdout
+    (tmp_path / "new_messy.py").write_text(OVER["messy.py"])
+    git("add", "new_messy.py")
+    git("-c", "user.email=t@pegrex", "-c", "user.name=t", "commit", "-qm", "new debt")
+    changed = subprocess.run(command, cwd=tmp_path, capture_output=True, text=True)
+    assert changed.returncode == 1
+    failed = [line for line in changed.stderr.splitlines()
+              if line.startswith("FAILED changed-cognitive-budget:")]
+    assert len(failed) == 1 and "new_messy.py::messy" in failed[0]

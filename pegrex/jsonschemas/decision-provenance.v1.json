@@ -1,0 +1,41 @@
+{
+  "$id": "pegrex:pegrex.decision-provenance.v1:schema",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": true,
+  "properties": {
+    "action": {},
+    "decision": {},
+    "normalized": {
+      "additionalProperties": true,
+      "properties": {
+        "argv": {},
+        "path": {}
+      },
+      "required": [
+        "argv",
+        "path"
+      ],
+      "type": "object"
+    },
+    "reason": {},
+    "rules": {},
+    "schema": {
+      "const": "pegrex.decision-provenance.v1"
+    },
+    "schema_version": {
+      "type": "integer"
+    }
+  },
+  "required": [
+    "action",
+    "decision",
+    "normalized",
+    "reason",
+    "rules",
+    "schema",
+    "schema_version"
+  ],
+  "title": "PegRex public result: pegrex.decision-provenance.v1",
+  "type": "object",
+  "x-peg-rex-validation-level": "inferred-top-level"
+}

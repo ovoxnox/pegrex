@@ -1,0 +1,113 @@
+{
+  "$id": "pegrex:pegrex.lockfile-policy.v1:schema",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": true,
+  "properties": {
+    "policy": {
+      "additionalProperties": false,
+      "properties": {
+        "exact_versions": {
+          "type": "boolean"
+        },
+        "full_vcs_commits": {
+          "type": "boolean"
+        },
+        "https_only": {
+          "type": "boolean"
+        },
+        "require_hashes": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "exact_versions",
+        "https_only",
+        "full_vcs_commits",
+        "require_hashes"
+      ],
+      "type": "object"
+    },
+    "schema": {
+      "const": "pegrex.lockfile-policy.v1"
+    },
+    "schema_version": {
+      "const": 1
+    },
+    "source": {
+      "additionalProperties": true,
+      "properties": {
+        "path": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "path"
+      ],
+      "type": "object"
+    },
+    "typosquatting_signals": {
+      "items": {
+        "type": "object"
+      },
+      "type": "array"
+    },
+    "unknowns": {
+      "items": {
+        "type": "string"
+      },
+      "type": "array"
+    },
+    "verdict": {
+      "enum": [
+        "proved",
+        "refuted",
+        "unknown"
+      ]
+    },
+    "violations": {
+      "items": {
+        "additionalProperties": true,
+        "properties": {
+          "dependency": {
+            "type": "string"
+          },
+          "evidence": {
+            "type": "string"
+          },
+          "rule_id": {
+            "type": "string"
+          },
+          "severity": {
+            "enum": [
+              "CRITICAL",
+              "HIGH",
+              "MEDIUM",
+              "LOW",
+              "INFO"
+            ]
+          }
+        },
+        "required": [
+          "rule_id",
+          "dependency",
+          "evidence",
+          "severity"
+        ],
+        "type": "object"
+      },
+      "type": "array"
+    }
+  },
+  "required": [
+    "schema",
+    "schema_version",
+    "verdict",
+    "source",
+    "violations",
+    "typosquatting_signals",
+    "unknowns",
+    "policy"
+  ],
+  "title": "Lockfile policy audit result",
+  "type": "object"
+}

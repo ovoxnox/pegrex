@@ -1,0 +1,29 @@
+{
+  "$id": "pegrex:pegrex.ironkernel-worker.v1:schema",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": true,
+  "properties": {
+    "backend_version": {
+      "type": "string"
+    },
+    "error": {},
+    "expected": {},
+    "input_sha256": {},
+    "numpy_version": {
+      "type": "string"
+    },
+    "observed": {},
+    "schema": {
+      "const": "pegrex.ironkernel-worker.v1"
+    },
+    "status": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "schema"
+  ],
+  "title": "PegRex public result: pegrex.ironkernel-worker.v1",
+  "type": "object",
+  "x-peg-rex-validation-level": "inferred-top-level"
+}

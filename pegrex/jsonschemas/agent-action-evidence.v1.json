@@ -1,0 +1,50 @@
+{
+  "$id": "pegrex:pegrex.agent-action-evidence.v1:schema",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": true,
+  "properties": {
+    "actions": {},
+    "authenticated": {
+      "type": "boolean"
+    },
+    "authorization_id": {},
+    "executed": {
+      "type": "boolean"
+    },
+    "hash_chain": {},
+    "plan_id": {},
+    "recorder": {},
+    "schema": {
+      "const": "pegrex.agent-action-evidence.v1"
+    },
+    "schema_version": {
+      "type": "integer"
+    },
+    "scope": {
+      "type": "string"
+    },
+    "status": {
+      "type": "string"
+    },
+    "unknowns": {
+      "items": {
+        "type": "string"
+      },
+      "type": "array"
+    },
+    "verdict": {
+      "type": "string"
+    },
+    "verified": {
+      "type": "boolean"
+    }
+  },
+  "required": [
+    "schema",
+    "unknowns",
+    "verdict"
+  ],
+  "title": "PegRex public result: pegrex.agent-action-evidence.v1",
+  "type": "object",
+  "x-peg-rex-validation-level": "inferred-top-level"
+}

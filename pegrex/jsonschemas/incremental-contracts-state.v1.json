@@ -1,0 +1,28 @@
+{
+  "$id": "pegrex:pegrex.incremental-contracts-state.v1:schema",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": true,
+  "properties": {
+    "analyzer_version": {
+      "type": "string"
+    },
+    "documents": {
+      "type": "object"
+    },
+    "schema": {
+      "const": "pegrex.incremental-contracts-state.v1"
+    },
+    "summaries": {
+      "type": "array"
+    }
+  },
+  "required": [
+    "analyzer_version",
+    "documents",
+    "schema",
+    "summaries"
+  ],
+  "title": "PegRex public result: pegrex.incremental-contracts-state.v1",
+  "type": "object",
+  "x-peg-rex-validation-level": "inferred-top-level"
+}

@@ -1,0 +1,90 @@
+{
+  "$id": "pegrex:pegrex.tools-api-manifest.v2:schema",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": true,
+  "properties": {
+    "api_version": {
+      "const": "2.0"
+    },
+    "error_policy": {
+      "type": "string"
+    },
+    "schema": {
+      "const": "pegrex.tools-api-manifest.v2"
+    },
+    "tools": {
+      "items": {
+        "additionalProperties": false,
+        "properties": {
+          "mutates_workspace": {
+            "type": "boolean"
+          },
+          "name": {
+            "type": "string"
+          },
+          "parameters": {
+            "additionalProperties": false,
+            "properties": {
+              "additionalProperties": {
+                "type": "boolean"
+              },
+              "properties": {
+                "type": "object"
+              },
+              "required": {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              "type": {
+                "const": "object"
+              }
+            },
+            "required": [
+              "type",
+              "properties",
+              "required",
+              "additionalProperties"
+            ],
+            "type": "object"
+          },
+          "path_arguments": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "summary": {
+            "type": "string"
+          },
+          "trust_claim": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "name",
+          "summary",
+          "parameters",
+          "path_arguments",
+          "trust_claim",
+          "mutates_workspace"
+        ],
+        "type": "object"
+      },
+      "type": "array"
+    },
+    "workspace_policy": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "schema",
+    "api_version",
+    "tools",
+    "error_policy",
+    "workspace_policy"
+  ],
+  "title": "Tools API v2 capability manifest",
+  "type": "object"
+}

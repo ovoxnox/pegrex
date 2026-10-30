@@ -1,0 +1,66 @@
+{
+  "$id": "pegrex:pegrex.security-evaluation.v1:schema",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": true,
+  "properties": {
+    "cases": {
+      "type": "integer"
+    },
+    "covered": {},
+    "limitations": {
+      "items": {
+        "type": "string"
+      },
+      "type": "array"
+    },
+    "metrics": {
+      "additionalProperties": true,
+      "properties": {
+        "coverage": {},
+        "f1": {},
+        "fn": {},
+        "fp": {},
+        "precision": {},
+        "recall": {},
+        "severity_calibration": {},
+        "severity_samples": {},
+        "tn": {},
+        "tp": {}
+      },
+      "required": [
+        "coverage",
+        "f1",
+        "fn",
+        "fp",
+        "precision",
+        "recall",
+        "severity_calibration",
+        "severity_samples",
+        "tn",
+        "tp"
+      ],
+      "type": "object"
+    },
+    "schema": {
+      "const": "pegrex.security-evaluation.v1"
+    },
+    "uncovered_case_ids": {
+      "type": "array"
+    },
+    "verdict": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "cases",
+    "covered",
+    "limitations",
+    "metrics",
+    "schema",
+    "uncovered_case_ids",
+    "verdict"
+  ],
+  "title": "PegRex public result: pegrex.security-evaluation.v1",
+  "type": "object",
+  "x-peg-rex-validation-level": "inferred-top-level"
+}

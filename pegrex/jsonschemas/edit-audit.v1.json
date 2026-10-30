@@ -1,0 +1,61 @@
+{
+  "$id": "pegrex:pegrex.edit-audit.v1:schema",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": true,
+  "properties": {
+    "actor": {},
+    "artifacts": {
+      "additionalProperties": true,
+      "properties": {
+        "original": {
+          "type": "string"
+        },
+        "patch": {
+          "type": "string"
+        },
+        "proposed": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "original",
+        "patch",
+        "proposed"
+      ],
+      "type": "object"
+    },
+    "attempt_id": {},
+    "created_utc": {},
+    "metadata": {
+      "type": "boolean"
+    },
+    "original_sha256": {},
+    "patch_sha256": {},
+    "proposed_sha256": {},
+    "schema": {
+      "const": "pegrex.edit-audit.v1"
+    },
+    "status": {
+      "type": "string"
+    },
+    "target": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "actor",
+    "artifacts",
+    "attempt_id",
+    "created_utc",
+    "metadata",
+    "original_sha256",
+    "patch_sha256",
+    "proposed_sha256",
+    "schema",
+    "status",
+    "target"
+  ],
+  "title": "PegRex public result: pegrex.edit-audit.v1",
+  "type": "object",
+  "x-peg-rex-validation-level": "inferred-top-level"
+}

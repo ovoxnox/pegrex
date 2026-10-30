@@ -242,6 +242,12 @@ def test_production_text_streams_have_explicit_utf8_encoding():
                     else node.func.attr if isinstance(node.func, ast.Attribute) else "")
             if name not in {"open", "fdopen", "read_text", "write_text"}:
                 continue
+            # os.open uses a binary file descriptor plus flags (not a text
+            # stream); require explicit encodings only for text-facing APIs.
+            if (name == "open" and isinstance(node.func, ast.Attribute)
+                    and isinstance(node.func.value, ast.Name)
+                    and node.func.value.id == "os"):
+                continue
             if any(keyword.arg == "encoding" for keyword in node.keywords):
                 continue
             mode_index = 0 if isinstance(node.func, ast.Attribute) and name == "open" else 1
@@ -397,3 +403,64 @@ def test_legacy_cli_errors_are_structured_without_tracebacks():
     envelope = json.loads(completed.stderr)
     assert envelope["schema"] == "pegrex.cli-error.v1"
     assert envelope["verdict"] == "unknown"
+
+
+def test_production_cli_json_rejects_duplicates_nonfinite_and_oversize_files(tmp_path):
+    from argparse import Namespace
+    from pegrex.commands.production import _arguments
+    from pegrex.requestlimits import MAX_REQUEST_BYTES
+    for text in ('{"source":"a","source":"b","language":"python"}',
+                 '{"source":NaN,"language":"python"}',
+                 '{"source":1e9999,"language":"python"}'):
+        with pytest.raises(ValueError):
+            _arguments(Namespace(input=text, input_file=None))
+    oversized = tmp_path / "oversized.json"
+    oversized.write_bytes(b" " * (MAX_REQUEST_BYTES + 1))
+    with pytest.raises(ValueError, match="exceeds"):
+        _arguments(Namespace(input=None, input_file=str(oversized)))
+
+
+def test_core_validates_arguments_before_dispatch_and_rejects_boolean_budgets(monkeypatch):
+    engine = get_engine()
+    monkeypatch.setattr(engine, "parse", lambda **_: pytest.fail("parser must not run"))
+    missing = engine.execute("parse", {"source": "x"}, disclose_errors=True)
+    assert missing.status.value == "error"
+    assert "language" in missing.unknowns[0]
+    invalid = engine.execute("ironkernel.run", {
+        "expression": {}, "inputs": {}, "timeout_ms": True})
+    assert invalid.status.value == "error"
+    assert "timeout_ms" in invalid.unknowns[0]
+
+
+def test_core_ast_serializer_refuses_cycles_instead_of_looping():
+    class Node:
+        tag, pos, endpos = "node", 0, 1
+        def __init__(self):
+            self.children = []
+    node = Node()
+    node.children.append(node)
+    with pytest.raises(ValueError, match="cyclic"):
+        get_engine()._node_dict(node)
+    assert get_engine()._node_count(node) == 1
+
+
+def test_selfhost_cli_uses_repository_tools_path(monkeypatch):
+    from argparse import Namespace
+    from pegrex.commands.common import ROOT
+    from pegrex.commands.tooling import _cmd_selfhost
+    captured = {}
+    def fake_run(argv, **kwargs):
+        captured["argv"] = argv
+        return subprocess.CompletedProcess(argv, 0, stdout="fresh\n", stderr="")
+    monkeypatch.setattr(subprocess, "run", fake_run)
+    with pytest.raises(SystemExit) as exit_info:
+        _cmd_selfhost(Namespace(check=True))
+    assert exit_info.value.code == 0
+    assert Path(captured["argv"][1]) == ROOT / "tools" / "selfhost.py"
+
+
+def test_roundtrip_generated_stub_selection_has_no_secret_pattern_finding():
+    from tools.secaudit import audit_source
+    source = Path("pegrex/roundtrip.py").read_text(encoding="utf-8")
+    findings = audit_source(source, "python")
+    assert "generic-api-key" not in {row["id"] for row in findings}

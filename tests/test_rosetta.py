@@ -36,6 +36,9 @@ def _write(tmp_path, name, text):
 
 
 def test_three_way_equivalent(tmp_path):
+    pytest.importorskip("tree_sitter", reason="cross-language equivalence requires optional parser dependencies")
+    pytest.importorskip("tree_sitter_c", reason="C frontend is optional")
+    pytest.importorskip("tree_sitter_go", reason="Go frontend is optional")
     _write(tmp_path, "fact.py", PY_FACT)
     _write(tmp_path, "fact.c", C_FACT)
     _write(tmp_path, "fact.go", GO_FACT)

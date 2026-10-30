@@ -10,6 +10,8 @@ from pegrex.tree_sitter_bridge import parse
     ("javascript", "// π prefix\nconst value = 1;\n", "const value"),
 ])
 def test_tree_sitter_spans_slice_python_characters(language, source, needle):
+    if language != "python":
+        pytest.importorskip("tree_sitter", reason="non-Python fixtures require optional parser dependencies")
     tree = parse(language, source)
     start = source.index(needle)
     found = []

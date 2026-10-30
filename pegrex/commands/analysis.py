@@ -38,9 +38,9 @@ def _cmd_audit(a) -> int:
     if a.dir:
         from ..languages import EXTENSION_MAP
         files = _expand(a.dir, suffixes=tuple(EXTENSION_MAP))
-        # Each file's regex worker is process-bounded; sequential orchestration
-        # avoids nested daemon-process pools and preserves deterministic output.
-        reports = [audit_report(str(f), None) for f in files]
+        # Each file is independently bounded when a mode is selected; sequential
+        # orchestration avoids nested daemon-process pools and preserves order.
+        reports = [audit_report(str(f), None, mode=getattr(a, "mode", None)) for f in files]
         findings = [finding for report in reports for finding in report["findings"]]
         report = {
             "schema": "pegrex.security-scan-set.v1",
@@ -67,7 +67,7 @@ def _cmd_audit(a) -> int:
             emit(report, findings)
         return gate_exit(findings, a.fail_on, a.fail_on_unknown)
 
-    report = audit_report(a.file, a.lang)
+    report = audit_report(a.file, a.lang, mode=getattr(a, "mode", None))
     findings = report["findings"]
     import datetime
     log = pathlib.Path(".pegrex-cache/audit.log")

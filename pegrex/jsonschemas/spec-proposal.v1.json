@@ -1,0 +1,49 @@
+{
+  "$id": "pegrex:pegrex.spec-proposal.v1:schema",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": true,
+  "properties": {
+    "evidence": {
+      "type": "null"
+    },
+    "generator": {},
+    "identity": {},
+    "metadata": {
+      "type": "boolean"
+    },
+    "proposal": {},
+    "schema": {
+      "const": "pegrex.spec-proposal.v1"
+    },
+    "schema_version": {
+      "type": "integer"
+    },
+    "status": {
+      "type": "string"
+    },
+    "unknowns": {
+      "items": {
+        "type": "string"
+      },
+      "type": "array"
+    },
+    "verdict": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "evidence",
+    "generator",
+    "identity",
+    "metadata",
+    "proposal",
+    "schema",
+    "schema_version",
+    "status",
+    "unknowns",
+    "verdict"
+  ],
+  "title": "PegRex public result: pegrex.spec-proposal.v1",
+  "type": "object",
+  "x-peg-rex-validation-level": "inferred-top-level"
+}

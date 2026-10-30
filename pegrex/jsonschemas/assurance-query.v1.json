@@ -1,0 +1,35 @@
+{
+  "$id": "pegrex:pegrex.assurance-query.v1:schema",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": true,
+  "properties": {
+    "claims": {
+      "type": "array"
+    },
+    "count": {
+      "type": "integer"
+    },
+    "graph_identity": {},
+    "schema": {
+      "const": "pegrex.assurance-query.v1"
+    },
+    "unknowns": {
+      "items": {
+        "type": "string"
+      },
+      "type": "array"
+    },
+    "verdict": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "claims",
+    "schema",
+    "unknowns",
+    "verdict"
+  ],
+  "title": "PegRex public result: pegrex.assurance-query.v1",
+  "type": "object",
+  "x-peg-rex-validation-level": "inferred-top-level"
+}

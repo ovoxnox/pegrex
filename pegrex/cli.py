@@ -13,7 +13,7 @@ import sys
 
 from .commands.common import ROOT, _emit_json, _expand
 
-__version__ = "1.1.0"
+__version__ = "1.3.0"
 sys.path.insert(0, str(ROOT))
 from .commands.analysis import (
     _cmd_audit,
@@ -58,6 +58,7 @@ from .commands.verification import (
     _cmd_insure,
 )
 from .commands.production import register_commands as _register_production_commands
+from .commands.integrations import register_commands as _register_integration_commands
 from .commands.tooling import (
     _cmd_lint,
     _cmd_extract,
@@ -111,7 +112,7 @@ def build_parser() -> argparse.ArgumentParser:
         prog="pegrex",
         description="Self-contained symbolic-execution and syntactic-analysis "
                     "engine: source -> mathematical specifications for AI agents.",
-        epilog="certificates: `pegrex certs` runs all 67 proofs. "
+        epilog="certificates: `pegrex certs` runs the eight bundled certificate suites. "
                "Each command accepts -h.")
     p.add_argument("--version", action="version", version=f"%(prog)s {__version__}")
     sub = p.add_subparsers(dest="command", metavar="<command>")
@@ -120,6 +121,8 @@ def build_parser() -> argparse.ArgumentParser:
     sp.add_argument("--dir", nargs="?", const=True, default=False,
                     metavar="PATH", help="recurse a directory (parallel)")
     sp.add_argument("--lang")
+    sp.add_argument("--mode", choices=["fast", "deep"], default=None,
+                    help="deadline-bounded analysis profile")
     audit_output = sp.add_mutually_exclusive_group()
     audit_output.add_argument("--json", action="store_true")
     audit_output.add_argument("--sarif", action="store_true",
@@ -434,47 +437,10 @@ def build_parser() -> argparse.ArgumentParser:
     sp.add_argument("--verify", action="store_true")
     sp.set_defaults(fn=_cmd_insure)
     _register_production_commands(sub)
+    _register_integration_commands(sub)
     return p
 # --help catalog: one compact usage line per command
 
-
-def _fmt_action(a):
-
-    """Compact token for one argparse action: --flag <val>, <pos>, <pos>..."""
-
-    mt = a.metavar or a.dest
-
-    if isinstance(mt, tuple):
-
-        mt = mt[0]
-
-    if a.option_strings:
-
-        flag = a.option_strings[0]
-
-        if a.nargs == 0:
-
-            return flag
-
-        if a.nargs in ("*", "+"):
-
-            return flag + " <" + str(mt) + ">..."
-
-        if isinstance(a.nargs, int) and a.nargs > 1:
-
-            return flag + " <" + str(mt) + ">x" + str(a.nargs)
-
-        return flag + " <" + str(mt) + ">"
-
-    if a.nargs in ("+", "*"):
-
-        return "<" + str(mt) + ">..."
-
-    if isinstance(a.nargs, int) and a.nargs > 1:
-
-        return " ".join("<" + str(mt) + ">" for _ in range(a.nargs))
-
-    return "<" + str(mt) + ">"
 
 def _use_color() -> bool:
 

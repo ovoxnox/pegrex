@@ -1,0 +1,39 @@
+{
+  "$id": "pegrex:pegrex.policy-checks.v1:schema",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": true,
+  "properties": {
+    "coverage": {
+      "additionalProperties": true,
+      "properties": {
+        "evaluated": {},
+        "policies": {
+          "type": "integer"
+        }
+      },
+      "required": [
+        "evaluated",
+        "policies"
+      ],
+      "type": "object"
+    },
+    "findings": {},
+    "schema": {
+      "const": "pegrex.policy-checks.v1"
+    },
+    "status": {
+      "type": "string"
+    },
+    "unknowns": {}
+  },
+  "required": [
+    "coverage",
+    "findings",
+    "schema",
+    "status",
+    "unknowns"
+  ],
+  "title": "PegRex public result: pegrex.policy-checks.v1",
+  "type": "object",
+  "x-peg-rex-validation-level": "inferred-top-level"
+}

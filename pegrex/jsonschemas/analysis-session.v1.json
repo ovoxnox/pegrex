@@ -1,0 +1,134 @@
+{
+  "$id": "pegrex:pegrex.analysis-session.v1:schema",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": true,
+  "properties": {
+    "language": {
+      "type": "string"
+    },
+    "mode": {
+      "enum": [
+        "fast",
+        "deep",
+        "default"
+      ]
+    },
+    "profile": {
+      "additionalProperties": true,
+      "properties": {
+        "counters": {
+          "additionalProperties": {
+            "minimum": 0,
+            "type": "integer"
+          },
+          "type": "object"
+        }
+      },
+      "required": [
+        "counters"
+      ],
+      "type": "object"
+    },
+    "resource_limits": {
+      "additionalProperties": true,
+      "properties": {
+        "max_ast_nodes": {
+          "minimum": 0,
+          "type": "integer"
+        },
+        "max_output_bytes": {
+          "minimum": 0,
+          "type": "integer"
+        },
+        "max_paths": {
+          "minimum": 0,
+          "type": "integer"
+        },
+        "max_solver_calls": {
+          "minimum": 0,
+          "type": "integer"
+        },
+        "max_source_bytes": {
+          "minimum": 0,
+          "type": "integer"
+        },
+        "timeout_ms": {
+          "type": [
+            "integer",
+            "null"
+          ]
+        }
+      },
+      "required": [
+        "max_paths",
+        "max_source_bytes",
+        "max_ast_nodes",
+        "max_output_bytes",
+        "max_solver_calls"
+      ],
+      "type": "object"
+    },
+    "results": {
+      "additionalProperties": {
+        "additionalProperties": true,
+        "properties": {
+          "data": {},
+          "reason": {
+            "type": "string"
+          },
+          "resource": {
+            "type": "string"
+          },
+          "status": {
+            "enum": [
+              "ok",
+              "unknown"
+            ]
+          }
+        },
+        "required": [
+          "status"
+        ],
+        "type": "object"
+      },
+      "type": "object"
+    },
+    "schema": {
+      "const": "pegrex.analysis-session.v1"
+    },
+    "solver_budget": {
+      "additionalProperties": true,
+      "properties": {
+        "calls": {
+          "minimum": 0,
+          "type": "integer"
+        },
+        "max_calls": {
+          "minimum": 0,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "max_calls",
+        "calls"
+      ],
+      "type": "object"
+    },
+    "source_sha256": {
+      "pattern": "^[0-9a-f]{64}$",
+      "type": "string"
+    }
+  },
+  "required": [
+    "schema",
+    "language",
+    "mode",
+    "source_sha256",
+    "resource_limits",
+    "profile",
+    "solver_budget",
+    "results"
+  ],
+  "title": "Analysis session budget and accounting result",
+  "type": "object"
+}

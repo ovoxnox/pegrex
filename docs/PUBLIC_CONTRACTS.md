@@ -2,6 +2,33 @@
 
 This document characterizes the compatibility surface protected by `tests/test_public_contracts.py` and the existing API, service, CLI, and stable-architecture suites. It describes behavior, not a claim that every analyzer is complete.
 
+## Shared resource limits (refactor hardening)
+
+- Source documents are limited to 2,000,000 UTF-8 bytes. `SourceDocument`
+  checks in-memory text before hashing; `SourceDocument.from_path()` reads at
+  most the limit plus one byte before refusing an oversized file.
+- Tree-sitter normalization and CoreEngine AST serialization use iterative
+  post-order traversal, avoiding Python recursion for deep trees. Serialization
+  refuses cyclic node/list structures and trees exceeding 250,000 unique nodes;
+  node counting terminates on malformed cyclic input.
+- JSON-shaped public requests are limited to 4,000,000 UTF-8 bytes, depth 32,
+  2,000 items per container, 100,000 total nodes, 2,000,000 characters per
+  string, and 4,096 integer bits. Numbers must be finite and object keys must be
+  strings. Operation budgets and argv arrays have stricter declared limits.
+- External argv workers retain at most `max_output_bytes` of process output,
+  continuously drain excess output to avoid pipe deadlocks, and mark truncated
+  output `unknown` / unconfirmed. `max_output_bytes` is validated against the
+  shared 8,000,000-byte hard ceiling.
+- These hard ceilings bound inputs and evidence buffering; they do not imply
+  semantic completeness or replace per-analysis deadlines, solver budgets, or
+  OS-level isolation.
+
+- The default agent harness policy authorizes only the exact `pytest -q` argv,
+  not arbitrary pytest flags or test targets. This is a narrow command policy,
+  not an execution sandbox: running pytest against an untrusted repository can
+  execute repository-controlled `conftest.py` and plugin code. Malformed actions
+  and malformed policy rules are refused before rule evaluation.
+
 ## Versions and value domains
 
 - Core serialized models carry `schema: "pegrex.core.v1"`; `CoreEngine.schema` is `"pegrex.core-engine.v1"`; the legacy capability matrix uses `"pegrex.language-capabilities.v1"`. Soundness reports use `"pegrex.soundness.v1"`.
@@ -19,9 +46,29 @@ This document characterizes the compatibility surface protected by `tests/test_p
 
 ## Core dispatch and Tools API v2
 
-`CoreEngine.api_version` is `"2.0"`. `operations()` returns the registered dispatch metadata. `execute(operation, arguments=None)` supports `parse`, `contracts`, `contracts_file`, `audit`, `call_graph`, `verify_patch`, `capabilities`, and `soundness`, returning `OperationResult` instead of raising across the dispatch boundary. Unknown operations, non-object argument envelopes, invalid arguments, and implementation exceptions become `status: "error"`, `verdict: "unknown"` with structured diagnostics. Direct methods keep their established exception behavior.
+`CoreEngine.api_version` is `"2.0"`. `operations()` returns the compatible v2 operation-field lists plus `schemas`, the canonical JSON argument definitions shared with Tools API manifests. Returned schema metadata is defensively copied. `execute(operation, arguments=None)` supports `parse`, `contracts`, `contracts_file`, `audit`, `call_graph`, `verify_patch`, `capabilities`, `soundness`, and the lazy external-integration operations listed under “External integration contracts,” returning `OperationResult` instead of raising across the dispatch boundary. Request budgets and operation schemas are enforced before parser/backend dispatch. Unknown operations, non-object argument envelopes, unknown/missing arguments, wrong scalar/container types, invalid budgets, and implementation exceptions become `status: "error"`, `verdict: "unknown"` with structured diagnostics. Direct methods keep their established exception behavior.
 
-`pegrex.toolsapi.list_tools()` returns `pegrex.tools-api-manifest.v2`; `invoke(name, arguments, workspace=...)` returns `pegrex.tools-api-envelope.v2`. Tool specifications declare JSON-shaped required/optional parameters and path arguments. Invocation rejects unknown operations, unknown/missing arguments, wrong container/scalar types, workspace traversal, absolute paths outside the workspace, and symlink escapes. File identities include SHA-256 and byte size. Implementations import lazily. The registry includes core analysis, release verification, assurance invalidation, semantic budgets, compliance maps, semantic checksums, capsule verification, staged impact simulation, and broker evidence verification; it exposes no raw-shell operation and does not mutate the real workspace.
+`pegrex.toolsapi.list_tools()` returns `pegrex.tools-api-manifest.v2`; `invoke(name, arguments, workspace=...)` returns `pegrex.tools-api-envelope.v2`. Tool specifications declare JSON-shaped required/optional parameters and path arguments. Invocation rejects unknown operations, unknown/missing arguments, wrong container/scalar types, workspace traversal, absolute paths outside the workspace, and symlink escapes. File identities include SHA-256 and byte size. Implementations import lazily. The registry includes core analysis, release verification, assurance invalidation, semantic budgets, compliance maps, semantic checksums, capsule verification, staged impact simulation, broker evidence verification, and optional external backends. It exposes no raw-shell operation. Only manifests marked `mutates_workspace: true` write, and only beneath declared staging roots confined to the selected workspace.
+
+### Lifecycle state profiles
+
+`alpha`, `demo`, and `beta` are explicit opt-in policy profiles. Alpha permits bounded external execution and mutation but forbids release evidence (15,000 ms / 512 MB). Demo is read-only and forbids external execution and release evidence (5,000 ms / 256 MB). Beta permits bounded execution, mutation, and release-evidence preparation (120,000 ms / 1,024 MB). Every profile has `promotion_allowed: false`; a profile never proves correctness or authorizes automatic promotion.
+
+`authorize_operation()` validates operation permissions and explicit budgets. `apply_profile_limits()` returns independent effective arguments and caps omitted backend defaults. Each state module exposes `PROFILE`, `policy()`, `authorize()`, and `effective_arguments()` with the same behavior. CoreEngine and Tools API record the selected `state` and whether `state_policy_enforced` actually completed; a validation/authorization error must not claim successful enforcement. The reviewed `pegrex.state-profile.v1` schema covers both a single profile and the profile catalog.
+
+## External integration contracts
+
+Integration results use `pegrex.integration-result.v1` inside the normal CoreEngine or Tools API envelope. Backend imports are lazy and the base installation does not require PythoC, ironkernel, NumPy, Cargo, or neural-codegen. Optional extras are `pythoc`, `ironkernel`, and `integrations`; neural-codegen uses the separately built offline `nc-pegrex` Rust wrapper.
+
+- `neural.generate(spec_path, staging, backend_argv, ...)`: invokes only an argv array, confines the specification and staging paths, requires the versioned backend report, independently hashes the generated Rust, and returns a staged candidate with UNKNOWN verification scope. Successful generation is not compilation, completeness, security, intent, or production approval.
+- `neural.verify_candidate(candidate_root, check_argv=None, ...)`: reads bounded UTF-8 Rust source, records TODO/`todo!`/`unimplemented!` stubs, runs PegRex Rust audits, and optionally executes the supplied compilation argv in an ephemeral sandbox. It never promotes the real workspace or asserts user intent/general correctness.
+- `ironkernel.run(expression, inputs, ...)`: accepts only the documented finite JSON expression AST and exact matching flat float64/scalar inputs. The node/depth/input/output/time/memory budgets are checked before a separate worker imports the pinned backend. No Python source is accepted or evaluated.
+- `ironkernel.differential(...)`: compares backend observations with NumPy under explicit `atol`/`rtol`. Non-finite comparisons without a policy are UNKNOWN. Matching samples return UNKNOWN for general equivalence. A mismatch is `refuted` with `counterexample.confirmed: true` only when a second process reproduces it exactly.
+- `pythoc.compile(source_path, staging, entrypoint, ...)`: treats compilation as untrusted operator-code execution and requires the bubblewrap/prlimit sandbox with no network or inherited credentials. Worker success alone is insufficient: schema, source hash, IR hash, and artifact presence are independently checked. LLVM verification covers IR well-formedness only.
+- `pythoc.analyze_ir(ir_path, llvm_version)`: accepts `.ll` input and explicit LLVM 17 or 18 grammar identities. `proved` is scoped to parsed control-flow structure, not memory safety or semantic equivalence. Unsupported versions and terminators remain UNKNOWN.
+- `pythoc.differential(before_path, after_path, argv, ...)`: uses the existing independent ephemeral native-execution sandboxes and confirmed-only differential semantics. Matching bounded observations do not prove equivalence.
+
+`pegrex.integrations.assurance.assurance_claim()` converts results into assurance claims whose evidence depends on exact artifact SHA-256 identities. Any matching upstream content change invalidates stale proof to UNKNOWN. Every integration CLI subgroup (`neural`, `ironkernel`, and `pythoc`) invokes Tools API v2 and supports `--workspace` and `--fail-on-unknown`.
 
 `pegrex.api.synthesize_tests_from_coverage(source, lcov, fn_name=None)` is the unambiguous coverage-guided API; `synthesize_from_coverage` is its compatibility alias. `pegrex.api.synthesize` remains the separate program-synthesis API, and the `tests` CLI command uses the coverage-guided operation.
 
@@ -62,7 +109,8 @@ New callers should prefer `CoreEngine` where typed status and unknown reporting 
 - `rules [--lang ID] [--json]` reports deduplicated rule counts, provenance, and active/disabled/inapplicable coverage.
 - `callgraph --dir PATH [--jobs N] [--benchmark]` keeps one worker by default; process execution is opt-in and benchmark output goes to stderr so DOT/ASCII stdout remains valid.
 - `osvscan LOCKFILE [--offline] [--osv-snapshot PATH] [--snapshot-out PATH] [--fail-on-unknown]` never silently converts missing vulnerability evidence to clean. A snapshot records its upstream ID and full file SHA-256; `--snapshot-out` captures only complete query sets for deterministic offline reuse.
-- `tools [--name NAME]` lists or selects Tools API v2 metadata. `tool NAME [--workspace PATH] [--input JSON|@FILE|--input-file FILE]` emits the versioned tool envelope. `engine list` lists core operations; `engine OPERATION` emits the core result.
+- `tools [--name NAME]` lists or selects Tools API v2 metadata. `tool NAME [--workspace PATH] [--input JSON|@FILE|--input-file FILE]` emits the versioned tool envelope. `engine list` lists core operations; `engine OPERATION` emits the core result. Production JSON input is read within the 4,000,000-byte budget and rejects duplicate object keys, NaN/Infinity, non-finite results, excessive nesting/items, and non-object top-level values before dispatch.
+- `state list` and `state show alpha|demo|beta` emit the reviewed lifecycle catalog/profile documents. `engine` and `tool` accept `--state`; lifecycle selection is enforced before path confinement or handler execution.
 - Production operation errors exit 1. `--fail-on-unknown` exits 2 for UNKNOWN or partial evidence; completed REFUTED analysis is not itself a process failure. Top-level CLI failures emit `pegrex.cli-error.v1` on stderr without a traceback.
 - `attest` and insurance quote generation require explicit `--key`; invariant-market publish/import likewise requires an explicit non-empty key. No implicit demo key is accepted.
 
@@ -110,7 +158,7 @@ New callers can opt into the following additive APIs without changing that legac
 
 ## Certificates, edit gates, and repair
 
-- `check_certificate(certificate)` returns `pegrex.kernel-check.v1`. Only supported version-1 `equivalent`/`patch-equivalent` certificates with verdict `proved`, no UNKNOWNs, bounded well-formed evidence, exactly equal canonical contract sets, and matching optional contract hashes pass. Malformed, oversized, differing, forged, REFUTED, or unsupported certificates do not pass.
+- `check_certificate(certificate)` returns `pegrex.kernel-check.v1`. The minimal kernel can prove only `contract-set-identical`: bounded canonical contract sets are structurally identical. It deliberately returns UNKNOWN for `equivalent` and `patch-equivalent`, because contract-set equality alone cannot establish program equivalence or complete extraction. `apply_patch_gated(..., require_equivalent=True)` therefore refuses promotion until an independent semantic proof checker is integrated. Use `require_equivalent=False` only when equivalence is not a required approval condition and the remaining explicit gates are sufficient for the use case.
 - `promote_counterexample()` and `promote_patch_counterexample()` require `counterexample.confirmed is true`; missing or false confirmation cannot become a regression certificate. Expected-observable promotion additionally requires an explicit `expected` value.
 - `apply_patch_gated(target, proposed_source, ...)` returns `pegrex.patch-gate.v1`. It stages the whole candidate before target mutation, independently checks required equivalence certificates through the minimal kernel, evaluates required invariants and the selected security profile, and runs optional tests with argv and `shell=False`. Raw string test commands are refused. Approval requires every selected check; application is atomic.
 - Invariant callbacks receive `(before_path, after_path)` and must return `True` or evidence with `verdict: "proved"` to preserve an invariant. False, REFUTED, UNKNOWN, malformed results, and exceptions deny an edit that requires the invariant.
@@ -136,7 +184,7 @@ New callers can opt into the following additive APIs without changing that legac
 - `minimize_symbolic_witness()` returns `pegrex.counterexample-minimization.v1`. Every accepted shrink preserves the supplied constraints and optional reproducer. An invalid original witness or reproducer failure is UNKNOWN and unconfirmed.
 - `mutation_controls()` / `standard_negative_controls()` return `pegrex.analyzer-mutation.v1`. Built-in controls deliberately weaken parsing, infeasibility solving, and command-flow rules. Baseline failure is UNKNOWN; a surviving weakened control is REFUTED.
 - `export_smtlib()` returns `pegrex.smtlib-export.v1` with deterministic QF_LIA text, symbol mappings, and SHA-256 identity. Export requires no solver. `crosscheck_smtlib()` optionally uses Z3 and reports `sat`, `unsat`, or `unknown`.
-- `replay_certificate()` returns `pegrex.proof-replay.v1`. The standalone `python pegrex/proofreplay.py CERTIFICATE` path uses only standard-library JSON/SHA-256, checks canonical equality and optional source hashes, and reports `solver_used: false`.
+- `replay_certificate()` returns `pegrex.proof-replay.v1`. The standalone `python pegrex/proofreplay.py CERTIFICATE` path uses only standard-library JSON/SHA-256, bounds certificate input size, rejects duplicate JSON keys, and can replay only `contract-set-identical` claims. Semantic-equivalence claims remain UNKNOWN; `solver_used: false` is not itself a proof of program behavior.
 - `check_state_machine()` returns `pegrex.protocol-model-check.v1` with transitions/invariants, concrete violation traces, bounds, and exhausted/unknown status.
 - `analyze_resource_bounds()` returns `pegrex.resource-bounds.v1` for termination, allocation sites, and worst-case asymptotic cost in its documented restricted fragment. Unsupported loops, recursion, and dynamic allocation remain UNKNOWN.
 - `verify_compiler_change()` returns `pegrex.compiler-differential.v1` with exact source/artifact hashes and three-valued semantic evidence for compiler-produced Python artifacts.
@@ -216,3 +264,55 @@ New callers can opt into the following additive APIs without changing that legac
 
 - `simulate_change_impact()` returns `pegrex.change-impact-simulation.v1` with `applied: false`. Proposed files are written only to a staged copy. Results cover contracts, policies, generated clients, data flows, and downstream modules/functions; possible invalidation is not merge authorization and client drift still needs runtime evidence.
 - `create_action_plan()`, `authorize_action_plan()`, and `execute_action_plan()` implement separate plan, authorization, and execution schemas. Authorization binds exact plan/policy/workspace and must remain issued and unrevoked. Execution is ephemeral and argv-only for shell actions. `ActionEvidenceRecorder` hash-chains actual action records; direct file hashes and sandbox network evidence are explicit, unenumerated shell filesystem effects are UNKNOWN, and `authenticated: false` distinguishes local integrity from a signed attestation. `verify_action_evidence()` detects record or envelope tampering.
+
+### Finite-domain semantic proof fragment (v1.1.2)
+
+`pegrex.finiteproof.check_finite_domain_proof()` checks a deliberately small JSON expression language by exhaustively evaluating every assignment in declared finite integer domains. Supported operators are integer `add`, `sub`, `mul`, `neg`; comparisons `eq`, `ne`, `lt`, `le`, `gt`, `ge`; Boolean `and`, `or`, `not`; and Boolean-condition `ite`. It does not parse source code or infer domains. Limits are 8 variables, 64 values per domain, 100,000 assignments, 256 expression nodes, depth 32, and bounded integer magnitudes/results. The result `proved` means only that the two supplied terms agree for every enumerated assignment. A mismatch returns `refuted` with a counterexample; malformed, unsupported, ill-typed, or over-budget proofs return `unknown`. `finite-domain-equivalent` certificates can be checked by `check_certificate()` and `replay_certificate()`, but this claim is intentionally distinct from `equivalent`/`patch-equivalent` and does not satisfy the patch gate's general source-equivalence requirement.
+
+
+### Shared analysis resource budgets (v1.1.3)
+
+`AnalysisSession` accepts explicit `max_source_bytes`, `max_ast_nodes`, `max_output_bytes`, `timeout_ms`, and `max_paths` controls. Defaults are conservative shared limits. Source, tree, path, deadline, and report-output exhaustion must be surfaced as an `unknown` result with a resource reason; an incomplete or truncated analysis must not be represented as a successful result. These are cooperative checks between stages, not a hard real-time guarantee for every legacy analyzer. External tools still require their own process-level timeout and memory isolation.
+
+### CI execution trust boundary (v1.1.4)
+
+Repository-controlled tests and gate scripts must not run directly on the GitHub Actions host. Workflows install pinned dependencies in a setup container before executing project code, commit that environment into a disposable image, and then run project code in a separate container with `--network none`, dropped Linux capabilities, `no-new-privileges`, CPU/memory/process limits, and only the checkout mounted. Checkout credentials are not persisted and workflow permissions are read-only.
+
+This reduces the impact of malicious tests but is not a proof against kernel/container escapes. Repository administrators must use disposable GitHub-hosted runners, require review of workflow changes, protect the default branch, and keep publishing/signing credentials out of untrusted pull-request jobs. Local source-executing commands remain arbitrary code execution and require external OS/container/VM isolation.
+
+
+### Local source-execution boundary (v1.1.5)
+
+The `concolic` CLI runs source in a bounded child process instead of executing it in the CLI process. Candidate workers clear inherited environment variables, apply CPU/address-space/file-size/file-descriptor limits, disable core dumps, and are killed as a process group on timeout. This is **not** a filesystem or network sandbox: a child may still access resources allowed to the invoking OS user. Use the isolated CI container or an externally managed OS/container/VM boundary for untrusted repositories. Worker failures and timeouts return UNKNOWN rather than a successful analysis.
+
+
+### PathContract v2 interchange (v1.1.6)
+
+`docs/specs/PATH_CONTRACT_V2.md` is the normative specification; `pegrex/jsonschemas/path-contract.v2.json` is the machine-readable shape. `pegrex.pathcontract_v2.validate_path_contract_v2()` validates structure and vocabulary only. It always returns `is_proof: false`; unknowns, unsupported effects, unknown numeric models, and unknown outcomes remain incomplete. The existing `PathContract` and `pegrex.core.v1` format are unchanged.
+
+
+## Public boundary guarantees and limitations (v1.1.7)
+
+- Service-facing CoreEngine and Tools API errors redact unexpected details by default; local CLI commands opt into diagnostic details.
+- API requests have structural and size budgets. Each operation still requires its own execution budget.
+- Workspace paths are confined and symlink components rejected, but path-string handlers remain exposed to concurrent TOCTOU races; hostile workloads require OS/container isolation.
+- Thread-based A2A cancellation is cooperative; a timeout does not prove execution has stopped.
+- `contract-set-identical` means canonical extracted records match, not that source programs are equivalent. Finite-domain proofs cover only declared finite domains.
+- Evaluation metrics apply only to supplied labeled cases; uncovered cases are UNKNOWN.
+
+## v1.1.8 security, agent, and scale additions
+
+The `pegrex.security_audit` entry points expose selected Python taint and IaC
+checks with explicit partial-coverage metadata. Dependency reachability reports
+use `reachable`, `installed`, `not_observed`, and `unknown`; `not_observed` is
+not proof of unreachable. Organization policies reject unknown keys. Rule
+precision/recall and mutation scores are metrics over caller-supplied labeled
+cases, not assertions about the global rule catalog.
+
+`pegrex.agent_context` retains structured contracts, invariants, dependencies,
+evidence, and unresolved obligations. The local memory graph is reviewable JSON.
+The plugin SDK performs conformance checks but does not sandbox plugin code.
+Performance modes, profiling, bounded memoization, and scheduling helpers are
+available APIs; they are not yet uniformly enforced across all analysis paths.
+See `SECURITY.md` and `VALIDATION-1.3.0.md` for operational trust boundaries,
+coverage, and current release-validation limits.

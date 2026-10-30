@@ -72,12 +72,12 @@ def test_requirements_sbom_is_offline_versioned_and_fail_closed(tmp_path):
     assert [row["purl"] for row in cdx["components"]] == [
         "pkg:pypi/pydantic@2.11.4", "pkg:pypi/z3-solver@5.3.1.0"]
     tool = cdx["metadata"]["tools"]["components"][0]
-    assert tool["version"] == "1.1.0"
+    assert tool["version"] == "1.3.0"
     unknowns = [row["value"] for row in cdx["metadata"]["properties"]
                 if row["name"] == "pegrex:unknown"]
     assert "pydantic: integrity hash missing" in unknowns
     spdx = generate_sbom(requirements, format="spdx")
-    assert spdx["creationInfo"]["creators"] == ["Tool: PegRex-1.1.0"]
+    assert spdx["creationInfo"]["creators"] == ["Tool: PegRex-1.3.0"]
 
 
 def test_lockfile_policy_violations_and_typosquat_signals(tmp_path):

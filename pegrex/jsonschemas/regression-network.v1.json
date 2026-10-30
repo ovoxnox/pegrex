@@ -1,0 +1,30 @@
+{
+  "$id": "pegrex:pegrex.regression-network.v1:schema",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": true,
+  "properties": {
+    "case_id": {},
+    "language": {},
+    "path": {
+      "type": "string"
+    },
+    "pattern": {},
+    "provenance": {
+      "type": "string"
+    },
+    "rule_id": {},
+    "schema": {
+      "const": "pegrex.regression-network.v1"
+    },
+    "status": {
+      "type": "string"
+    },
+    "test": {}
+  },
+  "required": [
+    "schema"
+  ],
+  "title": "PegRex public result: pegrex.regression-network.v1",
+  "type": "object",
+  "x-peg-rex-validation-level": "inferred-top-level"
+}

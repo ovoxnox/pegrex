@@ -1,0 +1,38 @@
+{
+  "$id": "pegrex:pegrex.smtlib-export.v1:schema",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": true,
+  "properties": {
+    "constraints": {
+      "type": "integer"
+    },
+    "schema": {
+      "const": "pegrex.smtlib-export.v1"
+    },
+    "schema_version": {
+      "type": "integer"
+    },
+    "script": {
+      "type": "string"
+    },
+    "script_sha256": {},
+    "status": {
+      "type": "string"
+    },
+    "symbols": {},
+    "unknowns": {
+      "type": "array"
+    }
+  },
+  "required": [
+    "schema",
+    "schema_version",
+    "script",
+    "status",
+    "symbols",
+    "unknowns"
+  ],
+  "title": "PegRex public result: pegrex.smtlib-export.v1",
+  "type": "object",
+  "x-peg-rex-validation-level": "inferred-top-level"
+}

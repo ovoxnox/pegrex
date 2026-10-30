@@ -9,12 +9,19 @@ import zipfile
 
 ROOT = Path(__file__).resolve().parent.parent
 MANIFEST = "SHA256SUMS.txt"
+SKILLS_ARCHIVE = "pegrex-skills.tar.gz"
+CURRENT_VALIDATION = "VALIDATION-1.3.0.md"
+REQUIRED_FILES = {
+    "README.md", "pyproject.toml", "pegrex/__init__.py", "SECURITY.md",
+    CURRENT_VALIDATION, SKILLS_ARCHIVE, MANIFEST,
+}
 EXCLUDED_DIRS = {
     ".git", ".github_cache", ".hypothesis", ".mypy_cache", ".pegrex-cache",
     ".pytest_cache", ".ruff_cache", ".tox", ".venv", "__pycache__", "build",
-    "dist", "htmlcov", "node_modules", "pegrex.egg-info",
+    "dist", "htmlcov", "coverage", "reports", "artifacts", "node_modules", "pegrex.egg-info",
 }
-EXCLUDED_SUFFIXES = {".coverage", ".log", ".pyc", ".pyo", ".tmp"}
+EXCLUDED_SUFFIXES = {".coverage", ".log", ".pyc", ".pyo", ".tmp", ".whl", ".tar.gz"}
+EXCLUDED_FILES = {"assets/report.png", "specs/~_old__compiler_health.spec.json"}
 
 
 def release_files(root: Path) -> list[Path]:
@@ -28,9 +35,21 @@ def release_files(root: Path) -> list[Path]:
             raise ValueError(f"release contains a symlink: {relative.as_posix()}")
         if not path.is_file():
             continue
-        if relative.as_posix() == MANIFEST or path.suffix in EXCLUDED_SUFFIXES:
+        name = relative.as_posix()
+        if name in EXCLUDED_FILES:
             continue
-        if path.name in {".DS_Store", "coverage.xml"} or path.suffix == ".zip":
+        is_committed_skills_archive = name == SKILLS_ARCHIVE
+        if name == MANIFEST or (not is_committed_skills_archive and (
+                path.suffix in EXCLUDED_SUFFIXES or path.name.endswith(".tar.gz"))):
+            continue
+        # Keep a single current validation report in the release. Old reports
+        # are preserved in history/changelog as needed but only add stale,
+        # duplicated evidence to a shipped source bundle.
+        if path.name == "VALIDATION.md":
+            continue
+        if path.name.startswith("VALIDATION-") and path.name != CURRENT_VALIDATION:
+            continue
+        if path.name in {".DS_Store", "coverage.xml", "coverage.html", "lpegc_report.html"} or path.suffix == ".zip":
             continue
         files.append(path)
     return sorted(files, key=lambda item: item.relative_to(root).as_posix())
@@ -79,12 +98,11 @@ def verify_archive(path: Path) -> None:
             raise ValueError("archive has duplicate paths or CRC failures")
         for name in names:
             pure = PurePosixPath(name)
-            if pure.is_absolute() or ".." in pure.parts or any(
-                    part in EXCLUDED_DIRS for part in pure.parts):
+            if (pure.is_absolute() or ".." in pure.parts or name in EXCLUDED_FILES
+                    or any(part in EXCLUDED_DIRS for part in pure.parts)):
                 raise ValueError(f"unsafe or excluded archive path: {name}")
-        required = {"README.md", "pyproject.toml", "pegrex/__init__.py", MANIFEST}
-        if not required.issubset(names):
-            raise ValueError(f"archive lacks required files: {sorted(required - set(names))}")
+        if not REQUIRED_FILES.issubset(names):
+            raise ValueError(f"archive lacks required files: {sorted(REQUIRED_FILES - set(names))}")
         manifest = archive.read(MANIFEST).decode("utf-8")
         hashed = set()
         for line in manifest.splitlines():

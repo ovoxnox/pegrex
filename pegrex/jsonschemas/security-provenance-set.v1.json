@@ -1,0 +1,32 @@
+{
+  "$id": "pegrex:pegrex.security-provenance-set.v1:schema",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": true,
+  "properties": {
+    "schema": {
+      "const": "pegrex.security-provenance-set.v1"
+    },
+    "sources": {
+      "items": {
+        "additionalProperties": true,
+        "properties": {
+          "source": {
+            "additionalProperties": true,
+            "type": "object"
+          }
+        },
+        "required": [
+          "source"
+        ],
+        "type": "object"
+      },
+      "type": "array"
+    }
+  },
+  "required": [
+    "schema",
+    "sources"
+  ],
+  "title": "Security scan provenance set",
+  "type": "object"
+}

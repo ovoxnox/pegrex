@@ -20,9 +20,11 @@ import ast
 import json
 import math
 import os
+import signal
 import subprocess
 import sys
 import tempfile
+from pathlib import Path
 
 
 class SandboxError(ValueError):
@@ -82,67 +84,153 @@ def _limits(timeout, mem_mb):
                            (max(1, math.ceil(timeout)),) * 2)
         resource.setrlimit(resource.RLIMIT_AS, (mem_mb * 1024 * 1024,) * 2)
         resource.setrlimit(resource.RLIMIT_NOFILE, (64, 64))
+        resource.setrlimit(resource.RLIMIT_FSIZE, (8 * 1024 * 1024, 8 * 1024 * 1024))
+        resource.setrlimit(resource.RLIMIT_CORE, (0, 0))
+        if hasattr(resource, "RLIMIT_NPROC"):
+            resource.setrlimit(resource.RLIMIT_NPROC, (1, 1))
     return _set
 
 
 def run_python_isolated(src, fn_name, args: list, timeout=5.0, mem_mb=256,
                         argv_data=None) -> dict:
-    """Run candidate src's fn(*args) in a rlimited subprocess.
+    """Run candidate code in a resource-limited child process.
 
-    Returns one of:
-      {"ok": True,  "result": ...}                  -- JSON line parsed
-      {"ok": False, "refused": "timeout after Ns -- candidate did not
-                    terminate", "kind": "timeout"}  -- killed, parent fine
-      {"ok": False, "error": <stderr tail>, "kind": "crash"}
-                                                   -- nonzero exit (raised,
-                                                      killed by rlimits, or
-                                                      no result line)
-    The source is never eval/exec'd in the parent process.
+    This is *process isolation*, not an OS security sandbox: rlimits and an
+    empty environment reduce blast radius, but do not by themselves deny
+    filesystem access or network access. Use an OS/container sandbox for
+    genuinely hostile code. The parent never executes candidate source.
     """
     if not sandbox_available():
         raise SandboxError("refusing to claim isolation on this platform")
+    if not isinstance(src, str) or len(src.encode("utf-8")) > 2_000_000:
+        return {"ok": False, "error": "candidate source exceeds 2 MB", "kind": "refused"}
+    if not isinstance(fn_name, str) or not fn_name.isidentifier():
+        return {"ok": False, "error": "function name must be an identifier", "kind": "refused"}
+    if not isinstance(args, list):
+        return {"ok": False, "error": "args must be a list", "kind": "refused"}
     with tempfile.TemporaryDirectory() as td:
-        with open(os.path.join(td, "candidate.py"), "w", encoding="utf-8") as f:
+        candidate_path = os.path.join(td, "candidate.py")
+        with open(candidate_path, "w", encoding="utf-8") as f:
             f.write(src)
         with open(os.path.join(td, "wrapper.py"), "w", encoding="utf-8") as f:
             f.write(_WRAPPER)
         with open(os.path.join(td, "data.json"), "w", encoding="utf-8") as f:
-            json.dump({"fn_name": fn_name, "args": list(args),
-                       "data": argv_data}, f)
+            json.dump({"fn_name": fn_name, "args": list(args), "data": argv_data}, f)
+        stdout_path = os.path.join(td, "stdout.bin")
+        stderr_path = os.path.join(td, "stderr.bin")
         try:
-            proc = subprocess.Popen(
-                [sys.executable, "-I", "-S", "wrapper.py"],
-                cwd=td, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
-                preexec_fn=_limits(timeout, mem_mb))
+            with open(stdout_path, "wb") as stdout, open(stderr_path, "wb") as stderr:
+                proc = subprocess.Popen(
+                    [sys.executable, "-I", "-S", "wrapper.py"], cwd=td,
+                    stdin=subprocess.DEVNULL, stdout=stdout, stderr=stderr,
+                    env={}, start_new_session=True, preexec_fn=_limits(timeout, mem_mb))
+                try:
+                    proc.wait(timeout=timeout)
+                except subprocess.TimeoutExpired:
+                    try:
+                        os.killpg(proc.pid, signal.SIGKILL)
+                    except ProcessLookupError:
+                        pass
+                    proc.wait()
+                    return {"ok": False,
+                            "refused": f"timeout after {timeout}s -- candidate did not terminate",
+                            "kind": "timeout"}
         except OSError as e:
-            return {"ok": False,
-                    "error": f"sandbox spawn failed: {e}", "kind": "crash"}
-        try:
-            out, err = proc.communicate(timeout=timeout)
-        except subprocess.TimeoutExpired:
-            proc.kill()
-            proc.wait()
-            return {"ok": False,
-                    "refused": f"timeout after {timeout}s -- candidate did "
-                               f"not terminate",
-                    "kind": "timeout"}
-        stderr = (err or b"").decode("utf-8", "replace")
+            return {"ok": False, "error": f"sandbox spawn failed: {e}", "kind": "crash"}
+        out = open(stdout_path, "rb").read(8 * 1024 * 1024 + 1)
+        err = open(stderr_path, "rb").read(8 * 1024 * 1024 + 1)
+        if len(out) > 8 * 1024 * 1024 or len(err) > 8 * 1024 * 1024:
+            return {"ok": False, "error": "candidate output limit exceeded", "kind": "output-limit"}
+        stderr_text = err.decode("utf-8", "replace")
         if proc.returncode != 0:
-            return {"ok": False,
-                    "error": stderr[-500:] or f"exit code {proc.returncode}",
+            return {"ok": False, "error": stderr_text[-500:] or f"exit code {proc.returncode}",
                     "kind": "crash"}
-        for line in reversed((out or b"").decode("utf-8", "replace")
-                             .splitlines()):
+        for line in reversed(out.decode("utf-8", "replace").splitlines()):
             line = line.strip()
             if line.startswith("{"):
                 try:
-                    return {"ok": True, "result": json.loads(line)["result"]}
+                    return {"ok": True, "result": json.loads(line)["result"],
+                                    "isolation": {"scope": "process-rlimits",
+                                                  "environment_cleared": True,
+                                                  "network_isolated": False,
+                                                  "filesystem_isolated": False}}
                 except (ValueError, KeyError):
                     break
         return {"ok": False,
                 "error": "candidate produced no JSON result line; stdout: "
-                         + (out or b"").decode("utf-8", "replace")[-200:],
-                "kind": "crash"}
+                         + out.decode("utf-8", "replace")[-200:], "kind": "crash"}
+
+
+_CONCOLIC_WRAPPER = r'''
+import json, sys
+sys.path.insert(0, sys.argv[1])
+payload = json.loads(sys.stdin.read())
+try:
+    from pegrex.concolic import trace_fn, flip_and_verify
+    source = payload["source"]
+    namespace = {"__name__": "__pegrex_candidate__", "__file__": "candidate.py"}
+    exec(compile(source, "candidate.py", "exec"), namespace)
+    fn = namespace.get(payload["fn_name"])
+    if not callable(fn):
+        raise ValueError("requested function is not defined by source")
+    run = trace_fn(fn, *payload["args"], source=source)
+    result = {"result": run["result"], "branches": run["branches"],
+              "opaque_branches": run["opaque_branches"]}
+    if payload.get("flip") is not None:
+        result["flip"] = flip_and_verify(fn, run, payload["flip"], source=source)
+    print(json.dumps(result, default=repr))
+except BaseException as error:
+    print(json.dumps({"error": type(error).__name__, "message": str(error)[:300]}))
+    sys.exit(3)
+'''
+
+
+def run_concolic_isolated(source: str, fn_name: str, args: list, *,
+                          flip_index=None, timeout=10.0, mem_mb=512) -> dict:
+    # Resource-limited child isolation only; not a network/filesystem sandbox.
+    if not sandbox_available():
+        return {"status": "unknown", "reason": "process-isolation-unavailable"}
+    if not isinstance(source, str) or len(source.encode("utf-8")) > 2_000_000:
+        return {"status": "unknown", "reason": "source-limit-exceeded"}
+    if not isinstance(fn_name, str) or not fn_name.isidentifier() or not isinstance(args, list):
+        return {"status": "unknown", "reason": "invalid-request"}
+    root = str(Path(__file__).resolve().parent.parent)
+    payload = json.dumps({"source": source, "fn_name": fn_name, "args": args,
+                          "flip": flip_index}).encode("utf-8")
+    with tempfile.TemporaryDirectory(prefix="pegrex-concolic-") as td:
+        out_path, err_path = os.path.join(td, "stdout.bin"), os.path.join(td, "stderr.bin")
+        try:
+            with open(out_path, "wb") as stdout, open(err_path, "wb") as stderr:
+                proc = subprocess.Popen([sys.executable, "-I", "-c", _CONCOLIC_WRAPPER, root],
+                    cwd=td, env={}, stdin=subprocess.PIPE, stdout=stdout, stderr=stderr,
+                    start_new_session=True, preexec_fn=_limits(timeout, mem_mb))
+                try:
+                    proc.communicate(payload, timeout=timeout)
+                except subprocess.TimeoutExpired:
+                    try:
+                        os.killpg(proc.pid, signal.SIGKILL)
+                    except ProcessLookupError:
+                        pass
+                    proc.wait()
+                    return {"status": "unknown", "reason": "worker-timeout"}
+        except OSError as error:
+            return {"status": "unknown", "reason": "worker-spawn-failed", "detail": str(error)[:300]}
+        out = Path(out_path).read_bytes()[:8 * 1024 * 1024 + 1]
+        if len(out) > 8 * 1024 * 1024:
+            return {"status": "unknown", "reason": "worker-output-limit"}
+        try:
+            result = json.loads(out.decode("utf-8", "replace").strip().splitlines()[-1])
+        except (ValueError, IndexError):
+            return {"status": "unknown", "reason": "worker-invalid-output",
+                    "detail": Path(err_path).read_text(encoding="utf-8", errors="replace")[-500:]}
+        if proc.returncode != 0 or "error" in result:
+            return {"status": "unknown", "reason": "worker-execution-failed",
+                    "detail": result.get("message", result.get("error", "child failed"))}
+        result["status"] = "ok"
+        result["execution"] = {"process_isolated": True, "environment_cleared": True,
+                               "resource_limits": True, "network_isolation": False,
+                               "filesystem_isolation": False}
+        return result
 
 
 def _first_def(src):

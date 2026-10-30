@@ -1,0 +1,38 @@
+{
+  "$id": "pegrex:pegrex.semantic-checksum.v1:schema",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": true,
+  "properties": {
+    "payload": {},
+    "schema": {
+      "const": "pegrex.semantic-checksum.v1"
+    },
+    "schema_version": {
+      "type": "integer"
+    },
+    "scope": {
+      "type": "string"
+    },
+    "semantic_checksum": {
+      "type": "null"
+    },
+    "serialization": {},
+    "source_sha256": {},
+    "unknowns": {
+      "type": "array"
+    },
+    "verdict": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "schema",
+    "schema_version",
+    "semantic_checksum",
+    "unknowns",
+    "verdict"
+  ],
+  "title": "PegRex public result: pegrex.semantic-checksum.v1",
+  "type": "object",
+  "x-peg-rex-validation-level": "inferred-top-level"
+}

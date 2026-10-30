@@ -1,0 +1,65 @@
+{
+  "$id": "pegrex:pegrex.multi-agent-change.v1:schema",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": true,
+  "properties": {
+    "applied": {
+      "type": "boolean"
+    },
+    "approved": {
+      "type": "boolean"
+    },
+    "independence": {
+      "type": "object"
+    },
+    "patch_gate": {
+      "type": [
+        "object",
+        "null"
+      ]
+    },
+    "roles": {
+      "items": {
+        "type": "object"
+      },
+      "type": "array"
+    },
+    "schema": {
+      "const": "pegrex.multi-agent-change.v1"
+    },
+    "schema_version": {
+      "const": 1
+    },
+    "status": {
+      "enum": [
+        "applied",
+        "rejected"
+      ]
+    },
+    "unknowns": {
+      "items": {
+        "type": "string"
+      },
+      "type": "array"
+    },
+    "verdict": {
+      "enum": [
+        "proved",
+        "refuted",
+        "unknown"
+      ]
+    }
+  },
+  "required": [
+    "schema",
+    "schema_version",
+    "status",
+    "applied",
+    "verdict",
+    "roles",
+    "unknowns",
+    "patch_gate"
+  ],
+  "title": "Proof-gated multi-agent change result",
+  "type": "object"
+}

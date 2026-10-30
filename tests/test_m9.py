@@ -1,3 +1,4 @@
+import pytest
 import subprocess
 import sys
 from pathlib import Path
@@ -6,6 +7,7 @@ ROOT = Path(__file__).parent.parent
 
 
 def test_m9_trifecta_certificate():
+    pytest.importorskip("tree_sitter", reason="M9 cross-language certificate requires optional parser dependencies")
     r = subprocess.run([sys.executable, "certs/m9_trifecta.py"], cwd=ROOT,
                        capture_output=True, text=True)
     assert r.returncode == 0, r.stderr

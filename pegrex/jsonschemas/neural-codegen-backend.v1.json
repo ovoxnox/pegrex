@@ -1,0 +1,41 @@
+{
+  "$id": "pegrex:pegrex.neural-codegen-backend.v1:schema",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": true,
+  "properties": {
+    "endpoints": {
+      "type": [
+        "integer",
+        "null"
+      ]
+    },
+    "error": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "schema": {
+      "const": "pegrex.neural-codegen-backend.v1"
+    },
+    "status": {
+      "enum": [
+        "generated",
+        "error",
+        "unknown"
+      ]
+    },
+    "unknowns": {
+      "items": {
+        "type": "string"
+      },
+      "type": "array"
+    }
+  },
+  "required": [
+    "schema",
+    "status"
+  ],
+  "title": "Neural code-generation backend report",
+  "type": "object"
+}

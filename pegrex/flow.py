@@ -10,6 +10,7 @@ import ast
 import hashlib
 import json
 import re
+import time
 from dataclasses import dataclass, field
 from pathlib import Path
 
@@ -233,12 +234,16 @@ class FunctionInfo:
 
 class FlowAnalysis:
     def __init__(self, infos, source_rules, sink_rules, *, max_rounds=8,
-                 max_iterations=10_000, report_parameters=False) -> None:
+                 max_iterations=10_000, max_seconds: float | None = None,
+                 report_parameters=False) -> None:
         self.infos = infos
         self.source_rules = source_rules
         self.sink_rules = sink_rules
         self.max_rounds = max_rounds
         self.max_iterations = max_iterations
+        self.max_seconds = max_seconds
+        self.deadline = time.monotonic() + max_seconds if max_seconds is not None else None
+        self._deadline_reported = False
         self.report_parameters = report_parameters
         self.summaries = {}
         self.calls = {key: set() for key in infos}
@@ -263,7 +268,15 @@ class FlowAnalysis:
         return None
 
     def source(self, node, info, state):
-        """Implement source with the module's explicit API and failure semantics."""
+        """Resolve source values conservatively, including empty return expressions."""
+        if node is None:
+            return EMPTY
+        if isinstance(node, ast.Attribute):
+            dotted_name = self.dotted(node)
+            for rule in self.source_rules:
+                if rule.kind == "attribute" and re.fullmatch(rule.pattern, dotted_name, re.IGNORECASE):
+                    return Value((_origin("source", dotted_name, rule.category,
+                                          f"{info.path}:{getattr(node, 'lineno', 1)}"),))
         if isinstance(node, ast.Name):
             if node.id in state.values:
                 return state.values[node.id]
@@ -455,6 +468,12 @@ class FlowAnalysis:
         iterations = 0
         stable = True
         while queue:
+            if self.deadline is not None and time.monotonic() >= self.deadline:
+                stable = False
+                if not self._deadline_reported:
+                    self.unknowns.append(f"{info.key}: analysis time budget exceeded")
+                    self._deadline_reported = True
+                break
             iterations += 1
             if iterations > self.max_iterations:
                 stable = False
@@ -531,6 +550,12 @@ class FlowAnalysis:
         stable = False
         rounds = 0
         for rounds in range(1, self.max_rounds + 1):
+            if self.deadline is not None and time.monotonic() >= self.deadline:
+                stable = False
+                if not self._deadline_reported:
+                    self.unknowns.append("interprocedural analysis time budget exceeded")
+                    self._deadline_reported = True
+                break
             current = {}
             for key, info in self.infos.items():
                 current[key] = self.merge_summary(previous.get(key), self.analyze_function(info))
@@ -606,10 +631,14 @@ class FlowAnalysis:
             "suppressed": False})
 
 
-def _module_infos(sources: dict[str, tuple[str, str]]):
+def _module_infos(sources: dict[str, tuple[str, str]], *, max_ast_nodes: int | None = None):
     infos = {}
     for module, (path, source) in sorted(sources.items()):
         tree = ast.parse(source, filename=path)
+        if max_ast_nodes is not None:
+            node_count = sum(1 for _ in ast.walk(tree))
+            if node_count > max_ast_nodes:
+                raise ValueError(f"{path}: AST node budget exceeded ({node_count} > {max_ast_nodes})")
         imports = {}
         for node in ast.walk(tree):
             if isinstance(node, ast.ImportFrom) and node.module:
@@ -636,19 +665,25 @@ def _module_infos(sources: dict[str, tuple[str, str]]):
 
 
 def analyze_modules(sources: dict[str, tuple[str, str]], *, source_rules=(), sink_rules=(),
-                    max_rounds=8, report_parameters=False) -> dict:
+                    max_rounds=8, max_iterations=10_000, max_seconds: float | None = None,
+                    max_ast_nodes: int | None = 100_000, report_parameters=False) -> dict:
     """Implement analyze modules with the module's explicit API and failure semantics."""
-    analysis = FlowAnalysis(_module_infos(sources), source_rules or DEFAULT_SOURCES,
+    analysis = FlowAnalysis(_module_infos(sources, max_ast_nodes=max_ast_nodes), source_rules or DEFAULT_SOURCES,
                             sink_rules or DEFAULT_SINKS, max_rounds=max_rounds,
+                            max_iterations=max_iterations, max_seconds=max_seconds,
                             report_parameters=report_parameters)
     return analysis.run()
 
 
 def analyze_source(source: str, *, path="<memory>.py", module="memory", source_rules=(),
-                   sink_rules=(), report_parameters=True) -> dict:
+                   sink_rules=(), max_rounds=8, max_iterations=10_000,
+                   max_seconds: float | None = None, max_ast_nodes: int | None = 100_000,
+                   report_parameters=True) -> dict:
     """Implement analyze source with the module's explicit API and failure semantics."""
     return analyze_modules({module: (path, source)}, source_rules=source_rules,
-                           sink_rules=sink_rules, report_parameters=report_parameters)
+                           sink_rules=sink_rules, max_rounds=max_rounds,
+                           max_iterations=max_iterations, max_seconds=max_seconds,
+                           max_ast_nodes=max_ast_nodes, report_parameters=report_parameters)
 
 
 def analyze_repository(root: str | Path, *, secret=False, report_parameters=False) -> dict:
@@ -690,7 +725,7 @@ SECRET_SOURCES = (
 SECRET_SINKS = (
     SinkRule("secret-log", r"(?:print|logging\..*|logger\..*|log\..*)",
              category="log", message="secret reaches a log sink", sanitizers=(r"redact|mask_secret",)),
-    SinkRule("secret-telemetry", r".*(?:telemetry|analytics|sentry)\..*|.*(?:track|capture)_(?:event|error)",
+    SinkRule("secret-telemetry", r".*(?:telemetry|analytics|sentry(?:_sdk)?)\..*|.*(?:track|capture)_(?:event|error|message)",
              category="telemetry", message="secret reaches telemetry", sanitizers=(r"redact|mask_secret",)),
     SinkRule("secret-url", r"(?:requests|httpx)\.(?:get|post|put|patch|delete|request)",
              category="url", message="secret reaches a request URL or payload", arguments=(0, 1, 2),
@@ -698,13 +733,16 @@ SECRET_SINKS = (
     SinkRule("secret-process", r"(?:os\.)?system|subprocess\.(?:run|Popen|call|check_output)",
              category="process-arguments", message="secret reaches process arguments",
              sanitizers=(r"redact|mask_secret",)),
-    SinkRule("secret-network", r".*(?:socket|connection)\..*(?:send|write)|(?:requests|httpx)\..*",
+    SinkRule("secret-network", r".*(?:socket|sock|connection)\..*(?:send|write)|(?:requests|httpx)\..*",
              category="network", message="secret reaches a network sink", arguments=(0, 1, 2),
               sanitizers=(r"redact|mask_secret",)),
 )
 
 
-def analyze_secrets(source: str, *, path="<memory>.py") -> dict:
+def analyze_secrets(source: str, *, path="<memory>.py", max_seconds: float | None = None,
+                    max_iterations: int = 10_000, max_ast_nodes: int | None = 100_000) -> dict:
     """Implement analyze secrets with the module's explicit API and failure semantics."""
     return analyze_source(source, path=path, source_rules=SECRET_SOURCES,
-                          sink_rules=SECRET_SINKS, report_parameters=False)
+                          sink_rules=SECRET_SINKS, max_seconds=max_seconds,
+                          max_iterations=max_iterations, max_ast_nodes=max_ast_nodes,
+                          report_parameters=False)

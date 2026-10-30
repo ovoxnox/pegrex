@@ -1,0 +1,38 @@
+{
+  "$id": "pegrex:pegrex.api-round-trip.v1:schema",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": true,
+  "properties": {
+    "compatible": {
+      "type": "boolean"
+    },
+    "generated_stubs": {},
+    "runtime": {},
+    "schema": {
+      "const": "pegrex.api-round-trip.v1"
+    },
+    "schema_version": {
+      "type": "integer"
+    },
+    "scope": {
+      "type": "string"
+    },
+    "static_drift": {},
+    "unknowns": {
+      "type": "array"
+    },
+    "verdict": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "compatible",
+    "schema",
+    "schema_version",
+    "unknowns",
+    "verdict"
+  ],
+  "title": "PegRex public result: pegrex.api-round-trip.v1",
+  "type": "object",
+  "x-peg-rex-validation-level": "inferred-top-level"
+}

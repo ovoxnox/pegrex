@@ -1,0 +1,148 @@
+{
+  "$id": "pegrex:pegrex.state-profile.v1:schema",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "oneOf": [
+    {
+      "additionalProperties": false,
+      "properties": {
+        "allow_external_execution": {
+          "type": "boolean"
+        },
+        "allow_release_evidence": {
+          "type": "boolean"
+        },
+        "allow_workspace_mutation": {
+          "type": "boolean"
+        },
+        "max_memory_mb": {
+          "maximum": 4096,
+          "minimum": 16,
+          "type": "integer"
+        },
+        "max_timeout_ms": {
+          "maximum": 300000,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "name": {
+          "enum": [
+            "alpha",
+            "demo",
+            "beta"
+          ],
+          "type": "string"
+        },
+        "promotion_allowed": {
+          "const": false
+        },
+        "purpose": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "schema": {
+          "const": "pegrex.state-profile.v1"
+        }
+      },
+      "required": [
+        "schema",
+        "name",
+        "purpose",
+        "allow_external_execution",
+        "allow_workspace_mutation",
+        "allow_release_evidence",
+        "max_timeout_ms",
+        "max_memory_mb",
+        "promotion_allowed"
+      ],
+      "type": "object"
+    },
+    {
+      "additionalProperties": false,
+      "properties": {
+        "policy": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "profiles": {
+          "items": {
+            "additionalProperties": false,
+            "properties": {
+              "allow_external_execution": {
+                "type": "boolean"
+              },
+              "allow_release_evidence": {
+                "type": "boolean"
+              },
+              "allow_workspace_mutation": {
+                "type": "boolean"
+              },
+              "max_memory_mb": {
+                "maximum": 4096,
+                "minimum": 16,
+                "type": "integer"
+              },
+              "max_timeout_ms": {
+                "maximum": 300000,
+                "minimum": 1,
+                "type": "integer"
+              },
+              "name": {
+                "enum": [
+                  "alpha",
+                  "demo",
+                  "beta"
+                ],
+                "type": "string"
+              },
+              "promotion_allowed": {
+                "const": false
+              },
+              "purpose": {
+                "minLength": 1,
+                "type": "string"
+              },
+              "schema": {
+                "const": "pegrex.state-profile.v1"
+              }
+            },
+            "required": [
+              "schema",
+              "name",
+              "purpose",
+              "allow_external_execution",
+              "allow_workspace_mutation",
+              "allow_release_evidence",
+              "max_timeout_ms",
+              "max_memory_mb",
+              "promotion_allowed"
+            ],
+            "type": "object"
+          },
+          "maxItems": 3,
+          "minItems": 3,
+          "type": "array"
+        },
+        "schema": {
+          "const": "pegrex.state-profile.v1"
+        }
+      },
+      "required": [
+        "schema",
+        "profiles",
+        "policy"
+      ],
+      "type": "object"
+    }
+  ],
+  "properties": {
+    "schema": {
+      "const": "pegrex.state-profile.v1"
+    }
+  },
+  "required": [
+    "schema"
+  ],
+  "title": "PegRex lifecycle profile or profile catalog",
+  "type": "object",
+  "x-peg-rex-validation-level": "reviewed"
+}

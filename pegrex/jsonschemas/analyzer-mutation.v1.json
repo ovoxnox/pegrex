@@ -1,0 +1,34 @@
+{
+  "$id": "pegrex:pegrex.analyzer-mutation.v1:schema",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": true,
+  "properties": {
+    "controls": {},
+    "killed": {},
+    "schema": {
+      "const": "pegrex.analyzer-mutation.v1"
+    },
+    "schema_version": {
+      "type": "integer"
+    },
+    "survived": {},
+    "unknowns": {
+      "type": "array"
+    },
+    "verdict": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "controls",
+    "killed",
+    "schema",
+    "schema_version",
+    "survived",
+    "unknowns",
+    "verdict"
+  ],
+  "title": "PegRex public result: pegrex.analyzer-mutation.v1",
+  "type": "object",
+  "x-peg-rex-validation-level": "inferred-top-level"
+}

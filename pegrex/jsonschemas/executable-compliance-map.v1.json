@@ -1,0 +1,51 @@
+{
+  "$id": "pegrex:pegrex.executable-compliance-map.v1:schema",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": true,
+  "properties": {
+    "edges": {
+      "type": "array"
+    },
+    "legal_interpretation": {
+      "additionalProperties": true,
+      "properties": {
+        "proved_by_code": {
+          "type": "boolean"
+        },
+        "status": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "proved_by_code",
+        "status"
+      ],
+      "type": "object"
+    },
+    "nodes": {
+      "type": "array"
+    },
+    "schema": {
+      "const": "pegrex.executable-compliance-map.v1"
+    },
+    "schema_version": {
+      "type": "integer"
+    },
+    "unknowns": {
+      "type": "array"
+    },
+    "verdict": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "edges",
+    "legal_interpretation",
+    "nodes",
+    "schema",
+    "schema_version"
+  ],
+  "title": "PegRex public result: pegrex.executable-compliance-map.v1",
+  "type": "object",
+  "x-peg-rex-validation-level": "inferred-top-level"
+}

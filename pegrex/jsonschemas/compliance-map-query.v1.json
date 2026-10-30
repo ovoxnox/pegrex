@@ -1,0 +1,37 @@
+{
+  "$id": "pegrex:pegrex.compliance-map-query.v1:schema",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": true,
+  "properties": {
+    "edges": {
+      "type": "array"
+    },
+    "legal_interpretation": {},
+    "map_identity": {},
+    "nodes": {
+      "type": "array"
+    },
+    "schema": {
+      "const": "pegrex.compliance-map-query.v1"
+    },
+    "unknowns": {
+      "items": {
+        "type": "string"
+      },
+      "type": "array"
+    },
+    "verdict": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "edges",
+    "nodes",
+    "schema",
+    "unknowns",
+    "verdict"
+  ],
+  "title": "PegRex public result: pegrex.compliance-map-query.v1",
+  "type": "object",
+  "x-peg-rex-validation-level": "inferred-top-level"
+}

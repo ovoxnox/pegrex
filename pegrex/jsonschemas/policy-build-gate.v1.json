@@ -1,0 +1,30 @@
+{
+  "$id": "pegrex:pegrex.policy-build-gate.v1:schema",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": true,
+  "properties": {
+    "artifacts": {},
+    "decision": {
+      "type": "string"
+    },
+    "identity_changes": {},
+    "missing_evidence": {},
+    "publishable": {},
+    "schema": {
+      "const": "pegrex.policy-build-gate.v1"
+    },
+    "unpinned_artifacts": {}
+  },
+  "required": [
+    "artifacts",
+    "decision",
+    "identity_changes",
+    "missing_evidence",
+    "publishable",
+    "schema",
+    "unpinned_artifacts"
+  ],
+  "title": "PegRex public result: pegrex.policy-build-gate.v1",
+  "type": "object",
+  "x-peg-rex-validation-level": "inferred-top-level"
+}

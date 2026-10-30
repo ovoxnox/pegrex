@@ -1,0 +1,45 @@
+{
+  "$id": "pegrex:pegrex.core.v1:schema",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": true,
+  "properties": {
+    "assumptions": {
+      "type": "array"
+    },
+    "characters": {
+      "type": "integer"
+    },
+    "constraints": {
+      "type": "array"
+    },
+    "data": {},
+    "function": {},
+    "identity": {},
+    "language": {},
+    "metadata": {
+      "type": "object"
+    },
+    "operation": {},
+    "outcome": {},
+    "path": {},
+    "schema": {
+      "const": "pegrex.core.v1"
+    },
+    "sha256": {},
+    "source_hash": {},
+    "status": {},
+    "unknowns": {
+      "type": "array"
+    },
+    "utf8_bytes": {
+      "type": "integer"
+    },
+    "verdict": {}
+  },
+  "required": [
+    "schema"
+  ],
+  "title": "PegRex public result: pegrex.core.v1",
+  "type": "object",
+  "x-peg-rex-validation-level": "inferred-top-level"
+}

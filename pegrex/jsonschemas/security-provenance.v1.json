@@ -1,0 +1,45 @@
+{
+  "$id": "pegrex:pegrex.security-provenance.v1:schema",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": true,
+  "properties": {
+    "configuration": {
+      "additionalProperties": true,
+      "type": "object"
+    },
+    "language": {
+      "type": "string"
+    },
+    "osv": {
+      "type": [
+        "object",
+        "null"
+      ]
+    },
+    "parser": {
+      "additionalProperties": true,
+      "type": "object"
+    },
+    "rules": {
+      "additionalProperties": true,
+      "type": "object"
+    },
+    "schema": {
+      "const": "pegrex.security-provenance.v1"
+    },
+    "source": {
+      "additionalProperties": true,
+      "type": "object"
+    }
+  },
+  "required": [
+    "schema",
+    "source",
+    "language",
+    "parser",
+    "configuration",
+    "rules"
+  ],
+  "title": "Security analysis provenance",
+  "type": "object"
+}

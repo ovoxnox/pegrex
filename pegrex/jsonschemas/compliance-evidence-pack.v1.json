@@ -1,0 +1,38 @@
+{
+  "$id": "pegrex:pegrex.compliance-evidence-pack.v1:schema",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": true,
+  "properties": {
+    "controls": {},
+    "disclaimer": {
+      "type": "string"
+    },
+    "legal_conclusion": {
+      "type": "null"
+    },
+    "schema": {
+      "const": "pegrex.compliance-evidence-pack.v1"
+    },
+    "schema_version": {
+      "type": "integer"
+    },
+    "source_sha256": {},
+    "unknowns": {
+      "type": "array"
+    },
+    "verdict": {}
+  },
+  "required": [
+    "controls",
+    "disclaimer",
+    "legal_conclusion",
+    "schema",
+    "schema_version",
+    "source_sha256",
+    "unknowns",
+    "verdict"
+  ],
+  "title": "PegRex public result: pegrex.compliance-evidence-pack.v1",
+  "type": "object",
+  "x-peg-rex-validation-level": "inferred-top-level"
+}

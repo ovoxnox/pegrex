@@ -1,0 +1,27 @@
+{
+  "$id": "pegrex:pegrex.repository-index-state.v1:schema",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": true,
+  "properties": {
+    "analyzer_version": {},
+    "configuration": {},
+    "entries": {},
+    "extractor": {},
+    "files": {
+      "type": "integer"
+    },
+    "max_paths": {},
+    "path": {
+      "type": "string"
+    },
+    "schema": {
+      "const": "pegrex.repository-index-state.v1"
+    }
+  },
+  "required": [
+    "schema"
+  ],
+  "title": "PegRex public result: pegrex.repository-index-state.v1",
+  "type": "object",
+  "x-peg-rex-validation-level": "inferred-top-level"
+}

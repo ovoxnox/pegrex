@@ -1,0 +1,648 @@
+{
+  "$id": "pegrex:pegrex.core-operations.v2:schema",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "api_version": {
+      "const": "2.0"
+    },
+    "error_policy": {
+      "minLength": 1,
+      "type": "string"
+    },
+    "operations": {
+      "additionalProperties": false,
+      "properties": {
+        "audit": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array",
+          "uniqueItems": true
+        },
+        "call_graph": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array",
+          "uniqueItems": true
+        },
+        "capabilities": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array",
+          "uniqueItems": true
+        },
+        "contracts": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array",
+          "uniqueItems": true
+        },
+        "contracts_file": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array",
+          "uniqueItems": true
+        },
+        "ironkernel.differential": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array",
+          "uniqueItems": true
+        },
+        "ironkernel.run": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array",
+          "uniqueItems": true
+        },
+        "neural.generate": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array",
+          "uniqueItems": true
+        },
+        "neural.verify_candidate": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array",
+          "uniqueItems": true
+        },
+        "parse": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array",
+          "uniqueItems": true
+        },
+        "pythoc.analyze_ir": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array",
+          "uniqueItems": true
+        },
+        "pythoc.compile": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array",
+          "uniqueItems": true
+        },
+        "pythoc.differential": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array",
+          "uniqueItems": true
+        },
+        "soundness": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array",
+          "uniqueItems": true
+        },
+        "verify_patch": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array",
+          "uniqueItems": true
+        }
+      },
+      "required": [
+        "parse",
+        "contracts",
+        "contracts_file",
+        "audit",
+        "call_graph",
+        "verify_patch",
+        "capabilities",
+        "soundness",
+        "neural.generate",
+        "neural.verify_candidate",
+        "ironkernel.run",
+        "ironkernel.differential",
+        "pythoc.compile",
+        "pythoc.analyze_ir",
+        "pythoc.differential"
+      ],
+      "type": "object"
+    },
+    "schema": {
+      "const": "pegrex.core-operations.v2"
+    },
+    "schemas": {
+      "additionalProperties": false,
+      "properties": {
+        "audit": {
+          "additionalProperties": true,
+          "properties": {
+            "additionalProperties": {
+              "const": false
+            },
+            "properties": {
+              "additionalProperties": {
+                "type": "object"
+              },
+              "type": "object"
+            },
+            "required": {
+              "items": {
+                "type": "string"
+              },
+              "type": "array",
+              "uniqueItems": true
+            },
+            "type": {
+              "const": "object"
+            }
+          },
+          "required": [
+            "type",
+            "properties",
+            "required",
+            "additionalProperties"
+          ],
+          "type": "object"
+        },
+        "call_graph": {
+          "additionalProperties": true,
+          "properties": {
+            "additionalProperties": {
+              "const": false
+            },
+            "properties": {
+              "additionalProperties": {
+                "type": "object"
+              },
+              "type": "object"
+            },
+            "required": {
+              "items": {
+                "type": "string"
+              },
+              "type": "array",
+              "uniqueItems": true
+            },
+            "type": {
+              "const": "object"
+            }
+          },
+          "required": [
+            "type",
+            "properties",
+            "required",
+            "additionalProperties"
+          ],
+          "type": "object"
+        },
+        "capabilities": {
+          "additionalProperties": true,
+          "properties": {
+            "additionalProperties": {
+              "const": false
+            },
+            "properties": {
+              "additionalProperties": {
+                "type": "object"
+              },
+              "type": "object"
+            },
+            "required": {
+              "items": {
+                "type": "string"
+              },
+              "type": "array",
+              "uniqueItems": true
+            },
+            "type": {
+              "const": "object"
+            }
+          },
+          "required": [
+            "type",
+            "properties",
+            "required",
+            "additionalProperties"
+          ],
+          "type": "object"
+        },
+        "contracts": {
+          "additionalProperties": true,
+          "properties": {
+            "additionalProperties": {
+              "const": false
+            },
+            "properties": {
+              "additionalProperties": {
+                "type": "object"
+              },
+              "type": "object"
+            },
+            "required": {
+              "items": {
+                "type": "string"
+              },
+              "type": "array",
+              "uniqueItems": true
+            },
+            "type": {
+              "const": "object"
+            }
+          },
+          "required": [
+            "type",
+            "properties",
+            "required",
+            "additionalProperties"
+          ],
+          "type": "object"
+        },
+        "contracts_file": {
+          "additionalProperties": true,
+          "properties": {
+            "additionalProperties": {
+              "const": false
+            },
+            "properties": {
+              "additionalProperties": {
+                "type": "object"
+              },
+              "type": "object"
+            },
+            "required": {
+              "items": {
+                "type": "string"
+              },
+              "type": "array",
+              "uniqueItems": true
+            },
+            "type": {
+              "const": "object"
+            }
+          },
+          "required": [
+            "type",
+            "properties",
+            "required",
+            "additionalProperties"
+          ],
+          "type": "object"
+        },
+        "ironkernel.differential": {
+          "additionalProperties": true,
+          "properties": {
+            "additionalProperties": {
+              "const": false
+            },
+            "properties": {
+              "additionalProperties": {
+                "type": "object"
+              },
+              "type": "object"
+            },
+            "required": {
+              "items": {
+                "type": "string"
+              },
+              "type": "array",
+              "uniqueItems": true
+            },
+            "type": {
+              "const": "object"
+            }
+          },
+          "required": [
+            "type",
+            "properties",
+            "required",
+            "additionalProperties"
+          ],
+          "type": "object"
+        },
+        "ironkernel.run": {
+          "additionalProperties": true,
+          "properties": {
+            "additionalProperties": {
+              "const": false
+            },
+            "properties": {
+              "additionalProperties": {
+                "type": "object"
+              },
+              "type": "object"
+            },
+            "required": {
+              "items": {
+                "type": "string"
+              },
+              "type": "array",
+              "uniqueItems": true
+            },
+            "type": {
+              "const": "object"
+            }
+          },
+          "required": [
+            "type",
+            "properties",
+            "required",
+            "additionalProperties"
+          ],
+          "type": "object"
+        },
+        "neural.generate": {
+          "additionalProperties": true,
+          "properties": {
+            "additionalProperties": {
+              "const": false
+            },
+            "properties": {
+              "additionalProperties": {
+                "type": "object"
+              },
+              "type": "object"
+            },
+            "required": {
+              "items": {
+                "type": "string"
+              },
+              "type": "array",
+              "uniqueItems": true
+            },
+            "type": {
+              "const": "object"
+            }
+          },
+          "required": [
+            "type",
+            "properties",
+            "required",
+            "additionalProperties"
+          ],
+          "type": "object"
+        },
+        "neural.verify_candidate": {
+          "additionalProperties": true,
+          "properties": {
+            "additionalProperties": {
+              "const": false
+            },
+            "properties": {
+              "additionalProperties": {
+                "type": "object"
+              },
+              "type": "object"
+            },
+            "required": {
+              "items": {
+                "type": "string"
+              },
+              "type": "array",
+              "uniqueItems": true
+            },
+            "type": {
+              "const": "object"
+            }
+          },
+          "required": [
+            "type",
+            "properties",
+            "required",
+            "additionalProperties"
+          ],
+          "type": "object"
+        },
+        "parse": {
+          "additionalProperties": true,
+          "properties": {
+            "additionalProperties": {
+              "const": false
+            },
+            "properties": {
+              "additionalProperties": {
+                "type": "object"
+              },
+              "type": "object"
+            },
+            "required": {
+              "items": {
+                "type": "string"
+              },
+              "type": "array",
+              "uniqueItems": true
+            },
+            "type": {
+              "const": "object"
+            }
+          },
+          "required": [
+            "type",
+            "properties",
+            "required",
+            "additionalProperties"
+          ],
+          "type": "object"
+        },
+        "pythoc.analyze_ir": {
+          "additionalProperties": true,
+          "properties": {
+            "additionalProperties": {
+              "const": false
+            },
+            "properties": {
+              "additionalProperties": {
+                "type": "object"
+              },
+              "type": "object"
+            },
+            "required": {
+              "items": {
+                "type": "string"
+              },
+              "type": "array",
+              "uniqueItems": true
+            },
+            "type": {
+              "const": "object"
+            }
+          },
+          "required": [
+            "type",
+            "properties",
+            "required",
+            "additionalProperties"
+          ],
+          "type": "object"
+        },
+        "pythoc.compile": {
+          "additionalProperties": true,
+          "properties": {
+            "additionalProperties": {
+              "const": false
+            },
+            "properties": {
+              "additionalProperties": {
+                "type": "object"
+              },
+              "type": "object"
+            },
+            "required": {
+              "items": {
+                "type": "string"
+              },
+              "type": "array",
+              "uniqueItems": true
+            },
+            "type": {
+              "const": "object"
+            }
+          },
+          "required": [
+            "type",
+            "properties",
+            "required",
+            "additionalProperties"
+          ],
+          "type": "object"
+        },
+        "pythoc.differential": {
+          "additionalProperties": true,
+          "properties": {
+            "additionalProperties": {
+              "const": false
+            },
+            "properties": {
+              "additionalProperties": {
+                "type": "object"
+              },
+              "type": "object"
+            },
+            "required": {
+              "items": {
+                "type": "string"
+              },
+              "type": "array",
+              "uniqueItems": true
+            },
+            "type": {
+              "const": "object"
+            }
+          },
+          "required": [
+            "type",
+            "properties",
+            "required",
+            "additionalProperties"
+          ],
+          "type": "object"
+        },
+        "soundness": {
+          "additionalProperties": true,
+          "properties": {
+            "additionalProperties": {
+              "const": false
+            },
+            "properties": {
+              "additionalProperties": {
+                "type": "object"
+              },
+              "type": "object"
+            },
+            "required": {
+              "items": {
+                "type": "string"
+              },
+              "type": "array",
+              "uniqueItems": true
+            },
+            "type": {
+              "const": "object"
+            }
+          },
+          "required": [
+            "type",
+            "properties",
+            "required",
+            "additionalProperties"
+          ],
+          "type": "object"
+        },
+        "verify_patch": {
+          "additionalProperties": true,
+          "properties": {
+            "additionalProperties": {
+              "const": false
+            },
+            "properties": {
+              "additionalProperties": {
+                "type": "object"
+              },
+              "type": "object"
+            },
+            "required": {
+              "items": {
+                "type": "string"
+              },
+              "type": "array",
+              "uniqueItems": true
+            },
+            "type": {
+              "const": "object"
+            }
+          },
+          "required": [
+            "type",
+            "properties",
+            "required",
+            "additionalProperties"
+          ],
+          "type": "object"
+        }
+      },
+      "required": [
+        "parse",
+        "contracts",
+        "contracts_file",
+        "audit",
+        "call_graph",
+        "verify_patch",
+        "capabilities",
+        "soundness",
+        "neural.generate",
+        "neural.verify_candidate",
+        "ironkernel.run",
+        "ironkernel.differential",
+        "pythoc.compile",
+        "pythoc.analyze_ir",
+        "pythoc.differential"
+      ],
+      "type": "object"
+    },
+    "state_policy": {
+      "minLength": 1,
+      "type": "string"
+    }
+  },
+  "required": [
+    "schema",
+    "api_version",
+    "operations",
+    "schemas",
+    "error_policy",
+    "state_policy"
+  ],
+  "title": "PegRex CoreEngine v2 operation and argument-schema catalog",
+  "type": "object",
+  "x-peg-rex-validation-level": "reviewed"
+}

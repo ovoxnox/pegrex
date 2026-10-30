@@ -1,0 +1,41 @@
+{
+  "$id": "pegrex:pegrex.semantic-checksum-diff.v1:schema",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": true,
+  "properties": {
+    "after_checksum": {},
+    "before_checksum": {},
+    "changed_components": {
+      "type": "array"
+    },
+    "identical": {
+      "type": "boolean"
+    },
+    "reason": {
+      "type": "string"
+    },
+    "schema": {
+      "const": "pegrex.semantic-checksum-diff.v1"
+    },
+    "scope": {
+      "type": "string"
+    },
+    "unknowns": {
+      "items": {
+        "type": "string"
+      },
+      "type": "array"
+    },
+    "verdict": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "schema",
+    "unknowns",
+    "verdict"
+  ],
+  "title": "PegRex public result: pegrex.semantic-checksum-diff.v1",
+  "type": "object",
+  "x-peg-rex-validation-level": "inferred-top-level"
+}

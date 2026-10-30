@@ -1,0 +1,41 @@
+{
+  "$id": "pegrex:pegrex.pythoc-worker.v1:schema",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": true,
+  "properties": {
+    "entrypoint": {},
+    "error": {},
+    "ir_file": {},
+    "ir_sha256": {},
+    "llvm_ir_verified": {
+      "type": "boolean"
+    },
+    "llvm_version": {
+      "type": [
+        "array",
+        "string"
+      ]
+    },
+    "pythoc_distribution_version": {},
+    "pythoc_module_version": {
+      "type": "string"
+    },
+    "schema": {
+      "const": "pegrex.pythoc-worker.v1"
+    },
+    "source_sha256": {},
+    "status": {
+      "type": "string"
+    },
+    "verification_scope": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "schema",
+    "status"
+  ],
+  "title": "PegRex public result: pegrex.pythoc-worker.v1",
+  "type": "object",
+  "x-peg-rex-validation-level": "inferred-top-level"
+}

@@ -64,6 +64,28 @@ def load_validated() -> tuple[dict, dict, str]:
     return spec, dispositions, digest
 
 
+
+
+def _current_source_count() -> int:
+    """Count source files eligible for the recursive health scan."""
+    if str(ROOT) not in sys.path:
+        sys.path.insert(0, str(ROOT))
+    from pegrex.languages import EXTENSION_MAP, LANGUAGES
+    root = ROOT / "pegrex"
+    skip = {"__pycache__", ".git", "node_modules", "target", "build", "dist",
+            ".vendor", ".semgrep-final", "site-packages"}
+    count = 0
+    for path in root.rglob("*"):
+        if not path.is_file():
+            continue
+        language = EXTENSION_MAP.get(path.suffix.lower())
+        if language is None or not (LANGUAGES[language].capabilities & {"parse", "audit", "contracts"}):
+            continue
+        if any(part in skip or part.startswith(".") for part in path.relative_to(root).parts):
+            continue
+        count += 1
+    return count
+
 def render(spec: dict, dispositions: dict, digest: str) -> str:
     """Render current counts without calling maintenance tasks vulnerabilities."""
     tasks = spec["tasks"]
@@ -75,7 +97,9 @@ def render(spec: dict, dispositions: dict, digest: str) -> str:
     status_counts = collections.Counter(
         policies[policy_name]["status"] for policy_name in assignments.values())
     match = re.search(r"python\s+(\d+)", spec.get("meta", {}).get("language", ""))
-    files = match.group(1) if match else "unknown"
+    files = int(match.group(1)) if match else None
+    current_files = _current_source_count()
+    census_stale = files is None or files != current_files
     lines = [
         "# HEALTH.md - PegRex engine health check",
         "",
@@ -85,7 +109,7 @@ def render(spec: dict, dispositions: dict, digest: str) -> str:
         "",
         "| metric | value |",
         "|---|---|",
-        f"| engine files analyzed | {files} |",
+        f"| engine files analyzed in stored scan | {files if files is not None else 'unknown'} |",
         f"| total tasks | {len(tasks)} |",
         f"| high severity | {severities['HIGH']} |",
         f"| medium severity | {severities['MEDIUM']} |",
@@ -94,6 +118,8 @@ def render(spec: dict, dispositions: dict, digest: str) -> str:
         f"| report SHA-256 | `{digest}` |",
         "",
         "See `docs/SELF.md` for current engine LOC, cognitive hotspots, contract extraction, and explicit UNKNOWN modules.",
+        "",
+        (f"**Source-census status: STALE.** The stored health spec covers {files if files is not None else 'an unknown number of'} eligible source files; the current tree has {current_files}. Existing task dispositions match the stored report digest, but this inventory must not be treated as a fresh v1.3.0 scan. The attempted full refresh exceeded the local execution limit. Run `python pegrex.py health pegrex` in an environment with sufficient runtime, then reconcile the new task IDs before release." if census_stale else f"**Source-census status: current.** The stored scan covers all {current_files} eligible source files."),
         "",
         "## Tasks by analyzer view",
         "",

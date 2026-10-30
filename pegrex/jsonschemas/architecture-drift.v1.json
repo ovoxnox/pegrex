@@ -1,0 +1,55 @@
+{
+  "$id": "pegrex:pegrex.architecture-drift.v1:schema",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": true,
+  "properties": {
+    "drift": {
+      "type": "array"
+    },
+    "evidence": {
+      "additionalProperties": true,
+      "properties": {
+        "call_edges_checked": {
+          "type": "integer"
+        },
+        "graph_revision": {},
+        "imports_checked": {
+          "type": "integer"
+        },
+        "memory_identity": {}
+      },
+      "required": [
+        "call_edges_checked",
+        "graph_revision",
+        "imports_checked",
+        "memory_identity"
+      ],
+      "type": "object"
+    },
+    "schema": {
+      "const": "pegrex.architecture-drift.v1"
+    },
+    "schema_version": {
+      "type": "integer"
+    },
+    "scope": {
+      "type": "string"
+    },
+    "unknowns": {
+      "type": "array"
+    },
+    "verdict": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "drift",
+    "schema",
+    "schema_version",
+    "unknowns",
+    "verdict"
+  ],
+  "title": "PegRex public result: pegrex.architecture-drift.v1",
+  "type": "object",
+  "x-peg-rex-validation-level": "inferred-top-level"
+}

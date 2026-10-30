@@ -42,6 +42,10 @@ class SecurityProfile:
     def to_dict(self) -> dict:
         """Implement to dict with the module's explicit API and failure semantics."""
         row = asdict(self)
+        # The public JSON contract uses arrays, not Python tuples.
+        for key, value in tuple(row.items()):
+            if isinstance(value, tuple):
+                row[key] = list(value)
         row["profile_sha256"] = self.identity()
         return row
 

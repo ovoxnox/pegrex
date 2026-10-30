@@ -1,3 +1,4 @@
+import pytest
 import hashlib
 import json
 import pathlib
@@ -92,6 +93,7 @@ def test_claims_honesty_manifest():
 
 
 def test_bind_evidence_bundle_integrity_plus_proof(tmp_path):
+    pytest.importorskip("xxhash", reason="evidence bundle fingerprinting requires optional evidence dependency")
     src = tmp_path / "absval.py"
     src.write_text("def absval(n):\n    if n >= 0:\n        return n\n"
                    "    return -n\n")

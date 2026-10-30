@@ -1,0 +1,63 @@
+{
+  "$id": "pegrex:pegrex.counterexample-minimization.v1:schema",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": true,
+  "properties": {
+    "attempts": {
+      "type": "array"
+    },
+    "confirmed": {
+      "type": "boolean"
+    },
+    "evidence": {
+      "additionalProperties": true,
+      "properties": {
+        "method": {
+          "type": "string"
+        },
+        "reproduced": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "method",
+        "reproduced"
+      ],
+      "type": "object"
+    },
+    "minimized": {
+      "type": "object"
+    },
+    "original": {
+      "type": "object"
+    },
+    "schema": {
+      "const": "pegrex.counterexample-minimization.v1"
+    },
+    "schema_version": {
+      "type": "integer"
+    },
+    "unknowns": {
+      "items": {
+        "type": "string"
+      },
+      "type": "array"
+    },
+    "verdict": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "attempts",
+    "confirmed",
+    "minimized",
+    "original",
+    "schema",
+    "schema_version",
+    "unknowns",
+    "verdict"
+  ],
+  "title": "PegRex public result: pegrex.counterexample-minimization.v1",
+  "type": "object",
+  "x-peg-rex-validation-level": "inferred-top-level"
+}

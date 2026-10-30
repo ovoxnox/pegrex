@@ -35,10 +35,22 @@ def _span(source: str, node: ast.AST, starts: list[int]) -> tuple[int, int]:
     return offset(sl, sc), offset(el, ec)
 
 
+def _segment(source: str, node: ast.AST, starts: list[int]) -> str:
+    """Slice a node's source span without re-splitting the entire source.
+
+    `ast.get_source_segment()` rebuilds a line table on every call. Calling it
+    for every AST node made fallback parsing quadratic in source line count.
+    PegRex already has a line-start table, so use the canonical span adapter.
+    """
+    if not hasattr(node, "lineno"):
+        return ""
+    start, end = _span(source, node, starts)
+    return source[start:end]
+
+
 def _convert(source: str, node: ast.AST, starts: list[int]) -> Node:
     start, end = _span(source, node, starts) if hasattr(node, "lineno") else (0, len(source))
     get = lambda n: _convert(source, n, starts)
-    text = ast.get_source_segment(source, node) or ast.dump(node, include_attributes=False)
 
     if isinstance(node, ast.Module):
         return Node("module", 0, len(source), [get(item) for item in node.body])
@@ -69,7 +81,6 @@ def _convert(source: str, node: ast.AST, starts: list[int]) -> Node:
         return Node("while_statement" if isinstance(node, ast.While) else "for_statement",
                     start, end, [condition, Node("block", start, end, [get(x) for x in node.body])])
     if isinstance(node, ast.Return):
-        expr = ast.get_source_segment(source, node.value) if node.value is not None else ""
         children = [get(node.value)] if node.value is not None else [""]
         return Node("return_statement", start, end, children)
     if isinstance(node, ast.Call):
@@ -79,6 +90,7 @@ def _convert(source: str, node: ast.AST, starts: list[int]) -> Node:
     if isinstance(node, ast.Name):
         return Node("identifier", start, end, [node.id])
     if isinstance(node, ast.Constant):
+        text = _segment(source, node, starts) or ast.dump(node, include_attributes=False)
         return Node("string" if isinstance(node.value, str) else "literal", start, end, [text])
     if isinstance(node, ast.Expr):
         return Node("expression_statement", start, end, [get(node.value)])
@@ -91,13 +103,17 @@ def _convert(source: str, node: ast.AST, starts: list[int]) -> Node:
         return Node("assignment", start, end, children)
     if isinstance(node, ast.Raise):
         children = [get(node.exc)] if node.exc is not None else []
+        text = _segment(source, node, starts) or ast.dump(node, include_attributes=False)
         return Node("raise_statement", start, end, children or [text])
     if isinstance(node, ast.Break):
+        text = _segment(source, node, starts) or "break"
         return Node("break_statement", start, end, [text])
     if isinstance(node, ast.Continue):
+        text = _segment(source, node, starts) or "continue"
         return Node("continue_statement", start, end, [text])
     children = [get(child) for child in ast.iter_child_nodes(node)
                 if hasattr(child, "lineno")]
+    text = _segment(source, node, starts) or ast.dump(node, include_attributes=False)
     return Node(type(node).__name__.lower(), start, end, children or [text])
 
 

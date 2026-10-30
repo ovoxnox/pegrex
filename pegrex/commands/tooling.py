@@ -9,15 +9,13 @@ from .common import ROOT, _emit_json, _expand
 
 
 def _cmd_lint(a) -> int:
-    sys.argv = ["grammar_lint", *a.grammars]
     from tools import grammar_lint
-    return grammar_lint.main(sys.argv)
+    return grammar_lint.main(["grammar_lint", *a.grammars])
 
 
 def _cmd_extract(a) -> int:
-    sys.argv = ["extract_grammar", a.upstream, a.out]
     from tools import extract_grammar
-    return extract_grammar.main(sys.argv)
+    return extract_grammar.main(["extract_grammar", a.upstream, a.out])
 
 
 def _cmd_rules(a) -> int:
@@ -54,8 +52,12 @@ def _cmd_serve(a) -> int:
 
 def _cmd_acp(a) -> int:
     import runpy
-    sys.argv = ["acp", a.root]
-    runpy.run_module("pegrex.acp", run_name="__main__")
+    previous_argv = sys.argv
+    try:
+        sys.argv = ["acp", a.root]
+        runpy.run_module("pegrex.acp", run_name="__main__")
+    finally:
+        sys.argv = previous_argv
     return 0
 
 
@@ -229,17 +231,16 @@ def _cmd_orgtwin(args):
 
 
 def _cmd_selfhost(args):
+    """Run the repository/installed-tools self-audit generator by its real path."""
     import subprocess as _sp
-    import sys as _sys
-    argv = [_sys.executable, str(pathlib.Path(__file__).resolve().parent.parent
-                                  / "tools" / "selfhost.py")]
+    argv = [sys.executable, str(ROOT / "tools" / "selfhost.py")]
     if args.check:
         argv.append("--check")
-    r = _sp.run(argv, capture_output=True, text=True)
-    print(r.stdout, end="")
-    if r.returncode and not args.check:
-        print(r.stderr, file=sys.stderr)
-    raise SystemExit(r.returncode)
+    result = _sp.run(argv, capture_output=True, text=True, check=False)
+    print(result.stdout, end="")
+    if result.stderr:
+        print(result.stderr, end="", file=sys.stderr)
+    raise SystemExit(result.returncode)
 
 
 def _cmd_rosetta(args):

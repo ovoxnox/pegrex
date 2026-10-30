@@ -1,0 +1,30 @@
+{
+  "$id": "pegrex:pegrex.neural-codegen-adapter-build.v1:schema",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": true,
+  "properties": {
+    "binary": {
+      "type": "string"
+    },
+    "binary_sha256": {},
+    "offline": {
+      "type": "boolean"
+    },
+    "schema": {
+      "const": "pegrex.neural-codegen-adapter-build.v1"
+    },
+    "upstream": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "binary",
+    "binary_sha256",
+    "offline",
+    "schema",
+    "upstream"
+  ],
+  "title": "PegRex public result: pegrex.neural-codegen-adapter-build.v1",
+  "type": "object",
+  "x-peg-rex-validation-level": "inferred-top-level"
+}

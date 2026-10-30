@@ -1,0 +1,223 @@
+{
+  "$id": "pegrex:pegrex.path-contract.v2:schema",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "outcome": {
+            "properties": {
+              "kind": {
+                "const": "raise"
+              }
+            },
+            "required": [
+              "kind"
+            ]
+          }
+        },
+        "required": [
+          "outcome"
+        ]
+      },
+      "then": {
+        "properties": {
+          "outcome": {
+            "required": [
+              "exception_type"
+            ]
+          }
+        }
+      }
+    }
+  ],
+  "properties": {
+    "effects": {
+      "items": {
+        "enum": [
+          "state-write",
+          "io",
+          "filesystem",
+          "network",
+          "process",
+          "nondeterministic",
+          "synchronization",
+          "allocation",
+          "unknown"
+        ]
+      },
+      "type": "array",
+      "uniqueItems": true
+    },
+    "function": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "guards": {
+      "items": {
+        "type": "string"
+      },
+      "type": "array"
+    },
+    "nondeterministic": {
+      "type": "boolean"
+    },
+    "numeric_semantics": {
+      "additionalProperties": false,
+      "properties": {
+        "floating_point": {
+          "enum": [
+            "ieee754",
+            "decimal",
+            "not-applicable",
+            "unknown"
+          ]
+        },
+        "integer": {
+          "enum": [
+            "unbounded",
+            "fixed-width-signed",
+            "fixed-width-unsigned",
+            "unknown"
+          ]
+        },
+        "overflow": {
+          "enum": [
+            "wrap",
+            "trap",
+            "undefined",
+            "not-applicable",
+            "unknown"
+          ]
+        }
+      },
+      "required": [
+        "integer",
+        "overflow",
+        "floating_point"
+      ],
+      "type": "object"
+    },
+    "outcome": {
+      "additionalProperties": false,
+      "properties": {
+        "exception_type": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "expression": {
+          "type": "string"
+        },
+        "kind": {
+          "enum": [
+            "return",
+            "raise",
+            "terminate",
+            "diverge",
+            "unknown"
+          ]
+        }
+      },
+      "required": [
+        "kind"
+      ],
+      "type": "object"
+    },
+    "schema": {
+      "const": "pegrex.path-contract.v2"
+    },
+    "schema_version": {
+      "const": 2
+    },
+    "source": {
+      "additionalProperties": false,
+      "properties": {
+        "path": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "sha256": {
+          "pattern": "^[0-9a-f]{64}$",
+          "type": "string"
+        },
+        "span": {
+          "additionalProperties": false,
+          "properties": {
+            "convention": {
+              "const": "zero-based-half-open"
+            },
+            "end": {
+              "minimum": 0,
+              "type": "integer"
+            },
+            "start": {
+              "minimum": 0,
+              "type": "integer"
+            },
+            "unit": {
+              "const": "unicode-codepoint"
+            }
+          },
+          "required": [
+            "start",
+            "end",
+            "unit",
+            "convention"
+          ],
+          "type": "object"
+        }
+      },
+      "required": [
+        "sha256",
+        "span"
+      ],
+      "type": "object"
+    },
+    "termination": {
+      "additionalProperties": false,
+      "properties": {
+        "method": {
+          "type": "string"
+        },
+        "status": {
+          "enum": [
+            "proven",
+            "refuted",
+            "unknown",
+            "not-claimed"
+          ]
+        }
+      },
+      "required": [
+        "status"
+      ],
+      "type": "object"
+    },
+    "unknowns": {
+      "items": {
+        "minLength": 1,
+        "type": "string"
+      },
+      "type": "array"
+    }
+  },
+  "required": [
+    "schema",
+    "schema_version",
+    "source",
+    "guards",
+    "outcome",
+    "effects",
+    "nondeterministic",
+    "termination",
+    "numeric_semantics",
+    "unknowns"
+  ],
+  "title": "PegRex PathContract v2",
+  "type": "object"
+}

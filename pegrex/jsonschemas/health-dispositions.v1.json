@@ -1,0 +1,53 @@
+{
+  "$id": "pegrex:pegrex.health-dispositions.v1:schema",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "policies": {
+      "additionalProperties": {
+        "properties": {
+          "evidence": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "rationale": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "status",
+          "rationale",
+          "evidence"
+        ],
+        "type": "object"
+      },
+      "type": "object"
+    },
+    "report_sha256": {
+      "pattern": "^[a-f0-9]{64}$",
+      "type": "string"
+    },
+    "schema": {
+      "const": "pegrex.health-dispositions.v1"
+    },
+    "tasks": {
+      "additionalProperties": {
+        "type": "string"
+      },
+      "type": "object"
+    }
+  },
+  "required": [
+    "schema",
+    "report_sha256",
+    "policies",
+    "tasks"
+  ],
+  "title": "PegRex health disposition policy",
+  "type": "object"
+}

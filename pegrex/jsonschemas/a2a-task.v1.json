@@ -1,0 +1,72 @@
+{
+  "$id": "pegrex:pegrex.a2a-task.v1:schema",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": true,
+  "properties": {
+    "budget": {
+      "type": "object"
+    },
+    "cancel": {},
+    "cancellation": {
+      "type": "string"
+    },
+    "elapsed_ms": {
+      "minimum": 0,
+      "type": "number"
+    },
+    "evidence": {
+      "type": "array"
+    },
+    "execution_active": {
+      "type": "boolean"
+    },
+    "partial": {
+      "type": "boolean"
+    },
+    "result": {},
+    "schema": {
+      "const": "pegrex.a2a-task.v1"
+    },
+    "schema_version": {
+      "const": 1
+    },
+    "status": {
+      "enum": [
+        "running",
+        "completed",
+        "partial",
+        "cancelled",
+        "timeout",
+        "timeout-running",
+        "cancellation-requested",
+        "unknown"
+      ]
+    },
+    "task_id": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "timeout_ms": {
+      "maximum": 300000,
+      "minimum": 1,
+      "type": [
+        "integer",
+        "null"
+      ]
+    },
+    "unknowns": {
+      "items": {
+        "type": "string"
+      },
+      "type": "array"
+    }
+  },
+  "required": [
+    "schema",
+    "task_id"
+  ],
+  "title": "A2A task lifecycle result",
+  "type": "object"
+}

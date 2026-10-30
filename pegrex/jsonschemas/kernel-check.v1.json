@@ -1,0 +1,35 @@
+{
+  "$id": "pegrex:pegrex.kernel-check.v1:schema",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": true,
+  "properties": {
+    "after_contracts_sha256": {},
+    "before_contracts_sha256": {},
+    "checked": {
+      "type": "boolean"
+    },
+    "claim": {
+      "type": "string"
+    },
+    "details": {},
+    "kernel": {
+      "type": "string"
+    },
+    "proof": {},
+    "reason": {},
+    "schema": {
+      "const": "pegrex.kernel-check.v1"
+    },
+    "verdict": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "checked",
+    "schema",
+    "verdict"
+  ],
+  "title": "PegRex public result: pegrex.kernel-check.v1",
+  "type": "object",
+  "x-peg-rex-validation-level": "inferred-top-level"
+}

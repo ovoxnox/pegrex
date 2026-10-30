@@ -1,0 +1,37 @@
+{
+  "$id": "pegrex:pegrex.compositional-verification.v1:schema",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": true,
+  "properties": {
+    "claim": {
+      "type": "string"
+    },
+    "components": {
+      "type": "array"
+    },
+    "contract": {},
+    "contract_hash": {},
+    "dependencies": {
+      "type": "array"
+    },
+    "errors": {},
+    "implementation_hash": {},
+    "name": {},
+    "obligations": {
+      "type": "array"
+    },
+    "schema": {
+      "const": "pegrex.compositional-verification.v1"
+    },
+    "status": {},
+    "unresolved": {
+      "type": "array"
+    }
+  },
+  "required": [
+    "schema"
+  ],
+  "title": "PegRex public result: pegrex.compositional-verification.v1",
+  "type": "object",
+  "x-peg-rex-validation-level": "inferred-top-level"
+}

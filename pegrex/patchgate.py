@@ -4,7 +4,6 @@ from __future__ import annotations
 import hashlib
 import os
 import shutil
-import subprocess
 import tempfile
 from pathlib import Path
 
@@ -12,12 +11,22 @@ from .editaudit import EditAudit
 from .kernel import check_certificate
 from .policygate import SecurityProfile, evaluate_security_policy
 from .schema import certificate_document
+from .limits import MAX_SOURCE_BYTES
 
 SCHEMA = "pegrex.patch-gate.v1"
 
 
 def _sha(text: str) -> str:
     return hashlib.sha256(text.encode()).hexdigest()
+
+
+def _read_bounded_text(path: Path, *, max_bytes: int = MAX_SOURCE_BYTES) -> str:
+    """Read UTF-8 source without loading an unbounded file into memory."""
+    with path.open("rb") as stream:
+        raw = stream.read(max_bytes + 1)
+    if len(raw) > max_bytes:
+        raise ValueError(f"source input exceeds {max_bytes} byte limit")
+    return raw.decode("utf-8")
 
 
 def _canonical_contracts(path) -> list[dict]:
@@ -61,18 +70,32 @@ def _invariants(invariants, before, after) -> tuple[list[dict], bool]:
 
 
 def _run_tests(command, cwd, timeout_ms) -> dict:
-    if isinstance(command, str):
-        return {"argv": [], "status": "unknown", "reason": "raw-shell-test-command-refused"}
+    """Run an argv-only test command with bounded time and retained output.
+
+    Tests execute against the staged repository, never the live target. This is
+    process/resource limiting, not a security sandbox for hostile test code.
+    """
+    if isinstance(command, str) or not isinstance(command, (list, tuple)) or not command:
+        return {"argv": [], "status": "unknown", "reason": "raw-shell-or-invalid-test-command-refused"}
+    if (isinstance(timeout_ms, bool) or not isinstance(timeout_ms, int)
+            or timeout_ms < 1 or timeout_ms > 300_000):
+        return {"argv": [], "status": "unknown", "reason": "test-timeout-out-of-range"}
     try:
-        result = subprocess.run(list(command), cwd=cwd, capture_output=True, text=True,
-                                timeout=timeout_ms / 1000, shell=False)
-        return {"argv": list(command), "returncode": result.returncode,
-                "status": "passed" if result.returncode == 0 else "failed",
-                "stdout": result.stdout[-4000:], "stderr": result.stderr[-4000:]}
-    except subprocess.TimeoutExpired:
-        return {"argv": list(command), "status": "unknown", "reason": "test-timeout"}
-    except OSError as error:
-        return {"argv": list(command), "status": "unknown", "reason": str(error)}
+        from .integrations.common import run_argv
+        result = run_argv(list(command), cwd=cwd, timeout_ms=timeout_ms,
+                          memory_mb=512, sandbox=False, max_output_bytes=16_000)
+        status = result.get("status")
+        if status != "completed":
+            return {"argv": list(command), "status": "unknown",
+                    "reason": "; ".join(result.get("unknowns") or [str(status)]),
+                    "output": result.get("evidence", "")}
+        return {"argv": list(command), "returncode": result.get("returncode"),
+                "status": "passed" if result.get("returncode") == 0 else "failed",
+                "output": result.get("evidence", ""),
+                "output_truncated": bool(result.get("truncated", False))}
+    except (OSError, TypeError, ValueError) as error:
+        return {"argv": list(command), "status": "unknown",
+                "reason": f"test-execution-error:{type(error).__name__}"}
 
 
 def apply_patch_gated(target: str | Path, proposed_source: str, *,
@@ -81,8 +104,23 @@ def apply_patch_gated(target: str | Path, proposed_source: str, *,
                       audit_dir: str | Path | None = None, require_equivalent=True,
                       timeout_ms=30_000, actor="automated", candidate_check=None) -> dict:
     """Implement apply patch gated with the module's explicit API and failure semantics."""
+    if not isinstance(proposed_source, str):
+        return {"schema": SCHEMA, "approved": False, "applied": False,
+                "unknowns": ["proposed source must be text"]}
+    try:
+        proposed_bytes = proposed_source.encode("utf-8")
+    except UnicodeEncodeError:
+        return {"schema": SCHEMA, "approved": False, "applied": False,
+                "unknowns": ["proposed source is not valid UTF-8 text"]}
+    if len(proposed_bytes) > MAX_SOURCE_BYTES:
+        return {"schema": SCHEMA, "approved": False, "applied": False,
+                "unknowns": [f"proposed source exceeds {MAX_SOURCE_BYTES} byte limit"]}
     target = Path(target).resolve()
-    original = target.read_text(encoding="utf-8")
+    try:
+        original = _read_bounded_text(target)
+    except (OSError, UnicodeDecodeError, ValueError) as error:
+        return {"schema": SCHEMA, "approved": False, "applied": False,
+                "unknowns": [f"target source unavailable or over limit: {type(error).__name__}"]}
     profile = profile or SecurityProfile()
     root = Path(project_root).resolve() if project_root else target.parent
     relative = target.relative_to(root)
@@ -140,11 +178,26 @@ def apply_patch_gated(target: str | Path, proposed_source: str, *,
                 unknowns.append("tests-not-passed")
             applied = False
             if approved:
-                temporary = target.with_name(target.name + ".pegrex.tmp")
-                temporary.write_text(proposed_source, encoding="utf-8")
-                shutil.copymode(target, temporary)
-                os.replace(temporary, target)
-                applied = True
+                # Optimistic concurrency guard: do not overwrite edits made
+                # after this attempt captured its original source. This narrows
+                # the race window; callers requiring hostile multi-writer
+                # safety should also serialize edits at the workspace boundary.
+                current = _read_bounded_text(target)
+                if _sha(current) != _sha(original):
+                    approved = False
+                    unknowns.append("target-changed-during-patch-review")
+                else:
+                    temporary = target.with_name(target.name + ".pegrex.tmp")
+                    try:
+                        temporary.write_text(proposed_source, encoding="utf-8")
+                        shutil.copymode(target, temporary)
+                        os.replace(temporary, target)
+                        applied = True
+                    finally:
+                        try:
+                            temporary.unlink(missing_ok=True)
+                        except OSError:
+                            pass
             response = {"schema": SCHEMA, "approved": approved, "applied": applied,
                         "policy": decision, "certificate": certificate, "kernel": kernel,
                         "invariants": invariant_rows, "tests": tests,

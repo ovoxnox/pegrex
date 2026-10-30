@@ -1,0 +1,27 @@
+{
+  "$id": "pegrex:pegrex.repair-loop.v1:schema",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": true,
+  "properties": {
+    "results": {
+      "type": "array"
+    },
+    "schema": {
+      "const": "pegrex.repair-loop.v1"
+    },
+    "status": {
+      "type": "string"
+    },
+    "unknowns": {
+      "type": "array"
+    }
+  },
+  "required": [
+    "schema",
+    "status",
+    "results",
+    "unknowns"
+  ],
+  "title": "Repair candidate evaluation result",
+  "type": "object"
+}

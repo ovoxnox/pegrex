@@ -1,0 +1,43 @@
+{
+  "$id": "pegrex:pegrex.patch-review.v1:schema",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": true,
+  "properties": {
+    "counterexample": {
+      "type": [
+        "object",
+        "null"
+      ]
+    },
+    "provenance": {
+      "type": "object"
+    },
+    "schema": {
+      "const": "pegrex.patch-review.v1"
+    },
+    "unresolved_obligations": {
+      "type": "array"
+    },
+    "verdict": {
+      "enum": [
+        "proved",
+        "refuted",
+        "unknown",
+        "ok"
+      ]
+    },
+    "verified_properties": {
+      "type": "array"
+    }
+  },
+  "required": [
+    "schema",
+    "verdict",
+    "verified_properties",
+    "counterexample",
+    "unresolved_obligations",
+    "provenance"
+  ],
+  "title": "Evidence-backed patch review",
+  "type": "object"
+}

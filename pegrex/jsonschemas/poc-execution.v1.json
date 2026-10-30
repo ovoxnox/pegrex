@@ -1,0 +1,63 @@
+{
+  "$id": "pegrex:pegrex.poc-execution.v1:schema",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": true,
+  "properties": {
+    "confirmed": {
+      "type": "boolean"
+    },
+    "evidence": {},
+    "executed": {
+      "type": "boolean"
+    },
+    "returncode": {},
+    "sandbox": {
+      "additionalProperties": true,
+      "properties": {
+        "argv_only": {
+          "type": "boolean"
+        },
+        "backend": {
+          "type": "string"
+        },
+        "ephemeral": {
+          "type": "boolean"
+        },
+        "isolated": {
+          "type": "boolean"
+        },
+        "no_credentials": {
+          "type": "boolean"
+        },
+        "no_network": {
+          "type": "boolean"
+        },
+        "setup_failed": {
+          "type": "boolean"
+        }
+      },
+      "type": "object"
+    },
+    "schema": {
+      "const": "pegrex.poc-execution.v1"
+    },
+    "status": {
+      "type": "string"
+    },
+    "unknowns": {
+      "items": {
+        "type": "string"
+      },
+      "type": "array"
+    }
+  },
+  "required": [
+    "executed",
+    "schema",
+    "status",
+    "unknowns"
+  ],
+  "title": "PegRex public result: pegrex.poc-execution.v1",
+  "type": "object",
+  "x-peg-rex-validation-level": "inferred-top-level"
+}

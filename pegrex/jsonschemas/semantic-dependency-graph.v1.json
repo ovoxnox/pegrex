@@ -1,0 +1,40 @@
+{
+  "$id": "pegrex:pegrex.semantic-dependency-graph.v1:schema",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": true,
+  "properties": {
+    "changed": {},
+    "edges": {
+      "type": [
+        "array",
+        "integer"
+      ]
+    },
+    "impacted": {
+      "type": "array"
+    },
+    "nodes": {
+      "type": [
+        "array",
+        "integer"
+      ]
+    },
+    "revision": {},
+    "schema": {
+      "const": "pegrex.semantic-dependency-graph.v1"
+    },
+    "unknowns": {
+      "type": "array"
+    }
+  },
+  "required": [
+    "edges",
+    "nodes",
+    "revision",
+    "schema",
+    "unknowns"
+  ],
+  "title": "PegRex public result: pegrex.semantic-dependency-graph.v1",
+  "type": "object",
+  "x-peg-rex-validation-level": "inferred-top-level"
+}

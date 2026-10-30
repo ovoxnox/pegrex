@@ -1,0 +1,66 @@
+{
+  "$id": "pegrex:pegrex.sandboxed-differential.v1:schema",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": true,
+  "properties": {
+    "after": {
+      "type": [
+        "object",
+        "null"
+      ]
+    },
+    "allowed": {
+      "type": "boolean"
+    },
+    "before": {
+      "type": [
+        "object",
+        "null"
+      ]
+    },
+    "containerized": {
+      "type": "boolean"
+    },
+    "counterexample": {
+      "type": [
+        "object",
+        "null"
+      ]
+    },
+    "observations_match": {
+      "type": "boolean"
+    },
+    "schema": {
+      "const": "pegrex.sandboxed-differential.v1"
+    },
+    "status": {
+      "enum": [
+        "unknown",
+        "different",
+        "passed"
+      ]
+    },
+    "unknowns": {
+      "items": {
+        "type": "string"
+      },
+      "type": "array"
+    },
+    "verdict": {
+      "enum": [
+        "proved",
+        "refuted",
+        "unknown"
+      ]
+    }
+  },
+  "required": [
+    "schema",
+    "status",
+    "verdict",
+    "allowed",
+    "unknowns"
+  ],
+  "title": "Sandboxed differential test result",
+  "type": "object"
+}

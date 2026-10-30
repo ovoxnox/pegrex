@@ -1,0 +1,71 @@
+{
+  "$id": "pegrex:pegrex.concurrency-analysis.v1:schema",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": true,
+  "properties": {
+    "coverage": {
+      "additionalProperties": true,
+      "properties": {
+        "deadlocks": {
+          "type": "string"
+        },
+        "happens_before": {
+          "type": "string"
+        },
+        "interference": {
+          "type": "string"
+        },
+        "memory_ordering": {
+          "type": "string"
+        },
+        "races": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "deadlocks",
+        "happens_before",
+        "interference",
+        "memory_ordering",
+        "races"
+      ],
+      "type": "object"
+    },
+    "findings": {},
+    "happens_before": {},
+    "language": {},
+    "lock_orders": {
+      "type": "array"
+    },
+    "memory_ordering": {},
+    "schema": {
+      "const": "pegrex.concurrency-analysis.v1"
+    },
+    "shared_state": {},
+    "source_sha256": {},
+    "status": {
+      "type": "string"
+    },
+    "threads": {},
+    "unknowns": {
+      "type": "array"
+    }
+  },
+  "required": [
+    "coverage",
+    "findings",
+    "happens_before",
+    "language",
+    "lock_orders",
+    "memory_ordering",
+    "schema",
+    "shared_state",
+    "source_sha256",
+    "status",
+    "threads",
+    "unknowns"
+  ],
+  "title": "PegRex public result: pegrex.concurrency-analysis.v1",
+  "type": "object",
+  "x-peg-rex-validation-level": "inferred-top-level"
+}

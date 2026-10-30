@@ -1,0 +1,26 @@
+{
+  "$id": "pegrex:pegrex.proof-guided-fuzz.v1:schema",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": true,
+  "properties": {
+    "candidates": {},
+    "confirmed_counterexamples": {
+      "type": "array"
+    },
+    "schema": {
+      "const": "pegrex.proof-guided-fuzz.v1"
+    },
+    "warning": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "candidates",
+    "confirmed_counterexamples",
+    "schema",
+    "warning"
+  ],
+  "title": "PegRex public result: pegrex.proof-guided-fuzz.v1",
+  "type": "object",
+  "x-peg-rex-validation-level": "inferred-top-level"
+}

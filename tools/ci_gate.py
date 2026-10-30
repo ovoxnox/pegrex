@@ -7,6 +7,9 @@ skipped), every verdict named:
   cognitive-budget        pegrex.cognitive per changed/target file; over-budget
                           functions fail the gate only with --fail-on-over
                           (they are always reported, loudly)
+  changed-cognitive-budget
+                          with --changed-since BASE, only Python files changed
+                          from BASE...HEAD; new/changed complexity debt fails
   refinement-contracts    pegrex.refine discharge of `# requires:` /
                           `# ensures:` comments; a VIOLATED contract is a
                           disproof and always fails the gate; undischarged
@@ -99,7 +102,20 @@ def staged_files(cwd="."):
             if f.endswith(".py") and (pathlib.Path(cwd) / f).exists()]
 
 
-# ── the three checks (each returns a verdict dict; none raises) ─────────────
+def changed_python_files(base, cwd="."):
+    """Return existing Python files changed in BASE...HEAD, never guessed."""
+    cwd = pathlib.Path(cwd)
+    _require_git_repo(cwd)
+    r = _git(["diff", "--name-only", "--diff-filter=ACMRT",
+              f"{base}...HEAD", "--", "*.py"], cwd)
+    if r.returncode != 0:
+        raise CIGateError(f"ci-gate: cannot list changed Python files from {base!r}: "
+                          f"{r.stderr.strip()}")
+    return [cwd / name for name in r.stdout.splitlines()
+            if name.endswith(".py") and (cwd / name).is_file()]
+
+
+# ── checks (each returns a verdict dict; none raises) ───────────────────────
 def check_cognitive(files, fail_on_over, budget=COGNITIVE_BUDGET):
     from pegrex import cognitive
     over, unknown = [], []
@@ -135,6 +151,16 @@ def check_cognitive(files, fail_on_over, budget=COGNITIVE_BUDGET):
     return {"name": "cognitive-budget", "verdict": verdict, "detail": detail,
             "failures": over if fail_on_over else [],
             "unknowns": unknown}
+
+
+def check_changed_cognitive(base, cwd="."):
+    """Fail new complexity debt without making historical debt a false pass."""
+    files = changed_python_files(base, cwd)
+    result = check_cognitive(files, fail_on_over=True)
+    result["name"] = "changed-cognitive-budget"
+    result["detail"] = (f"{len(files)} changed Python file(s) from {base}...HEAD; "
+                        + result["detail"])
+    return result
 
 
 def check_refinement(files):
@@ -259,6 +285,8 @@ def main(argv=None) -> int:
                          "functions; without it they are reported loudly only")
     ap.add_argument("--base", help="verify_patch 'before': file path or git ref")
     ap.add_argument("--head", help="verify_patch 'after': file path or git ref")
+    ap.add_argument("--changed-since", metavar="BASE",
+                    help="strictly gate cognitive complexity in Python files changed from BASE...HEAD")
     ap.add_argument("--staged", action="store_true",
                     help="gate exactly the staged .py files (git)")
     ap.add_argument("--json", action="store_true",
@@ -267,9 +295,11 @@ def main(argv=None) -> int:
 
     started = time.monotonic()
     files = staged_files() if args.staged else _iter_py(args.paths or ["."])
-    checks = [check_cognitive(files, args.fail_on_over),
-              check_refinement(files),
-              check_verify_patch(args.base, args.head)]
+    checks = [check_cognitive(files, args.fail_on_over)]
+    if args.changed_since:
+        checks.append(check_changed_cognitive(args.changed_since))
+    checks.extend([check_refinement(files),
+                   check_verify_patch(args.base, args.head)])
     seconds = time.monotonic() - started
     failed = [c for c in checks if c["verdict"] == "fail"]
     if args.json:

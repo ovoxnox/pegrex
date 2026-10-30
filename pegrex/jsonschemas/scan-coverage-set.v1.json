@@ -1,0 +1,59 @@
+{
+  "$id": "pegrex:pegrex.scan-coverage-set.v1:schema",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": true,
+  "properties": {
+    "files": {},
+    "languages": {
+      "type": "array"
+    },
+    "schema": {
+      "const": "pegrex.scan-coverage-set.v1"
+    },
+    "skipped_rules": {},
+    "status": {
+      "type": "string"
+    },
+    "totals": {
+      "additionalProperties": true,
+      "properties": {
+        "complete": {
+          "type": "integer"
+        },
+        "files": {
+          "type": "integer"
+        },
+        "partial": {
+          "type": "integer"
+        },
+        "skipped_rules": {
+          "type": "integer"
+        },
+        "undecided_rules": {
+          "type": "integer"
+        }
+      },
+      "required": [
+        "complete",
+        "files",
+        "partial",
+        "skipped_rules",
+        "undecided_rules"
+      ],
+      "type": "object"
+    },
+    "undecided_rules": {}
+  },
+  "required": [
+    "files",
+    "languages",
+    "schema",
+    "skipped_rules",
+    "status",
+    "totals",
+    "undecided_rules"
+  ],
+  "title": "PegRex public result: pegrex.scan-coverage-set.v1",
+  "type": "object",
+  "x-peg-rex-validation-level": "inferred-top-level"
+}

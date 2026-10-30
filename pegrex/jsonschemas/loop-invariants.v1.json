@@ -1,0 +1,48 @@
+{
+  "$id": "pegrex:pegrex.loop-invariants.v1:schema",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": true,
+  "properties": {
+    "deltas": {
+      "type": "object"
+    },
+    "dropped_at_consecution": {
+      "type": "array"
+    },
+    "dropped_at_initiation": {
+      "type": "array"
+    },
+    "guard": {},
+    "invariants": {
+      "type": "array"
+    },
+    "proof_obligations": {},
+    "schema": {
+      "const": "pegrex.loop-invariants.v1"
+    },
+    "status": {
+      "type": "string"
+    },
+    "unknowns": {
+      "type": "array"
+    },
+    "validated": {
+      "type": "array"
+    }
+  },
+  "required": [
+    "deltas",
+    "dropped_at_consecution",
+    "dropped_at_initiation",
+    "guard",
+    "invariants",
+    "proof_obligations",
+    "schema",
+    "status",
+    "unknowns",
+    "validated"
+  ],
+  "title": "PegRex public result: pegrex.loop-invariants.v1",
+  "type": "object",
+  "x-peg-rex-validation-level": "inferred-top-level"
+}

@@ -1,0 +1,99 @@
+{
+  "$id": "pegrex:pegrex.rule-effectiveness.v1:schema",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": true,
+  "properties": {
+    "coverage": {
+      "maximum": 1,
+      "minimum": 0,
+      "type": "number"
+    },
+    "errors": {
+      "minimum": 0,
+      "type": "integer"
+    },
+    "f1": {
+      "maximum": 1,
+      "minimum": 0,
+      "type": "number"
+    },
+    "fn": {
+      "minimum": 0,
+      "type": "integer"
+    },
+    "fp": {
+      "minimum": 0,
+      "type": "integer"
+    },
+    "labeled_cases": {
+      "minimum": 0,
+      "type": "integer"
+    },
+    "precision": {
+      "maximum": 1,
+      "minimum": 0,
+      "type": "number"
+    },
+    "recall": {
+      "maximum": 1,
+      "minimum": 0,
+      "type": "number"
+    },
+    "results": {
+      "items": {
+        "additionalProperties": true,
+        "properties": {
+          "actual": {
+            "type": [
+              "boolean",
+              "null"
+            ]
+          },
+          "correct": {
+            "type": "boolean"
+          },
+          "expected": {
+            "type": "boolean"
+          },
+          "id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "expected",
+          "actual"
+        ],
+        "type": "object"
+      },
+      "type": "array"
+    },
+    "rule_id": {
+      "type": "string"
+    },
+    "schema": {
+      "const": "pegrex.rule-effectiveness.v1"
+    },
+    "tn": {
+      "minimum": 0,
+      "type": "integer"
+    },
+    "tp": {
+      "minimum": 0,
+      "type": "integer"
+    }
+  },
+  "required": [
+    "schema",
+    "rule_id",
+    "tp",
+    "fp",
+    "tn",
+    "fn",
+    "precision",
+    "recall",
+    "f1",
+    "labeled_cases"
+  ],
+  "title": "Labeled rule effectiveness metrics",
+  "type": "object"
+}

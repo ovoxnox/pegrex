@@ -1,0 +1,40 @@
+{
+  "$id": "pegrex:pegrex.path-refinement.v1:schema",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": true,
+  "properties": {
+    "input_count": {
+      "type": "integer"
+    },
+    "kept": {},
+    "removed": {},
+    "schema": {
+      "const": "pegrex.path-refinement.v1"
+    },
+    "schema_version": {
+      "type": "integer"
+    },
+    "soundness": {
+      "type": "string"
+    },
+    "unknowns": {
+      "type": "array"
+    },
+    "verdict": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "input_count",
+    "kept",
+    "removed",
+    "schema",
+    "schema_version",
+    "soundness",
+    "unknowns",
+    "verdict"
+  ],
+  "title": "PegRex public result: pegrex.path-refinement.v1",
+  "type": "object",
+  "x-peg-rex-validation-level": "inferred-top-level"
+}

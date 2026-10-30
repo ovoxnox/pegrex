@@ -1,0 +1,24 @@
+{
+  "$id": "pegrex:pegrex.release-api-contracts.v1:schema",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": true,
+  "properties": {
+    "entries": {},
+    "memory_identity": {},
+    "schema": {
+      "const": "pegrex.release-api-contracts.v1"
+    },
+    "verification_scope": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "entries",
+    "memory_identity",
+    "schema",
+    "verification_scope"
+  ],
+  "title": "PegRex public result: pegrex.release-api-contracts.v1",
+  "type": "object",
+  "x-peg-rex-validation-level": "inferred-top-level"
+}

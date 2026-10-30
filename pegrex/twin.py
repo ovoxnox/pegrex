@@ -46,7 +46,10 @@ def build(root):
     from .callgraph import build_call_graph
     from .annotations import comment_prefix
     fns, calls, owners, files = set(), {}, {}, {}
-    for dirpath, _, names in os.walk(root):
+    for dirpath, dirnames, names in os.walk(root):
+        # Filesystem enumeration order must not decide which duplicate symbol
+        # wins, and bytecode caches must not change the source-only twin.
+        dirnames[:] = sorted(d for d in dirnames if d != "__pycache__")
         for n in sorted(names):
             lang = _EXT.get(os.path.splitext(n)[1].lower())
             if lang is None or lang == "cobol" or lang == "fortran":

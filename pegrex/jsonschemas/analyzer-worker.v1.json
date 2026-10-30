@@ -1,0 +1,69 @@
+{
+  "$id": "pegrex:pegrex.analyzer-worker.v1:schema",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": true,
+  "properties": {
+    "result": {},
+    "schema": {
+      "const": "pegrex.analyzer-worker.v1"
+    },
+    "status": {
+      "enum": [
+        "ok",
+        "unknown"
+      ]
+    },
+    "unknowns": {
+      "items": {
+        "additionalProperties": true,
+        "properties": {
+          "details": {
+            "type": "object"
+          },
+          "reason": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "status": {
+            "const": "unknown"
+          }
+        },
+        "required": [
+          "status",
+          "reason"
+        ],
+        "type": "object"
+      },
+      "type": "array"
+    },
+    "worker": {
+      "additionalProperties": true,
+      "properties": {
+        "argv_only": {
+          "type": "boolean"
+        },
+        "empty_environment": {
+          "type": "boolean"
+        },
+        "isolation_scope": {
+          "type": "string"
+        },
+        "resource_limits": {
+          "type": "boolean"
+        },
+        "source_executed": {
+          "type": "boolean"
+        }
+      },
+      "type": "object"
+    }
+  },
+  "required": [
+    "schema",
+    "status",
+    "result",
+    "unknowns"
+  ],
+  "title": "Isolated analyzer worker result",
+  "type": "object"
+}

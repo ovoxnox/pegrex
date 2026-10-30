@@ -20,13 +20,16 @@ ROOT = pathlib.Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT))
 
 
+def engine_files():
+    """Return every Python module in the engine, including package initializers."""
+    return sorted((ROOT / "pegrex").rglob("*.py"))
+
+
 def engine_digest():
-    """Hash every analyzed engine input, including nested compiler modules."""
+    """Hash exact paths, lengths, and bytes for every analyzed engine input."""
     h = hashlib.sha256()
     engine = ROOT / "pegrex"
-    for p in sorted(engine.rglob("*.py")):
-        if p.name.startswith("__"):
-            continue
+    for p in engine_files():
         relative = p.relative_to(engine).as_posix()
         payload = p.read_bytes()
         h.update(relative.encode("utf-8"))
@@ -35,31 +38,28 @@ def engine_digest():
     return h.hexdigest()[:16]
 
 
-def _contracts_with_deadline(path, deadline_s=2.0):
-    """Bounded contract extraction. A module whose CFG has a combinatorial
-    path count (many sequential branches inside a loop) must not hang the
-    self-audit forever -- refuse ("unknown") past the deadline, same as an
-    extraction exception is already handled below. Same bounded-thread
-    pattern as vapi.verify_or_refuse: time-bounded verify-or-refuse,
-    never a silent hang."""
-    import threading
-    box = {}
+def refusal_reason(error):
+    """Return a bounded, checkout-independent contract-extraction refusal reason."""
+    message = " ".join(str(error).split()).replace(str(ROOT), "<checkout>")
+    if len(message) > 240:
+        message = message[:237] + "..."
+    return f"{type(error).__name__}: {message}" if message else type(error).__name__
 
-    def target():
-        try:
-            from pegrex import api
-            box["result"] = api.contracts(path)
-        except Exception as e:
-            box["error"] = e
 
-    th = threading.Thread(target=target, daemon=True)
-    th.start()
-    th.join(deadline_s)
-    if th.is_alive():
-        raise TimeoutError(f"contract extraction exceeded {deadline_s}s")
-    if "error" in box:
-        raise box["error"]
-    return box["result"]
+def _contracts_bounded(path, max_paths=10_000):
+    """Extract contracts with a deterministic structural path budget.
+
+    Wall-clock daemon-thread timeouts made identical sources alternate between
+    extracted and UNKNOWN under varying machine load, while abandoned threads
+    continued analyzing in the background. The registered pipeline's bounded
+    enumerator instead refuses path explosion deterministically and no worker
+    outlives the extraction call.
+    """
+    from pegrex.core.contracts import as_legacy_pairs, canonicalize
+    from pegrex.languages import extract_contract_pairs
+    source = pathlib.Path(path).read_text(encoding="utf-8")
+    pairs = extract_contract_pairs("python", source, max_paths=max_paths)
+    return as_legacy_pairs(canonicalize(pairs))
 
 
 def collect():
@@ -71,30 +71,54 @@ def collect():
     rows = []
     loc_total = 0
     contract_ok = contract_unknown = 0
-    from pegrex import api
-    for p in sorted(engine.rglob("*.py")):
-        if p.name.startswith("__"):
+    # `cognitive_report()` already runs the cognitive analyzer once per file.
+    # Aggregate its evidence here instead of repeating the expensive parse for
+    # every module. Files with no discovered functions still get one direct run.
+    cognitive_by_file = {}
+    for item in cog:
+        path = item.get("file")
+        if not path:
             continue
+        aggregate = cognitive_by_file.setdefault(
+            path, {"complexity": 0, "over_budget": [], "plans": 0,
+                   "unknown": False})
+        if item.get("verdict") == "unknown":
+            aggregate["unknown"] = True
+            continue
+        aggregate["complexity"] += int(item.get("complexity", 0))
+        if item.get("over_budget"):
+            aggregate["over_budget"].append(item.get("function", "?"))
+        aggregate["plans"] += len(item.get("refactor_plans") or [])
+    for p in engine_files():
         src = p.read_text(encoding="utf-8")
         loc = sum(1 for l in src.splitlines()
                   if l.strip() and not l.strip().startswith("#"))
         loc_total += loc
-        rep = cognitive_complexity(src, budget=10)
         row = {"module": str(p.relative_to(engine)), "loc": loc}
-        if rep.get("verdict") == "ok":
-            row["complexity"] = rep["total"]
-            row["over_budget"] = [f["name"] for f in rep["functions"]
-                                  if f["complexity"] > 10]
-            row["plans"] = sum(len(f["refactor_plans"])
-                               for f in rep["functions"])
-        else:
+        aggregate = cognitive_by_file.get(str(p))
+        if aggregate is None:
+            rep = cognitive_complexity(src, budget=10)
+            if rep.get("verdict") == "ok":
+                row["complexity"] = rep["total"]
+                row["over_budget"] = [f["name"] for f in rep["functions"]
+                                      if f["complexity"] > 10]
+                row["plans"] = sum(len(f["refactor_plans"])
+                                   for f in rep["functions"])
+            else:
+                row["cognitive"] = "unknown"
+        elif aggregate["unknown"]:
             row["cognitive"] = "unknown"
+        else:
+            row["complexity"] = aggregate["complexity"]
+            row["over_budget"] = sorted(aggregate["over_budget"])
+            row["plans"] = aggregate["plans"]
         try:
-            cs = _contracts_with_deadline(str(p))
+            cs = _contracts_bounded(str(p))
             row["contracts"] = len(cs)
             contract_ok += 1
-        except Exception as e:
+        except Exception as error:
             row["contracts"] = "unknown"
+            row["contract_refusal"] = refusal_reason(error)
             contract_unknown += 1
         rows.append(row)
     return {
@@ -145,10 +169,13 @@ def render(d):
     L.append("")
     L.append("## Modules where contract extraction refused")
     L.append("")
-    unk = [r["module"] for r in d["rows"] if r.get("contracts") == "unknown"]
+    unk = [r for r in d["rows"] if r.get("contracts") == "unknown"]
     if unk:
-        for m in unk:
-            L.append(f"- {m}")
+        L.append("| module | deterministic refusal reason |")
+        L.append("|---|---|")
+        for row in unk:
+            reason = row.get("contract_refusal", "reason unavailable").replace("|", "\\|")
+            L.append(f"| {row['module']} | {reason} |")
     else:
         L.append("*none*")
     L.append("")

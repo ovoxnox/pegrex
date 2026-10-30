@@ -3,7 +3,8 @@
 from __future__ import annotations
 
 import sys
-
+import pytest
+pytest.importorskip("hypothesis", reason="property tests require optional test extra")
 import hypothesis.strategies as st
 from hypothesis import HealthCheck, given, settings
 

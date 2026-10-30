@@ -1,0 +1,56 @@
+{
+  "$id": "pegrex:pegrex.function-summary.v1:schema",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": true,
+  "properties": {
+    "calls": {},
+    "composed_postconditions": {},
+    "composition_status": {
+      "type": "string"
+    },
+    "effect_categories": {},
+    "external_calls": {},
+    "function": {},
+    "function_sha256": {},
+    "local_contracts": {},
+    "parameters": {},
+    "path": {},
+    "postconditions": {},
+    "preconditions": {},
+    "return_relations": {
+      "type": "array"
+    },
+    "schema": {
+      "const": "pegrex.function-summary.v1"
+    },
+    "side_effects": {},
+    "source_sha256": {},
+    "status": {},
+    "unknowns": {
+      "type": "array"
+    }
+  },
+  "required": [
+    "calls",
+    "composed_postconditions",
+    "composition_status",
+    "effect_categories",
+    "external_calls",
+    "function",
+    "function_sha256",
+    "local_contracts",
+    "parameters",
+    "path",
+    "postconditions",
+    "preconditions",
+    "return_relations",
+    "schema",
+    "side_effects",
+    "source_sha256",
+    "status",
+    "unknowns"
+  ],
+  "title": "PegRex public result: pegrex.function-summary.v1",
+  "type": "object",
+  "x-peg-rex-validation-level": "inferred-top-level"
+}
