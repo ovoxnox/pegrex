@@ -1,5 +1,7 @@
 # PegRex v1.3.0
 
+![](assets/report.png)
+
 **A self-contained symbolic-execution and syntactic-analysis engine** that
 turns source code in 22 registered languages into mathematical specifications for AI
 agents — and *refuses loudly* rather than guessing. Every claim is PROVED,
