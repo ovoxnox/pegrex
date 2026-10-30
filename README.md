@@ -70,17 +70,15 @@ Run `python pegrex.py soundness` for the complete machine-readable plugin manife
 
 ```
 python pegrex.py index --out <out> <dir>   # repo arch index
-python pegrex.py audit FILE                # deduplicated audit; report-only by default
-python pegrex.py audit FILE --fail-on-high # opt-in CI gates
+python pegrex.py audit <dir>               # code security audit
 python pegrex.py audit FILE --sarif        # GitHub Code Scanning
 python pegrex.py spec --dir <PATH>         # AI spec schema (multi-opus)
 python pegrex.py contracts FILE            # path contracts
 python pegrex.py cognitive <file>          # cognitive complexity + refactor plans
-python pegrex.py rosetta <spec>  N-        # N-way cross-language equivalence (semantic diff)
+python pegrex.py rosetta <spec>            # N-way cross-language equivalence (semantic diff)
 python pegrex.py modernize <file>          # legacy (COBOL/Fortran) -> target with equivalence certificate
 python pegrex.py roundtrip --print-cobol   # Python -> COBOL round-trip with contract identity
 python pegrex.py insure <file>             # signed bounded-risk quote
-python pegrex.py insure --verify <file>    # verify a signed quote
 python pegrex.py rules --json              # registry-selected rule catalog summary
 python pegrex.py soundness [--language ID] # frontend plugins, limits, and trust policy
 python pegrex.py osvscan LOCKFILE          # reproducible OSV scan
@@ -95,7 +93,6 @@ python pegrex.py export FILE --format sarif # json/csv/html/sarif
 python pegrex.py compress                  # LLM context compression
 python pegrex.py explain <file>            # explain a function as math
 python pegrex.py callgraph --dir <PATH>    # function-call graph (DOT/ASCII)
-python pegrex.py callgraph --dir <PATH>    # optional spawn workers + overhead report
 python pegrex.py coverage --dir <PATH>     # path coverage overlay + gaps
 python pegrex.py caps <file>               # infer capabilities + sandbox policy
 python pegrex.py diff A B                  # semantic diff
