@@ -66,6 +66,57 @@ Run `python pegrex.py soundness` for the complete machine-readable plugin manife
  -  **linsolve.py:** *LinearBackend.learn/entails*
 
 
+## CLI
+
+```
+python pegrex.py index --out <out> <dir>   # repo arch index
+python pegrex.py audit FILE                # deduplicated audit; report-only by default
+python pegrex.py audit FILE --fail-on-high # opt-in CI gates
+python pegrex.py audit FILE --sarif        # GitHub Code Scanning
+python pegrex.py spec --dir <PATH>         # AI spec schema (multi-opus)
+python pegrex.py contracts FILE            # path contracts
+python pegrex.py cognitive <file>          # cognitive complexity + refactor plans
+python pegrex.py rosetta <spec>  N-        # N-way cross-language equivalence (semantic diff)
+python pegrex.py modernize <file>          # legacy (COBOL/Fortran) -> target with equivalence certificate
+python pegrex.py roundtrip --print-cobol   # Python -> COBOL round-trip with contract identity
+python pegrex.py insure <file>             # signed bounded-risk quote
+python pegrex.py insure --verify <file>    # verify a signed quote
+python pegrex.py rules --json              # registry-selected rule catalog summary
+python pegrex.py soundness [--language ID] # frontend plugins, limits, and trust policy
+python pegrex.py osvscan LOCKFILE          # reproducible OSV scan
+python pegrex.py cisec <file>              # CI/CD pipeline security analysis
+python pegrex.py verify-patch              # proof or counterexample for two sources
+python pegrex.py bundle <PATH> <source>    # portable verification bundle
+python pegrex.py compile-nl <text> <file>  # anti-hallucination compiler: NL -> code -> proof
+python pegrex.py autopwn                   # policy-gated discover/solve/repair loop
+python pegrex.py bounty  <file>            # discover/solve/minimize a PoC for a sink
+python pegrex.py verify-patch BEFORE AFTER # proof or counterexample
+python pegrex.py export FILE --format sarif # json/csv/html/sarif
+python pegrex.py compress                  # LLM context compression
+python pegrex.py explain <file>            # explain a function as math
+python pegrex.py callgraph --dir <PATH>    # function-call graph (DOT/ASCII)
+python pegrex.py callgraph --dir <PATH>    # optional spawn workers + overhead report
+python pegrex.py coverage --dir <PATH>     # path coverage overlay + gaps
+python pegrex.py caps <file>               # infer capabilities + sandbox policy
+python pegrex.py diff A B                  # semantic diff
+python pegrex.py budget --dir <PATH>       # complexity budget gate
+python pegrex.py emit FILE [--run]         # certified code from contracts
+python pegrex.py check FILE                # discharge requires/ensures comments
+python pegrex.py compliance                # GDPR data-flow + optional SOC2 control audit
+python pegrex.py harness-check <plan>      # check an agent plan JSON against the safety policy
+python pegrex.py strategy <file>           # Hypothesis strategies from path constraints
+python pegrex.py mine FILE                 # mine likely invariants
+python pegrex.py concolic <file>           # trace a run and flip a branch
+python pegrex.py probpath <spec>           # path frequencies + priorities from traces
+python pegrex.py mlcheck: <spec>           # quant/prune equivalence from a JSON spec
+python pegrex.py rank "i <= n" --delta i=1 # termination ranking
+python pegrex.py transpile FILE python     # certified Python target
+python pegrex.py bench                     # agent-edit benchmark
+python pegrex.py tests --lcov <lcov> <src> # synthesize tests from coverage gaps
+python pegrex.py serve|acp|mcp|a2a|lsp     # protocol endpoints
+```
+
+
 ## Core Engine and Tools API v2
 
 The minimal certificate kernel proves only canonical contract-set identity; it does not independently prove semantic equivalence. Required-equivalence patch gates therefore fail closed until an independent semantic proof checker is available.
@@ -170,56 +221,6 @@ report = session.analyze()         # per-analyzer ok / resource UNKNOWN
 ```
 
 Caches use content + parser/analyzer versions + normalized configuration. Immutable IR nodes are hash-consed; canonicalization, linearization, and implication probes are memoized. Path explosion and solver/per-file budget exhaustion are explicit UNKNOWNs, never partial proofs.
-
-## CLI
-
-```
-python pegrex.py index --out <out> <dir>   # repo arch index
-python pegrex.py audit FILE                # deduplicated audit; report-only by default
-python pegrex.py audit FILE --fail-on high --fail-on-unknown  # opt-in CI gates
-python pegrex.py audit FILE --sarif --out results.sarif       # GitHub Code Scanning
-python pegrex.py spec --dir <PATH>         # AI spec schema (multi-opus)
-python pegrex.py contracts FILE            # path contracts
-python pegrex.py cognitive <file>          # cognitive complexity + refactor plans
-python pegrex.py rosetta <spec>  N-        # N-way cross-language equivalence (semantic diff)
-python pegrex.py modernize <file>          # legacy (COBOL/Fortran) -> target with equivalence certificate
-python pegrex.py roundtrip --print-cobol   # Python -> COBOL round-trip with contract identity
-python pegrex.py insure <file> --key '<explicit-key>'  # signed bounded-risk quote
-python pegrex.py insure --verify <file>    # verify a signed quote
-python pegrex.py rules --json              # registry-selected rule catalog summary
-python pegrex.py soundness [--language ID] # frontend plugins, limits, and trust policy
-python pegrex.py osvscan LOCKFILE --offline --osv-snapshot osv.json  # reproducible OSV scan
-python pegrex.py cisec <file>              # CI/CD pipeline security analysis
-python pegrex.py verify-patch              # proof or counterexample for two sources
-python pegrex.py bundle <PATH> <source>    # portable verification bundle
-python pegrex.py compile-nl <text> <file>  # anti-hallucination compiler: NL -> code -> proof
-python pegrex.py autopwn                   # policy-gated discover/solve/repair loop
-python pegrex.py bounty  <file>            # discover/solve/minimize a PoC for a sink
-python pegrex.py verify-patch BEFORE AFTER # proof or counterexample
-python pegrex.py export FILE --format sarif --out results.sarif  # json/csv/html/sarif
-python pegrex.py compress                  # LLM context compression
-python pegrex.py explain <file>            # explain a function as math
-python pegrex.py callgraph --dir <PATH>    # function-call graph (DOT/ASCII)
-python pegrex.py callgraph --dir <PATH> --jobs 4 --benchmark  # optional spawn workers + overhead report
-python pegrex.py coverage --dir <PATH>     # path coverage overlay + gaps
-python pegrex.py caps <file>               # infer capabilities + sandbox policy
-python pegrex.py diff A B                  # semantic diff
-python pegrex.py budget --dir <PATH>       # complexity budget gate
-python pegrex.py emit FILE [--run]         # certified code from contracts
-python pegrex.py check FILE                # discharge requires/ensures comments
-python pegrex.py compliance                # GDPR data-flow + optional SOC2 control audit
-python pegrex.py harness-check <plan>      # check an agent plan JSON against the safety policy
-python pegrex.py strategy <file>           # Hypothesis strategies from path constraints
-python pegrex.py mine FILE                 # mine likely invariants
-python pegrex.py concolic <file>           # trace a run and flip a branch
-python pegrex.py probpath <spec>           # path frequencies + priorities from traces
-python pegrex.py mlcheck: <spec>           # quant/prune equivalence from a JSON spec
-python pegrex.py rank "i <= n" --delta i=1 # termination ranking
-python pegrex.py transpile FILE python     # certified Python target
-python pegrex.py bench                     # agent-edit benchmark
-python pegrex.py tests --lcov <lcov> <src> # synthesize tests from coverage gaps
-python pegrex.py serve|acp|mcp|a2a|lsp     # protocol endpoints
-```
 
 ### Reproducible security reports
 
