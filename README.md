@@ -98,27 +98,6 @@ python pegrex.py tool core.contracts_file --workspace . --state demo --input '{"
 
 Operation errors exit 1. `--fail-on-unknown` exits 2 for UNKNOWN or partial evidence. A completed REFUTED analysis is not, by itself, a process failure.
 
-### Production lifecycle profiles
-
-Profiles are opt-in policy gates, not maturity claims or proof certificates. They constrain execution, workspace mutation, evidence creation, and subprocess budgets; none authorizes automatic promotion. Successful results record `state_policy_enforced: true`. Errors retain the selected state but set it to `false` when validation or authorization failed before enforcement completed.
-
-| profile | external execution | workspace mutation | release evidence | maximum timeout | maximum memory |
-|---|---|---|---|---|---|
-| `alpha` | allowed | allowed | forbidden | 15,000 ms | 512 MB |
-| `demo` | forbidden | forbidden | forbidden | 5,000 ms | 256 MB |
-| `beta` | allowed | allowed | allowed | 120,000 ms | 1,024 MB |
-
-`pegrex.states.alpha`, `demo`, and `beta` each expose `PROFILE`, `policy()`, `authorize()`, and `effective_arguments()`. The last helper authorizes first, returns an independent argument dictionary, and caps omitted backend defaults to the selected profile. For example:
-
-```python
-from pegrex.states import demo
-
-demo.authorize("core.audit")
-arguments = demo.effective_arguments("core.audit", {"path": "example.py"})
-```
-
-The reviewed `pegrex.state-profile.v1` JSON Schema validates both `state show` documents and the `state list` catalog.
-
 ## Optional external integrations
 
 Three lazy adapters connect external generation and execution backends without adding them to the stable core or base installation:
